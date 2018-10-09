@@ -1,6 +1,21 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Go4Lunch</string>
     <string name="map_view">Map View</string>
     <string name="list_view">List View</string>
     <string name="workmates">Workmates</string>
+    <!-- FACEBOOK PURPOSE -->
+    <string name="facebook_application_id" translatable="false">2320666658219620</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">2320666658219620</string>
+    //Firebase
+    <string name="error_unknown_error">"an error has occurred"</string>
+
+    <string name="error_not_connected">You need to be logged</string>
+    <string name="error_authentication_canceled">Authentication cancel !</string>
+    <string name="error_no_internet">No internet connection !</string>
+    <string name="connection_succeed">Authentication successful !</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="welcome_text">Find a nice restaurant and invite your co-workers for lunch!</string>
+
 </resources>
