@@ -20,6 +20,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this);
+
     }
 
     public abstract int getFragmentLayout();

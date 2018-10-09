@@ -1,13 +1,17 @@
 package ltd.kaizo.go4lunch.controller.fragment;
 
+
+import android.support.v4.app.Fragment;
+
 import ltd.kaizo.go4lunch.R;
 
-public class LoginFragment extends BaseFragment {
-
-
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class MapFragment extends BaseFragment {
     @Override
     protected int getFragmentLayout() {
-        return R.layout.fragment_login;
+        return R.layout.fragment_map;
     }
 
     @Override
@@ -19,6 +23,4 @@ public class LoginFragment extends BaseFragment {
     protected void updateDesign() {
 
     }
-
-
 }
