@@ -13,6 +13,13 @@
         <item name="android:textColor">#FFF</item>
 
     </style>
+    <style name="ToolBarStyle" parent="AppTheme">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/white</item>
+
+    </style>
+    <!--FIREBASE AUTH PAGE STYLE-->
     <style name="LoginTheme" parent="FirebaseUI">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -28,5 +35,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:textColorHint">@android:color/white</item>
+    </style>
+
+    <style name="navigation_drawer" >
+        <item name="android:background">@color/colorPrimaryDark</item>
+              <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#FFF</item>
     </style>
 </resources>
