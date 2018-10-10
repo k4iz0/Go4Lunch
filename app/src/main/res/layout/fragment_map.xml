@@ -7,9 +7,9 @@
     android:layout_height="match_parent"
     tools:context=".controller.fragment.MapFragment">
 
-    <TextView
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/fragment_map_mapview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Google Map" />
+        android:layout_height="match_parent" />
 
 </FrameLayout>

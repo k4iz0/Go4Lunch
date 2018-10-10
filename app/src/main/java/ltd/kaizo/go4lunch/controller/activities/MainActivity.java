@@ -1,7 +1,6 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -10,9 +9,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -35,20 +38,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     DrawerLayout drawerLayout;
     @BindView(R.id.activity_main_nav_view)
     NavigationView navigationView;
+//    @BindView(R.id.nav_header_username)
+//    TextView usernameTextview;
+//    @BindView(R.id.nav_header_email)
+//    TextView emailTextview;
+//    @BindView(R.id.nav_header_avatar)
+//    ImageView avatarImageView;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (!isCurrentUserLogged()) {
-            this.startSignInActivity();
-        }
-        this.configureAndShowMapFragment();
-        this.configureBottomNavigationView();
-        this.configureDrawerLayout();
-        this.configureNavigationView();
-    }
 
     private void configureAndShowMapFragment() {
         getSupportFragmentManager().beginTransaction()
@@ -66,11 +62,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new MatesFragment())
                 .commit();
+
     }
 
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_main;
+    }
+
+    @Override
+    public void configureDesign() {
+
+        if (!isCurrentUserLogged()) {
+            this.startSignInActivity();
+        }
+        this.configureAndShowMapFragment();
+        this.configureBottomNavigationView();
+        this.configureDrawerLayout();
+        this.configureNavigationView();
+//        this.updateDesign();
     }
 
 
@@ -154,6 +164,32 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    private void updateDesign() {
+        String username;
+        String email;
+        String avatarUrl;
+        if (TextUtils.isEmpty(getCurrentUser().getDisplayName())) {
+            username = "no username found";
+        } else {
+            username = getCurrentUser().getDisplayName();
+        }
+        if (TextUtils.isEmpty(getCurrentUser().getEmail())) {
+            email = "no email found";
+        } else {
+            email = getCurrentUser().getEmail();
+        }
+        if (TextUtils.isEmpty(getCurrentUser().getDisplayName())) {
+            avatarUrl = "";
+        } else {
+            avatarUrl = getCurrentUser().getDisplayName();
+        }
+//        this.usernameTextview.setText(username);
+//        this.emailTextview.setText(email);
+//        Glide.with(this)
+//                .load(avatarUrl)
+//                .into(avatarImageView);
+
+    }
 
     //****************************
     //*******   FIREBASE   *******

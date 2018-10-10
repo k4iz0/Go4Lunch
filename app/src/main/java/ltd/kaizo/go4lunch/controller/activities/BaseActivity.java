@@ -26,9 +26,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this);
         this.configureToolbar();
+        this.configureDesign();
     }
 
     public abstract int getFragmentLayout();
+
+    public abstract void configureDesign();
 
     protected void configureToolbar() {
         ActionBar ab = getSupportActionBar();
