@@ -9,7 +9,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,12 +40,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     DrawerLayout drawerLayout;
     @BindView(R.id.activity_main_nav_view)
     NavigationView navigationView;
-//    @BindView(R.id.nav_header_username)
-//    TextView usernameTextview;
-//    @BindView(R.id.nav_header_email)
-//    TextView emailTextview;
-//    @BindView(R.id.nav_header_avatar)
-//    ImageView avatarImageView;
+    TextView usernameTextview;
+    TextView emailTextview;
+    ImageView avatarImageView;
 
 
     private void configureAndShowMapFragment() {
@@ -75,14 +74,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
+        } else {
+
+            this.configureAndShowMapFragment();
+            this.configureBottomNavigationView();
+            this.configureDrawerLayout();
+            this.configureNavigationView();
+            this.updateNavHeaderDesign();
         }
-        this.configureAndShowMapFragment();
-        this.configureBottomNavigationView();
-        this.configureDrawerLayout();
-        this.configureNavigationView();
-//        this.updateDesign();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.activity_main_searchview).getActionView();
+        searchView.setQueryHint(getString(R.string.search_restaurants));
+        configureSearchView(searchView);
+        return true;
+    }
 
     //****************************
     //****  NAVIGATION DRAWER ****
@@ -119,29 +128,41 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             super.onBackPressed();
         }
-
     }
 
     private void configureDrawerLayout() {
-
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-
         drawerLayout.addDrawerListener(toggle);
-
         toggle.syncState();
-
     }
 
 
     private void configureNavigationView() {
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
+    }
 
+    private void configureSearchView(SearchView searchView) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                showSnackBar(constraintLayout, query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                return false;
+            }
+        });
     }
 
     //****************************
     //*******   DESIGN   *********
     //****************************
+
+
     private void configureBottomNavigationView() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -164,7 +185,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
-    private void updateDesign() {
+    private void updateNavHeaderDesign() {
+        usernameTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
+        emailTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
+        avatarImageView = navigationView.getHeaderView(0).findViewById(R.id.nav_header_avatar);
         String username;
         String email;
         String avatarUrl;
@@ -183,11 +207,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             avatarUrl = getCurrentUser().getDisplayName();
         }
-//        this.usernameTextview.setText(username);
-//        this.emailTextview.setText(email);
-//        Glide.with(this)
-//                .load(avatarUrl)
-//                .into(avatarImageView);
+        //TODO voir pour mettre les infos lors de la 1ere connection
+        this.usernameTextview.setText(username);
+        this.emailTextview.setText(email);
+        Glide.with(this)
+                .load(avatarUrl)
+                .into(avatarImageView);
 
     }
 
@@ -206,7 +231,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setLogo(R.drawable.restau_icon)
+                        .setLogo(R.drawable.food)
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build(),
@@ -241,5 +266,4 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         }
     }
-
 }

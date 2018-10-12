@@ -23,5 +23,8 @@
     <string name="settings">SETTINGS</string>
     <string name="logout">LOGOUT</string>
     <string name="title_activity_maps">Map</string>
+    <string name="search">search</string>
+    <string name="logo">logo</string>
+    <string name="search_restaurants">Search restaurants</string>
 
 </resources>
