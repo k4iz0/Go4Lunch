@@ -9,18 +9,28 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.SearchView;
+import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 import java.util.Arrays;
 
@@ -31,7 +41,9 @@ import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int RC_SIGN_IN = 123;
+    private static final int REQUEST_PLACE_PICKER = 2;
     @BindView(R.id.activity_main_constraint_layout)
     ConstraintLayout constraintLayout;
     @BindView(R.id.activity_main_bottom_navigation)
@@ -43,26 +55,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     TextView usernameTextview;
     TextView emailTextview;
     ImageView avatarImageView;
+    private String TAG = "MainActivity";
 
-
-    private void configureAndShowMapFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MapFragment())
-                .commit();
-    }
-
-    private void configureAndShowListFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new ListFragment())
-                .commit();
-    }
-
-    private void configureAndShowWorkmatesFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MatesFragment())
-                .commit();
-
-    }
 
     @Override
     public int getFragmentLayout() {
@@ -87,9 +81,26 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
-        SearchView searchView = (SearchView) menu.findItem(R.id.activity_main_searchview).getActionView();
-        searchView.setQueryHint(getString(R.string.search_restaurants));
-        configureSearchView(searchView);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.activity_main_searchview) {
+            onPickButtonClick();
+//            try {
+//                Intent intent =
+//                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+//                                .build(this);
+//                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+//            } catch (GooglePlayServicesRepairableException e) {
+//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
+//            } catch (GooglePlayServicesNotAvailableException e) {
+//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
+//            }
+
+        }
+
         return true;
     }
 
@@ -142,26 +153,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setItemIconTintList(null);
     }
 
-    private void configureSearchView(SearchView searchView) {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                showSnackBar(constraintLayout, query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-
-                return false;
-            }
-        });
-    }
 
     //****************************
     //*******   DESIGN   *********
     //****************************
 
+    private void configureAndShowMapFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, new MapFragment())
+                .commit();
+    }
+
+    private void configureAndShowListFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, new ListFragment())
+                .commit();
+    }
+
+    private void configureAndShowWorkmatesFragment() {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, new MatesFragment())
+                .commit();
+
+    }
 
     private void configureBottomNavigationView() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -205,13 +219,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (TextUtils.isEmpty(getCurrentUser().getDisplayName())) {
             avatarUrl = "";
         } else {
-            avatarUrl = getCurrentUser().getDisplayName();
+            avatarUrl = getCurrentUser().getPhotoUrl().toString();
         }
+        Log.i(TAG, "updateNavHeaderDesign: username = " + username + "\n" +
+                "email = " + email + "\n" +
+                "avatarUrl = " + avatarUrl);
         //TODO voir pour mettre les infos lors de la 1ere connection
         this.usernameTextview.setText(username);
         this.emailTextview.setText(email);
         Glide.with(this)
                 .load(avatarUrl)
+                .apply(RequestOptions.circleCropTransform())
                 .into(avatarImageView);
 
     }
@@ -223,8 +241,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        this.handleResponseAfterSignIn(requestCode, resultCode, data);
+        switch (requestCode) {
+            case RC_SIGN_IN:
+                this.handleResponseAfterSignIn(resultCode, data);
+                break;
+            case PLACE_AUTOCOMPLETE_REQUEST_CODE:
+                this.handlePlaceAutoCompleteResponse(resultCode, data);
+                break;
+            case REQUEST_PLACE_PICKER:
+                this.handlePlacePickerResponse(resultCode,data);
+                break;
+        }
     }
 
     private void startSignInActivity() {
@@ -245,25 +272,76 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         Snackbar.make(constraintLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
-    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
+    private void handleResponseAfterSignIn(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode == RESULT_OK) {//SUCCESS
+        if (resultCode == RESULT_OK) {//SUCCESS
 //                this.createUserInFirestore();
-                showSnackBar(this.constraintLayout, getString(R.string.connection_succeed));
-            } else {//ERROR
-                if (response == null) {
-                    showSnackBar(this.constraintLayout, getString(R.string.error_authentication_canceled));
-                } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    showSnackBar(this.constraintLayout, getString(R.string.error_no_internet));
-                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.constraintLayout, getString(R.string.error_unknown_error));
+            showSnackBar(this.constraintLayout, getString(R.string.connection_succeed));
+        } else {//ERROR
+            if (response == null) {
+                showSnackBar(this.constraintLayout, getString(R.string.error_authentication_canceled));
+            } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                showSnackBar(this.constraintLayout, getString(R.string.error_no_internet));
+            } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                showSnackBar(this.constraintLayout, getString(R.string.error_unknown_error));
 
-                }
+            }
+        }
+
+
+    }
+    public void onPickButtonClick() {
+        // Construct an intent for the place picker
+        try {
+            PlacePicker.IntentBuilder intentBuilder =
+                    new PlacePicker.IntentBuilder();
+            Intent intent = intentBuilder.build(this);
+            // Start the intent by requesting a result,
+            // identified by a request code.
+            startActivityForResult(intent, REQUEST_PLACE_PICKER);
+
+        } catch (GooglePlayServicesRepairableException e) {
+            // ...
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // ...
+        }
+    }
+
+    private void handlePlacePickerResponse(int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+
+            // The user has selected a place. Extract the name and address.
+            final Place place = PlacePicker.getPlace(data, this);
+
+            final CharSequence name = place.getName();
+            final CharSequence address = place.getAddress();
+            String attributions = PlacePicker.getAttributions(data);
+            if (attributions == null) {
+                attributions = "";
             }
 
+//            mViewName.setText(name);
+//            mViewAddress.setText(address);
+//            mViewAttributions.setText(Html.fromHtml(attributions));
 
         }
+
+    }
+    private void handlePlaceAutoCompleteResponse(int resultCode, Intent data) {
+
+        if (resultCode == RESULT_OK) {
+            Place place = PlaceAutocomplete.getPlace(this, data);
+            Log.i(TAG, "Place: " + place.getName()+" lat/long = "+place.getLatLng() );
+        } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+            Status status = PlaceAutocomplete.getStatus(this, data);
+            showSnackBar(this.constraintLayout, getString(R.string.error_unknown_error));
+            Log.i(TAG, status.getStatusMessage());
+
+        } else if (resultCode == RESULT_CANCELED) {
+            Log.i(TAG, "handlePlaceAutoCompleteResponse: cancel");
+        }
+
+
     }
 }

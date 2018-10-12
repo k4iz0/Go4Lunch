@@ -113,7 +113,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
     private void getDeviceLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
             if (locationPermissionsGranted) {
                 final Task location = fusedLocationProviderClient.getLastLocation();
