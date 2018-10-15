@@ -2,19 +2,17 @@ package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,10 +25,9 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Arrays;
 
@@ -43,9 +40,9 @@ import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     private static final int RC_SIGN_IN = 123;
-    private static final int REQUEST_PLACE_PICKER = 2;
-    @BindView(R.id.activity_main_constraint_layout)
-    ConstraintLayout constraintLayout;
+    private static final int SIGN_OUT_TASK = 10;
+    @BindView(R.id.activity_main_coordinator_layout)
+    CoordinatorLayout coordinatorLayout;
     @BindView(R.id.activity_main_bottom_navigation)
     BottomNavigationView bottomNavigationView;
     @BindView(R.id.activity_main_drawer_layout)
@@ -69,13 +66,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
         } else {
-
             this.configureAndShowMapFragment();
             this.configureBottomNavigationView();
             this.configureDrawerLayout();
             this.configureNavigationView();
             this.updateNavHeaderDesign();
         }
+
     }
 
     @Override
@@ -87,17 +84,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-            onPickButtonClick();
-//            try {
-//                Intent intent =
-//                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-//                                .build(this);
-//                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-//            } catch (GooglePlayServicesRepairableException e) {
-//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
-//            } catch (GooglePlayServicesNotAvailableException e) {
-//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
-//            }
+            try {
+                Intent intent =
+                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                .build(this);
+                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            } catch (GooglePlayServicesRepairableException e) {
+                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
+            } catch (GooglePlayServicesNotAvailableException e) {
+                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
+            }
 
         }
 
@@ -121,8 +117,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                 break;
             case R.id.activity_main_drawer_logout:
-                Toast.makeText(this, "logout", Toast.LENGTH_SHORT).show();
-
+                this.signOutUserFromFirebase();
+                showSnackBar(coordinatorLayout, getString(R.string.user_logout));
                 break;
             default:
                 break;
@@ -152,7 +148,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
     }
-
 
     //****************************
     //*******   DESIGN   *********
@@ -248,9 +243,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 this.handlePlaceAutoCompleteResponse(resultCode, data);
                 break;
-            case REQUEST_PLACE_PICKER:
-                this.handlePlacePickerResponse(resultCode,data);
-                break;
+
         }
     }
 
@@ -268,74 +261,57 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 RC_SIGN_IN);
     }
 
-    private void showSnackBar(ConstraintLayout constraintLayout, String message) {
-        Snackbar.make(constraintLayout, message, Snackbar.LENGTH_SHORT).show();
+    private void signOutUserFromFirebase() {
+        AuthUI.getInstance()
+                .signOut(this)
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+    }
+
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
+
+        return new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (origin == SIGN_OUT_TASK) {
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+        };
+    }
+
+    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
     private void handleResponseAfterSignIn(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (resultCode == RESULT_OK) {//SUCCESS
-//                this.createUserInFirestore();
-            showSnackBar(this.constraintLayout, getString(R.string.connection_succeed));
+            showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+            this.configureDesign();
         } else {//ERROR
             if (response == null) {
-                showSnackBar(this.constraintLayout, getString(R.string.error_authentication_canceled));
+                showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
             } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                showSnackBar(this.constraintLayout, getString(R.string.error_no_internet));
+                showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
             } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                showSnackBar(this.constraintLayout, getString(R.string.error_unknown_error));
+                showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
 
             }
         }
 
 
     }
-    public void onPickButtonClick() {
-        // Construct an intent for the place picker
-        try {
-            PlacePicker.IntentBuilder intentBuilder =
-                    new PlacePicker.IntentBuilder();
-            Intent intent = intentBuilder.build(this);
-            // Start the intent by requesting a result,
-            // identified by a request code.
-            startActivityForResult(intent, REQUEST_PLACE_PICKER);
 
-        } catch (GooglePlayServicesRepairableException e) {
-            // ...
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // ...
-        }
-    }
-
-    private void handlePlacePickerResponse(int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-
-            // The user has selected a place. Extract the name and address.
-            final Place place = PlacePicker.getPlace(data, this);
-
-            final CharSequence name = place.getName();
-            final CharSequence address = place.getAddress();
-            String attributions = PlacePicker.getAttributions(data);
-            if (attributions == null) {
-                attributions = "";
-            }
-
-//            mViewName.setText(name);
-//            mViewAddress.setText(address);
-//            mViewAttributions.setText(Html.fromHtml(attributions));
-
-        }
-
-    }
     private void handlePlaceAutoCompleteResponse(int resultCode, Intent data) {
 
         if (resultCode == RESULT_OK) {
             Place place = PlaceAutocomplete.getPlace(this, data);
-            Log.i(TAG, "Place: " + place.getName()+" lat/long = "+place.getLatLng() );
+            Log.i(TAG, "Place: " + place.getName() + " lat/long = " + place.getLatLng());
         } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
             Status status = PlaceAutocomplete.getStatus(this, data);
-            showSnackBar(this.constraintLayout, getString(R.string.error_unknown_error));
+            showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
             Log.i(TAG, status.getStatusMessage());
 
         } else if (resultCode == RESULT_CANCELED) {

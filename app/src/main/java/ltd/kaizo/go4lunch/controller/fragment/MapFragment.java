@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -18,7 +19,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,6 +30,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 
 /**
@@ -41,13 +42,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     private static final float DEFAULT_ZOOM = 15f;
-    @BindView(R.id.fragment_map_mapview)
-    MapView mapView;
+    private MapView mapView;
+    private FloatingActionButton floatingActionButton;
     private GoogleMap googleMap;
-    private GoogleApiClient googleApiClient;
     private Boolean locationPermissionsGranted = false;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String TAG = getClass().getSimpleName();
+    private Location currentLocation;
 
     @Override
     protected int getFragmentLayout() {
@@ -68,7 +69,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
+        ButterKnife.bind(rootView);
         mapView = rootView.findViewById(R.id.fragment_map_mapview);
+        floatingActionButton = rootView.findViewById(R.id.fragment_map_fab);
         mapView.onCreate(savedInstanceState);
         this.configureGoogleMap();
         mapView.onResume();
@@ -83,6 +86,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         if (isServiceOK()) {
             this.getLocationPermission();
         }
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveCameraToCurrentLocation(currentLocation);
+            }
+        });
     }
 
     private void iniMap() {
@@ -116,14 +125,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         try {
             if (locationPermissionsGranted) {
-                final Task location = fusedLocationProviderClient.getLastLocation();
+                Task location = fusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "onComplete: found location !");
-                            Location currentLocation = (Location) task.getResult();
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+                            currentLocation = (Location) task.getResult();
+                            moveCameraToCurrentLocation(currentLocation);
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             Toast.makeText(getContext(), "unable to get current location", Toast.LENGTH_SHORT).show();
@@ -136,9 +145,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         }
     }
 
+    private void moveCameraToCurrentLocation(Location currentLocation) {
+        this.currentLocation = currentLocation;
+        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+    }
+
     private void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to : lat : " + latLng.latitude + ", long : " + latLng.longitude);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
     /**
@@ -169,8 +183,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
-            googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+//            googleMap.setMyLocationEnabled(true);
+//            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
     }
+
 }

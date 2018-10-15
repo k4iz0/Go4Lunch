@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    android:id="@+id/fragment_map_layout"
+<FrameLayout android:id="@+id/fragment_map_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".controller.fragment.MapFragment">
+    tools:context=".controller.fragment.MapFragment"
+    xmlns:style="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/fragment_map_mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fragment_map_fab"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        style="@style/floatingActionBtn"
+        android:src="@drawable/ic_gps_fixed"
+        />
 </FrameLayout>

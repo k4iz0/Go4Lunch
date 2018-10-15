@@ -8,11 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="white_title" >
+    <style name="white_title">
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">#FFF</item>
 
     </style>
+<!--TOOLBAR-->
     <style name="ToolBarStyle" parent="AppTheme">
         <item name="android:background">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@android:color/white</item>
@@ -36,10 +37,17 @@
         <item name="windowNoTitle">true</item>
         <item name="android:textColorHint">@android:color/white</item>
     </style>
-
-    <style name="navigation_drawer" >
+    <!--NAVIGATION DRAWER-->
+    <style name="navigation_drawer">
         <item name="android:background">@color/colorPrimaryDark</item>
-              <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:textColor">#FFF</item>
+    </style>
+    <!--FLOATING ACTION BUTTON-->
+    <style name="floatingActionBtn">
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:background">@android:color/white</item>
     </style>
 </resources>
