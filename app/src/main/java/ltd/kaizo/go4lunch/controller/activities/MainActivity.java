@@ -27,6 +27,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Arrays;
@@ -36,6 +37,8 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.fragment.ListFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
+
+import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -53,7 +56,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     TextView emailTextview;
     ImageView avatarImageView;
     private String TAG = "MainActivity";
-
+    private MapFragment mapFragment;
 
     @Override
     public int getFragmentLayout() {
@@ -154,8 +157,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
 
     private void configureAndShowMapFragment() {
+        this.mapFragment = new MapFragment();
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MapFragment())
+                .replace(R.id.activity_main_fragment_container, this.mapFragment)
                 .commit();
     }
 
@@ -309,6 +313,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (resultCode == RESULT_OK) {
             Place place = PlaceAutocomplete.getPlace(this, data);
             Log.i(TAG, "Place: " + place.getName() + " lat/long = " + place.getLatLng());
+            this.updateMapWithPlace(place.getLatLng());
         } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
             Status status = PlaceAutocomplete.getStatus(this, data);
             showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
@@ -319,5 +324,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
 
+    }
+    private void updateMapWithPlace(LatLng latLng) {
+        this.mapFragment.moveCamera(latLng,DEFAULT_ZOOM);
     }
 }
