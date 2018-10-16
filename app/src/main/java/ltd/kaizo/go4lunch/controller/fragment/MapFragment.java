@@ -23,7 +23,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceFilter;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
@@ -32,9 +34,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import ltd.kaizo.go4lunch.R;
 
@@ -93,12 +99,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private void configureGoogleMap() {
         if (isServiceOK()) {
             this.getLocationPermission();
-            floatingActionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    moveCameraToCurrentLocation(currentLocation);
-                }
-            });
+           this.configureFloatingButton();
             // Construct a GeoDataClient.
             this.geoDataClient = Places.getGeoDataClient(getContext());
 
@@ -109,6 +110,15 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
         }
+    }
+
+    private void configureFloatingButton() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveCameraToCurrentLocation(currentLocation);
+            }
+        });
     }
 
     private void iniMap() {
@@ -205,6 +215,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to : lat : " + latLng.latitude + ", long : " + latLng.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        showCurrentPlace();
     }
 
     /**
@@ -224,12 +235,15 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        if (locationPermissionsGranted && this.currentLocation != null) {
+        if (locationPermissionsGranted) {
             getDeviceLocation();
-//            showCurrentPlace();
+            this.googleMap.setMyLocationEnabled(false);
+            showCurrentPlace();
+
         }
 
     }
@@ -238,7 +252,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
 
         try {
-            Task<PlaceLikelihoodBufferResponse> placeResult = this.placeDetectionClient.getCurrentPlace(null);
+
+            Collection<String> filter = new ArrayList<>();
+            filter.add(String.valueOf(Place.TYPE_RESTAURANT));
+            PlaceFilter placeFilter = new PlaceFilter(false, filter);
+            Task<PlaceLikelihoodBufferResponse> placeResult = this.placeDetectionClient.getCurrentPlace(placeFilter);
 
             placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
                 @Override
