@@ -312,7 +312,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (resultCode == RESULT_OK) {
             Place place = PlaceAutocomplete.getPlace(this, data);
-            Log.i(TAG, "Place: " + place.getName() + " lat/long = " + place.getLatLng());
+            Log.i(TAG, "PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
             this.updateMapWithPlace(place.getLatLng());
         } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
             Status status = PlaceAutocomplete.getStatus(this, data);

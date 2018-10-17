@@ -253,9 +253,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
         try {
 
-            Collection<String> filter = new ArrayList<>();
+            ArrayList<String> filter = new ArrayList<>();
             filter.add(String.valueOf(Place.TYPE_RESTAURANT));
-            PlaceFilter placeFilter = new PlaceFilter(false, filter);
+            PlaceFilter placeFilter = new PlaceFilter(false, filter); //true or false to filtering by "open now"
             Task<PlaceLikelihoodBufferResponse> placeResult = this.placeDetectionClient.getCurrentPlace(placeFilter);
 
             placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
@@ -263,7 +263,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                 public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
                     PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
                     for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                        Log.i(TAG, String.format("Place '%s' has likelihood: %g",
+                        Log.i(TAG, String.format("PlaceApiData '%s' has likelihood: %g",
                                 placeLikelihood.getPlace().getName(),
                                 placeLikelihood.getLikelihood()));
                     }
