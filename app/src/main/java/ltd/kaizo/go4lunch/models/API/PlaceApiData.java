@@ -7,6 +7,7 @@ import java.util.List;
 
 public class PlaceApiData {
 
+
     @SerializedName("html_attributions")
     @Expose
     private List<Object> htmlAttributions = null;
