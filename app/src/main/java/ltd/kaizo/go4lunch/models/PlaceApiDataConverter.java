@@ -8,24 +8,25 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ltd.kaizo.go4lunch.models.API.Result;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 
 public class PlaceApiDataConverter {
-    ArrayList<Result> resultList;
+    List<Result> resultList;
 
-    public PlaceApiDataConverter(ArrayList<Result> resultList) {
+    public PlaceApiDataConverter(List<Result> resultList) {
         this.resultList = resultList;
     }
-    private ArrayList<PlaceFormater> getFormatedListOfPlace() {
+    public ArrayList<PlaceFormater> getFormatedListOfPlace() {
         ArrayList<PlaceFormater> formatedList = new ArrayList<>();
         for (Result result : this.resultList) {
             formatedList.add(new PlaceFormater(result));
         }
         return formatedList;
     }
-    private void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
+    public void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
         // Position of Marker on Map

@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -49,6 +50,8 @@ import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.PlaceApiData;
 import ltd.kaizo.go4lunch.models.API.Result;
+import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
+import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 import ltd.kaizo.go4lunch.models.utils.PlaceStream;
 
 /**
@@ -214,6 +217,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
         this.currentLocation = currentLocation;
         if (this.currentLocation != null) {
             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+            this.executeStreamFetchNearbyRestaurant();
         } else {
             Toast.makeText(getContext(), "Unable to get your location, moving to default location", Toast.LENGTH_SHORT).show();
 
@@ -252,7 +256,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
             getDeviceLocation();
             this.googleMap.setMyLocationEnabled(false);
             googleMap.clear();
-            this.executeStreamFetchNearbyRestaurant();
+
 //            showCurrentPlace();
 
         }
@@ -264,29 +268,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
                 .subscribeWith(new DisposableObserver<PlaceApiData>() {
                     @Override
                     public void onNext(PlaceApiData placeApiData) {
-                        Double lat;
-                        Double lng;
-                        for (Result place : placeApiData.getResults()) {
-                            lat = place.getGeometry().getLocation().getLat();
-                            lng = place.getGeometry().getLocation().getLng();
-                            String placeName = place.getName();
-                            String vicinity = place.getVicinity();
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            LatLng latLng = new LatLng(lat, lng);
-                            // Position of Marker on Map
-                            markerOptions.position(latLng);
-                            // Adding Title to the Marker
-                            markerOptions.title(placeName + " : " + vicinity);
-                            // Adding Marker to the Camera.
-                            Marker m = googleMap.addMarker(markerOptions);
-                            // Adding colour to the marker
-                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                            // move map camera
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-                        }
-                        if (placeApiData.getResults().size() > 0) {
+                      if (placeApiData.getResults().size() > 0) {
                             Log.i(TAG, "onNext: result found !");
+                          PlaceApiDataConverter placeApiDataConverter = new PlaceApiDataConverter(placeApiData.getResults());
+                          for (PlaceFormater place : placeApiDataConverter.getFormatedListOfPlace()) {
+                              placeApiDataConverter.addMarkerFromList(googleMap,place);
+                              Log.i(TAG, "onNext: place id"+place.getPlaceId()+ "name = "+place.getPlaceName()+"location = "+currentLocation);
+                          }
+
                         } else {
                             Snackbar.make(getView(), "No article found !", Snackbar.LENGTH_SHORT).show();
                         }
@@ -347,7 +336,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
     @Override
     public void onLocationChanged(Location location) {
         this.currentLocation = location;
-        this.executeStreamFetchNearbyRestaurant();
+//        this.executeStreamFetchNearbyRestaurant();
     }
 
     @Override
