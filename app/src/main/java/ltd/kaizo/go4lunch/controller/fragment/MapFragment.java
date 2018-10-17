@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -36,10 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -49,7 +45,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.PlaceApiData;
-import ltd.kaizo.go4lunch.models.API.Result;
 import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 import ltd.kaizo.go4lunch.models.utils.PlaceStream;
@@ -222,6 +217,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
             Toast.makeText(getContext(), "Unable to get your location, moving to default location", Toast.LENGTH_SHORT).show();
 
             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
+            this.executeStreamFetchNearbyRestaurant();
         }
     }
 
@@ -268,13 +264,13 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback, Loc
                 .subscribeWith(new DisposableObserver<PlaceApiData>() {
                     @Override
                     public void onNext(PlaceApiData placeApiData) {
-                      if (placeApiData.getResults().size() > 0) {
+                        if (placeApiData.getResults().size() > 0) {
                             Log.i(TAG, "onNext: result found !");
-                          PlaceApiDataConverter placeApiDataConverter = new PlaceApiDataConverter(placeApiData.getResults());
-                          for (PlaceFormater place : placeApiDataConverter.getFormatedListOfPlace()) {
-                              placeApiDataConverter.addMarkerFromList(googleMap,place);
-                              Log.i(TAG, "onNext: place id"+place.getPlaceId()+ "name = "+place.getPlaceName()+"location = "+currentLocation);
-                          }
+                            PlaceApiDataConverter placeApiDataConverter = new PlaceApiDataConverter(placeApiData.getResults());
+                            for (PlaceFormater place : placeApiDataConverter.getFormatedListOfPlace()) {
+                                placeApiDataConverter.addMarkerFromList(googleMap, place);
+                                Log.i(TAG, "onNext: place id" + place.getPlaceId() + "name = " + place.getPlaceName() + "location = " + currentLocation);
+                            }
 
                         } else {
                             Snackbar.make(getView(), "No article found !", Snackbar.LENGTH_SHORT).show();
