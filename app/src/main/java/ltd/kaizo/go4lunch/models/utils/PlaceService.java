@@ -14,7 +14,7 @@ public interface PlaceService {
     /**
      * The constant apiKey.
      */
-    String apiKey = "AIzaSyAEn_xhmMzBhYEuosTBSqq65n1HR22A14c";
+    String apiKey = "AIzaSyAG3j9kLkZrAMW2Y0b4458-wlgUuSDcEsY";
     /**
      * The constant url.
      */

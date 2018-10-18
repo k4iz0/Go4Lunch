@@ -1,6 +1,5 @@
 package ltd.kaizo.go4lunch.models;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -19,6 +18,7 @@ public class PlaceApiDataConverter {
     public PlaceApiDataConverter(List<Result> resultList) {
         this.resultList = resultList;
     }
+
     public ArrayList<PlaceFormater> getFormatedListOfPlace() {
         ArrayList<PlaceFormater> formatedList = new ArrayList<>();
         for (Result result : this.resultList) {
@@ -26,6 +26,7 @@ public class PlaceApiDataConverter {
         }
         return formatedList;
     }
+
     public void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
