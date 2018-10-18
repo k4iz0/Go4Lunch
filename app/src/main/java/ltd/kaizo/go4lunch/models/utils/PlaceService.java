@@ -52,4 +52,6 @@ public interface PlaceService {
     @GET("json?radius=" + radius + "&type=restaurant&key=" + apiKey)
     Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String query);
 
+
+
 }

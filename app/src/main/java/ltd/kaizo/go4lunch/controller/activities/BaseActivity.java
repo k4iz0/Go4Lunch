@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
 
 public abstract class BaseActivity extends AppCompatActivity {
     @BindView(R.id.activity_main_toolbar)
@@ -29,6 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this);
+        DataRecordHelper.init(getApplicationContext());
         this.configureToolbar();
         this.configureDesign();
     }
