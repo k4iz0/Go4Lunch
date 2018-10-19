@@ -27,5 +27,7 @@
     <string name="logo">logo</string>
     <string name="search_restaurants">Search restaurants</string>
     <string name="user_logout">User log out</string>
+    <string name="person">person</string>
+    <string name="star">star</string>
 
 </resources>

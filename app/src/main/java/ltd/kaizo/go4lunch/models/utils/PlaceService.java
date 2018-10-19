@@ -18,7 +18,7 @@ public interface PlaceService {
     /**
      * The constant url.
      */
-    String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
+    String url = "https://maps.googleapis.com/maps/api/place/";
     /**
      * The radius
      */
@@ -49,9 +49,17 @@ public interface PlaceService {
     /**
      * Gets the nearby restaurant
      */
-    @GET("json?radius=" + radius + "&type=restaurant&key=" + apiKey)
-    Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String query);
-
+    @GET("nearbysearch/json?radius=" + radius + "&type=restaurant&key=" + apiKey)
+    Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String location);
+/**
+ * Gets the place's détails
+ */
+@GET("details/json?fields=name," +
+        "rating," +
+        "formatted_address," +
+        "opening_hours" +
+        "&key="+apiKey)
+    Observable<PlaceApiData> getPlaceDetails(@Query("placeid") String placeid);
 
 
 }

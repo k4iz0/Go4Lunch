@@ -12,6 +12,7 @@ public class PlaceFormater {
     Double lng;
     String placeName;
     String placeVicinity;
+    String placeAdress;
     List<Photo> placePhoto;
 
     public PlaceFormater(Result result) {
@@ -21,6 +22,7 @@ public class PlaceFormater {
         this.placeName = result.getName();
         this.placeVicinity = result.getVicinity();
         this.placePhoto = result.getPhotos();
+
     }
 
     public PlaceFormater(ArrayList<Result> resultList) {

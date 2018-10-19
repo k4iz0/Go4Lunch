@@ -16,4 +16,11 @@ public class PlaceStream {
                 .observeOn(AndroidSchedulers.mainThread())
                 .timeout(10, TimeUnit.SECONDS);
     }
+    public static Observable<PlaceApiData> streamFetchPlaceDetail(String placeId) {
+        PlaceService placeService = PlaceService.retrofit.create(PlaceService.class);
+        return placeService.getPlaceDetails(placeId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .timeout(10, TimeUnit.SECONDS);
+    }
 }
