@@ -14,18 +14,28 @@ import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 
 public class PlaceApiDataConverter {
     List<Result> resultList;
+    ArrayList<PlaceFormater> placeDetailList;
 
     public PlaceApiDataConverter(List<Result> resultList) {
         this.resultList = resultList;
     }
 
-    public ArrayList<PlaceFormater> getFormatedListOfPlace() {
-        ArrayList<PlaceFormater> formatedList = new ArrayList<>();
-        for (Result result : this.resultList) {
-            formatedList.add(new PlaceFormater(result));
-        }
-        return formatedList;
+    public ArrayList<PlaceFormater> getPlaceDetailList() {
+        return placeDetailList;
     }
+
+    public void setPlaceDetailList(ArrayList<PlaceFormater> placeDetailList) {
+        this.placeDetailList = new ArrayList<>();
+    }
+
+//    public ArrayList<PlaceFormater> getFormatedListOfPlace() {
+//        ArrayList<PlaceFormater> formatedList = new ArrayList<>();
+//        for (Result result : this.resultList) {
+//            formatedList.add(new PlaceFormater(result));
+//        }
+//        return formatedList;
+//    }
+
     public ArrayList<String> getListOfPlaceID() {
         ArrayList<String> placeIdList = new ArrayList<>();
         for (Result result : this.resultList) {
@@ -44,6 +54,6 @@ public class PlaceApiDataConverter {
         // Adding Marker to the Camera.
         Marker m = googleMap.addMarker(markerOptions);
         // Adding colour to the marker
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
     }
 }

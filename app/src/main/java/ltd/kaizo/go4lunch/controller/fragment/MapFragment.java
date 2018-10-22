@@ -46,6 +46,9 @@ import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 import ltd.kaizo.go4lunch.models.utils.PlaceStream;
 
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -67,6 +70,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private GeoDataClient geoDataClient;
     private Disposable disposable;
     private PlaceApiDataConverter restaurantList;
+    private ArrayList<PlaceFormater> placeDetailList;
     private Gson gson = new Gson();
     private ArrayList<String> placeIdList;
 
@@ -250,7 +254,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     public void onNext(PlaceApiData placeApiData) {
                         if (placeApiData.getResults().size() > 0) {
                             Log.i(TAG, "onNext: result found !");
-                            PlaceApiDataConverter restaurantList = new PlaceApiDataConverter(placeApiData.getResults());
+                            restaurantList = new PlaceApiDataConverter(placeApiData.getResults());
                             placeIdList = restaurantList.getListOfPlaceID();
 
                         } else {
@@ -260,16 +264,21 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.i("StreamInfo", "search error : " + e);
+                        Log.i("StreamFetchNearby", "search error : " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.i("StreamInfo", "search complete");
+                        Log.i("StreamFetchNearby", "search complete");
                         for (String id : placeIdList) {
-                            Log.i(TAG, "onComplete: placeId = " + id);
+                            Log.i(TAG, "StreamFetchNearby onComplete: placeId = " + id);
                             executeStreamFetchPlaceDetail(id);
                         }
+                        for (PlaceFormater place : placeDetailList) {
+                            Log.i(TAG, "StreamFetchNearby onComplete: adding marker for "+place.getPlaceName());
+                            restaurantList.addMarkerFromList(googleMap, place);
+                        }
+
                     }
                 });
 
@@ -279,8 +288,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         this.disposable = PlaceStream.INSTANCE.streamFetchPlaceDetail(placeId)
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
                     @Override
-                    public void onNext(PlaceDetailApiData PlaceDetailApiData) {
-                        if (PlaceDetailApiData.getResult() != null) {
+                    public void onNext(PlaceDetailApiData placeDetailApiData) {
+                        if (placeDetailApiData.getResult() != null) {
+                            placeDetailList.add(new PlaceFormater(placeDetailApiData.getResult()));
+                            restaurantList.setPlaceDetailList(placeDetailList);
 
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
@@ -289,12 +300,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.i("StreamInfo", "search error : " + e);
+                        Log.i("StreamFetchPlaceDetail ", "search error : " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.i("StreamInfo", "search complete");
+                        Log.i("StreamFetchPlaceDetail", "search complete");
                     }
                 });
 

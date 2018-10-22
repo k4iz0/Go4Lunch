@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.API.NearbySearch.Photo;
-import ltd.kaizo.go4lunch.models.API.NearbySearch.Result;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.Result;
 
 public class PlaceFormater {
     String placeId;
@@ -19,9 +19,10 @@ public class PlaceFormater {
         this.placeId = result.getPlaceId();
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
+        this.placeAdress = result.getAdrAddress();
         this.placeName = result.getName();
         this.placeVicinity = result.getVicinity();
-        this.placePhoto = result.getPhotos();
+//        this.placePhoto = result.getPhotos();
 
     }
 
