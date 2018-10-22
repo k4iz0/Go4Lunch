@@ -1,7 +1,8 @@
 package ltd.kaizo.go4lunch.models.utils;
 
 import io.reactivex.Observable;
-import ltd.kaizo.go4lunch.models.API.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -51,15 +52,16 @@ public interface PlaceService {
      */
     @GET("nearbysearch/json?radius=" + radius + "&type=restaurant&key=" + apiKey)
     Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String location);
-/**
- * Gets the place's détails
- */
-@GET("details/json?fields=name," +
-        "rating," +
-        "formatted_address," +
-        "opening_hours" +
-        "&key="+apiKey)
-    Observable<PlaceApiData> getPlaceDetails(@Query("placeid") String placeid);
+
+    /**
+     * Gets the place's détails
+     */
+    @GET("details/json?fields=name," +
+            "rating," +
+            "formatted_address," +
+            "opening_hours" +
+            "&key=" + apiKey)
+    Observable<PlaceDetailApiData> getPlaceDetails(@Query("placeid") String placeid);
 
 
 }

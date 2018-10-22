@@ -3,8 +3,8 @@ package ltd.kaizo.go4lunch.models.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import ltd.kaizo.go4lunch.models.API.Photo;
-import ltd.kaizo.go4lunch.models.API.Result;
+import ltd.kaizo.go4lunch.models.API.NearbySearch.Photo;
+import ltd.kaizo.go4lunch.models.API.NearbySearch.Result;
 
 public class PlaceFormater {
     String placeId;

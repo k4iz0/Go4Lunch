@@ -5,11 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.util.List;
-
-import ltd.kaizo.go4lunch.models.API.PlaceApiData;
 import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
 
 /**

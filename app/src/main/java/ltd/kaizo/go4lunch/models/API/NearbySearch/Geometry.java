@@ -1,4 +1,4 @@
-package ltd.kaizo.go4lunch.models.API;
+package ltd.kaizo.go4lunch.models.API.NearbySearch;
 
 
 

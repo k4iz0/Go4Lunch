@@ -1,9 +1,9 @@
-package ltd.kaizo.go4lunch.models.API;
+package ltd.kaizo.go4lunch.models.API.PlaceDetail;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-class Southwest {
+public class Northeast {
     @SerializedName("lat")
     @Expose
     private Double lat;

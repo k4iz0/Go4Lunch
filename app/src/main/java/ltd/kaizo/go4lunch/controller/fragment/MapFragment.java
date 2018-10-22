@@ -35,16 +35,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.API.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 import ltd.kaizo.go4lunch.models.utils.PlaceStream;
-
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -68,6 +68,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private Disposable disposable;
     private PlaceApiDataConverter restaurantList;
     private Gson gson = new Gson();
+    private ArrayList<String> placeIdList;
 
     @Override
     protected int getFragmentLayout() {
@@ -243,22 +244,46 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     //****************************
 
     private void executeStreamFetchNearbyRestaurant() {
-        this.disposable = PlaceStream.streamFetchNearbyRestaurant(formatLocationToString())
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurant(formatLocationToString())
                 .subscribeWith(new DisposableObserver<PlaceApiData>() {
                     @Override
                     public void onNext(PlaceApiData placeApiData) {
                         if (placeApiData.getResults().size() > 0) {
                             Log.i(TAG, "onNext: result found !");
-                            PlaceApiDataConverter placeApiDataConverter = new PlaceApiDataConverter(placeApiData.getResults());
-                            restaurantList = placeApiDataConverter;
-                            write(RESTAURANT_LIST_KEY, gson.toJson(restaurantList));
-                            for (PlaceFormater place : placeApiDataConverter.getFormatedListOfPlace()) {
-                                placeApiDataConverter.addMarkerFromList(googleMap, place);
-                                Log.i(TAG, "onNext: place id" + place.getPlaceId() + "name = " + place.getPlaceName() + "location = " + currentLocation);
-                            }
+                            PlaceApiDataConverter restaurantList = new PlaceApiDataConverter(placeApiData.getResults());
+                            placeIdList = restaurantList.getListOfPlaceID();
 
                         } else {
-                            Snackbar.make(getView(), "No article found !", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("StreamInfo", "search error : " + e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.i("StreamInfo", "search complete");
+                        for (String id : placeIdList) {
+                            Log.i(TAG, "onComplete: placeId = " + id);
+                            executeStreamFetchPlaceDetail(id);
+                        }
+                    }
+                });
+
+    }
+
+    private void executeStreamFetchPlaceDetail(String placeId) {
+        this.disposable = PlaceStream.INSTANCE.streamFetchPlaceDetail(placeId)
+                .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
+                    @Override
+                    public void onNext(PlaceDetailApiData PlaceDetailApiData) {
+                        if (PlaceDetailApiData.getResult() != null) {
+
+                        } else {
+                            Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
                         }
                     }
 

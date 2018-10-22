@@ -1,22 +1,17 @@
-package ltd.kaizo.go4lunch.models.API;
+package ltd.kaizo.go4lunch.models.API.PlaceDetail;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class PlaceApiData {
-
-
+public class PlaceDetailApiData {
     @SerializedName("html_attributions")
     @Expose
     private List<Object> htmlAttributions = null;
-    @SerializedName("next_page_token")
+    @SerializedName("result")
     @Expose
-    private String nextPageToken;
-    @SerializedName("results")
-    @Expose
-    private List<Result> results = null;
+    private Result result;
     @SerializedName("status")
     @Expose
     private String status;
@@ -29,20 +24,12 @@ public class PlaceApiData {
         this.htmlAttributions = htmlAttributions;
     }
 
-    public String getNextPageToken() {
-        return nextPageToken;
+    public Result getResult() {
+        return result;
     }
 
-    public void setNextPageToken(String nextPageToken) {
-        this.nextPageToken = nextPageToken;
-    }
-
-    public List<Result> getResults() {
-        return results;
-    }
-
-    public void setResults(List<Result> results) {
-        this.results = results;
+    public void setResult(Result result) {
+        this.result = result;
     }
 
     public String getStatus() {
@@ -52,5 +39,4 @@ public class PlaceApiData {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }

@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-import ltd.kaizo.go4lunch.models.API.Result;
+import ltd.kaizo.go4lunch.models.API.NearbySearch.Result;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 
 public class PlaceApiDataConverter {
@@ -25,6 +25,13 @@ public class PlaceApiDataConverter {
             formatedList.add(new PlaceFormater(result));
         }
         return formatedList;
+    }
+    public ArrayList<String> getListOfPlaceID() {
+        ArrayList<String> placeIdList = new ArrayList<>();
+        for (Result result : this.resultList) {
+            placeIdList.add(result.getPlaceId());
+        }
+        return placeIdList;
     }
 
     public void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
