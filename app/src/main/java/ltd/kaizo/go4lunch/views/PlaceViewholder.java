@@ -1,6 +1,7 @@
 package ltd.kaizo.go4lunch.views;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,12 +38,17 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
 
     public PlaceViewholder(View itemView) {
         super(itemView);
-        ButterKnife.bind(itemView);
+        ButterKnife.bind(this,itemView);
     }
 
     public void updateViewWithRestaurant(List<PlaceFormater> restaurantList, int position, RequestManager glide) {
+        for (PlaceFormater place : restaurantList) {
+            Log.i("ListFragment", "getRestaurantListFromMap: "+place.toString());
+        }
         placeName.setText(restaurantList.get(position).getPlaceName());
-//        placeAdress.setText(restaurantList.get(position).);
+        placeAdress.setText(restaurantList.get(position).getPlaceAdress());
+//        placeHours.setText(restaurantList.get(position).get);
+
 
     }
 }

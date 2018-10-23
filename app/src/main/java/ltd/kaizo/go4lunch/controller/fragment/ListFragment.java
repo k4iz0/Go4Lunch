@@ -4,6 +4,7 @@ package ltd.kaizo.go4lunch.controller.fragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.bumptech.glide.Glide;
 
@@ -57,5 +58,7 @@ public class ListFragment extends BaseFragment {
 
     private void getRestaurantListFromMap() {
         this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY).getPlaceDetailList();
+
+
     }
 }

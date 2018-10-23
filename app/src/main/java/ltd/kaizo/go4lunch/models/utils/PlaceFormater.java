@@ -1,43 +1,37 @@
 package ltd.kaizo.go4lunch.models.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.API.NearbySearch.Photo;
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.Result;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
 public class PlaceFormater {
-    String placeId;
+
     Double lat;
     Double lng;
     String placeName;
-    String placeVicinity;
     String placeAdress;
+    String placeHour;
     List<Photo> placePhoto;
 
-    public PlaceFormater(Result result) {
-        this.placeId = result.getPlaceId();
+    public PlaceFormater(PlaceDetailResult result) {
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
-        this.placeAdress = result.getAdrAddress();
+        this.placeAdress = result.getVicinity();
         this.placeName = result.getName();
-        this.placeVicinity = result.getVicinity();
+//        this.placeHour = result.getOpeningHours().getPeriods()
 //        this.placePhoto = result.getPhotos();
 
     }
 
-    public PlaceFormater(ArrayList<Result> resultList) {
-
-        this.placeId = placeId;
+    public String getPlaceAdress() {
+        return placeAdress;
     }
 
-    public String getPlaceId() {
-        return placeId;
+    public void setPlaceAdress(String placeAdress) {
+        this.placeAdress = placeAdress;
     }
 
-    public void setPlaceId(String placeId) {
-        this.placeId = placeId;
-    }
 
     public Double getLat() {
         return lat;
@@ -63,13 +57,6 @@ public class PlaceFormater {
         this.placeName = placeName;
     }
 
-    public String getPlaceVicinity() {
-        return placeVicinity;
-    }
-
-    public void setPlaceVicinity(String placeVicinity) {
-        this.placeVicinity = placeVicinity;
-    }
 
     public List<Photo> getPlacePhoto() {
         return placePhoto;
@@ -79,4 +66,10 @@ public class PlaceFormater {
         this.placePhoto = placePhoto;
     }
 
+    @Override
+    public String toString() {
+        return          "placeName = " + placeName + "\n" +
+                        "placeLat = " + lat + "\n" +
+                        "placeLng = " + lng;
+    }
 }

@@ -14,7 +14,7 @@ import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 
 public class PlaceApiDataConverter {
     List<Result> resultList;
-    ArrayList<PlaceFormater> placeDetailList;
+    ArrayList<PlaceFormater> placeDetailList = new ArrayList<>();
 
     public PlaceApiDataConverter(List<Result> resultList) {
         this.resultList = resultList;
@@ -25,12 +25,12 @@ public class PlaceApiDataConverter {
     }
 
     public void setPlaceDetailList(ArrayList<PlaceFormater> placeDetailList) {
-        this.placeDetailList = new ArrayList<>();
+        this.placeDetailList = placeDetailList;
     }
 
 //    public ArrayList<PlaceFormater> getFormatedListOfPlace() {
 //        ArrayList<PlaceFormater> formatedList = new ArrayList<>();
-//        for (Result result : this.resultList) {
+//        for (PlaceDetailResult result : this.resultList) {
 //            formatedList.add(new PlaceFormater(result));
 //        }
 //        return formatedList;
@@ -50,7 +50,7 @@ public class PlaceApiDataConverter {
         // Position of Marker on Map
         markerOptions.position(latLng);
         // Adding Title to the Marker
-        markerOptions.title(formatedPlace.getPlaceName() + " : " + formatedPlace.getPlaceVicinity());
+        markerOptions.title(formatedPlace.getPlaceName());
         // Adding Marker to the Camera.
         Marker m = googleMap.addMarker(markerOptions);
         // Adding colour to the marker

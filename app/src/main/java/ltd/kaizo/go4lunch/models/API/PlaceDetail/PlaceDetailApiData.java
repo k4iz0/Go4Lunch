@@ -11,7 +11,7 @@ public class PlaceDetailApiData {
     private List<Object> htmlAttributions = null;
     @SerializedName("result")
     @Expose
-    private Result result;
+    private PlaceDetailResult result;
     @SerializedName("status")
     @Expose
     private String status;
@@ -24,11 +24,11 @@ public class PlaceDetailApiData {
         this.htmlAttributions = htmlAttributions;
     }
 
-    public Result getResult() {
+    public PlaceDetailResult getResult() {
         return result;
     }
 
-    public void setResult(Result result) {
+    public void setResult(PlaceDetailResult result) {
         this.result = result;
     }
 

@@ -270,14 +270,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     public void onComplete() {
                         Log.i("StreamFetchNearby", "search complete");
+                        placeDetailList = new ArrayList<>();
                         for (String id : placeIdList) {
-                            Log.i(TAG, "StreamFetchNearby onComplete: placeId = " + id);
+                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + id );
                             executeStreamFetchPlaceDetail(id);
                         }
-                        for (PlaceFormater place : placeDetailList) {
-                            Log.i(TAG, "StreamFetchNearby onComplete: adding marker for "+place.getPlaceName());
-                            restaurantList.addMarkerFromList(googleMap, place);
-                        }
+
 
                     }
                 });
@@ -290,8 +288,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData.getResult() != null) {
-                            placeDetailList.add(new PlaceFormater(placeDetailApiData.getResult()));
+                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
+                            //add place to list
+                            placeDetailList.add(place);
+                            // add marker on map
+                            restaurantList.addMarkerFromList(googleMap,place);
+                            // save the list
                             restaurantList.setPlaceDetailList(placeDetailList);
+                            write(RESTAURANT_LIST_KEY,gson.toJson(restaurantList));
 
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
@@ -305,7 +309,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                     @Override
                     public void onComplete() {
-                        Log.i("StreamFetchPlaceDetail", "search complete");
+                        Log.i("StreamFetchPlaceDetail", "search complete ");
                     }
                 });
 

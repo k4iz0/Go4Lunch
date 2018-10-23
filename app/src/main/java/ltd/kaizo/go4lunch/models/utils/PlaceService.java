@@ -59,7 +59,7 @@ public interface PlaceService {
     @GET("details/json?fields=name," +
             "rating," +
             "geometry," +
-            "formatted_address," +
+            "vicinity," +
             "opening_hours" +
             "&key=" + apiKey)
     Observable<PlaceDetailApiData> getPlaceDetails(@Query("placeid") String placeid);
