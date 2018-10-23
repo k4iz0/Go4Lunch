@@ -12,6 +12,7 @@ public class PlaceFormater {
     String placeName;
     String placeAdress;
     String placeHour;
+    int placeRate;
     List<Photo> placePhoto;
 
     public PlaceFormater(PlaceDetailResult result) {
@@ -19,9 +20,34 @@ public class PlaceFormater {
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAdress = result.getVicinity();
         this.placeName = result.getName();
+        setPlaceRate(result.getRating());
 //        this.placeHour = result.getOpeningHours().getPeriods()
 //        this.placePhoto = result.getPhotos();
 
+    }
+
+    public int getPlaceRate() {
+        return placeRate;
+    }
+
+    /**
+     * convert google rating to int 0,1,2,3
+     * to match the stars to display in the list
+     * @param placeRate
+     */
+    public void setPlaceRate(Double placeRate) {
+        int tmp;
+        if (placeRate < 1) {
+            tmp = 0;
+        } else if (placeRate <= 2) {
+            tmp = 1;
+        } else if (placeRate <= 4) {
+            tmp = 2;
+        } else {
+            tmp = 3;
+        }
+
+        this.placeRate = tmp;
     }
 
     public String getPlaceAdress() {
@@ -68,8 +94,8 @@ public class PlaceFormater {
 
     @Override
     public String toString() {
-        return          "placeName = " + placeName + "\n" +
-                        "placeLat = " + lat + "\n" +
-                        "placeLng = " + lng;
+        return "placeName = " + placeName + "\n" +
+                "placeLat = " + lat + "\n" +
+                "placeLng = " + lng;
     }
 }

@@ -38,17 +38,35 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
 
     public PlaceViewholder(View itemView) {
         super(itemView);
-        ButterKnife.bind(this,itemView);
+        ButterKnife.bind(this, itemView);
     }
 
     public void updateViewWithRestaurant(List<PlaceFormater> restaurantList, int position, RequestManager glide) {
         for (PlaceFormater place : restaurantList) {
-            Log.i("ListFragment", "getRestaurantListFromMap: "+place.toString());
+            Log.i("ListFragment", "getRestaurantListFromMap: " + place.toString());
         }
         placeName.setText(restaurantList.get(position).getPlaceName());
         placeAdress.setText(restaurantList.get(position).getPlaceAdress());
+        this.displayRatingStars(restaurantList.get(position).getPlaceRate());
 //        placeHours.setText(restaurantList.get(position).get);
 
 
+    }
+
+    private void displayRatingStars(int rate) {
+        switch (rate) {
+            case 1:
+                rateStar1.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                rateStar1.setVisibility(View.VISIBLE);
+                rateStar2.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                rateStar1.setVisibility(View.VISIBLE);
+                rateStar2.setVisibility(View.VISIBLE);
+                rateStar3.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 }

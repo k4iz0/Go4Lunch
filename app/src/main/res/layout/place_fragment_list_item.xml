@@ -36,7 +36,7 @@
 
     <TextView
         android:id="@+id/item_list_place_opening_hour_textview"
-        android:layout_width="240"
+        android:layout_width="240dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
@@ -104,47 +104,44 @@
         android:id="@+id/item_list_star1_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.781"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/item_list_star2_imageview"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.879" />
+        app:layout_constraintVertical_bias="0.912"
+        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/item_list_star2_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/item_list_person_number_textview"
-        app:layout_constraintHorizontal_bias="0.963"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/item_list_star3_imageview"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.877" />
+        app:layout_constraintVertical_bias="0.912"
+        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/item_list_star3_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="260dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.696"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.877" />
+        app:layout_constraintVertical_bias="0.912"
+        android:visibility="invisible"/>
 </android.support.constraint.ConstraintLayout>
