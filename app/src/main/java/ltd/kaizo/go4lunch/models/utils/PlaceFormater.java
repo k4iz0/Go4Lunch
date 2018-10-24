@@ -1,26 +1,29 @@
 package ltd.kaizo.go4lunch.models.utils;
 
-import java.util.List;
+import android.util.Log;
 
-import ltd.kaizo.go4lunch.models.API.NearbySearch.Photo;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
 public class PlaceFormater {
 
-    Double lat;
-    Double lng;
-    String placeName;
-    String placeAdress;
-    String placeHour;
-    int placeRate;
-    List<Photo> placePhoto;
+    private Double lat;
+    private Double lng;
+    private String placeName;
+    private String placeAdress;
+    private String placeHour;
+    private int placeRate;
+    private String placePhoto;
+    private PlaceDetailResult result;
 
-    public PlaceFormater(PlaceDetailResult result) {
+    public PlaceFormater(PlaceDetailResult placeDetailResult) {
+        this.result = placeDetailResult;
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAdress = result.getVicinity();
         this.placeName = result.getName();
-        setPlaceRate(result.getRating());
+        setPlacePhoto();
+        setPlaceRate();
 //        this.placeHour = result.getOpeningHours().getPeriods()
 //        this.placePhoto = result.getPhotos();
 
@@ -33,20 +36,20 @@ public class PlaceFormater {
     /**
      * convert google rating to int 0,1,2,3
      * to match the stars to display in the list
-     * @param placeRate
      */
-    public void setPlaceRate(Double placeRate) {
-        int tmp;
-        if (placeRate < 1) {
-            tmp = 0;
-        } else if (placeRate <= 2) {
-            tmp = 1;
-        } else if (placeRate <= 4) {
-            tmp = 2;
-        } else {
-            tmp = 3;
+    private void setPlaceRate() {
+        int tmp = 0;
+        if (this.result.getRating() != null) {
+            if (placeRate < 1) {
+                tmp = 0;
+            } else if (placeRate <= 2) {
+                tmp = 1;
+            } else if (placeRate <= 4) {
+                tmp = 2;
+            } else {
+                tmp = 3;
+            }
         }
-
         this.placeRate = tmp;
     }
 
@@ -84,18 +87,28 @@ public class PlaceFormater {
     }
 
 
-    public List<Photo> getPlacePhoto() {
+    public String getPlacePhoto() {
         return placePhoto;
     }
 
-    public void setPlacePhoto(List<Photo> placePhoto) {
-        this.placePhoto = placePhoto;
+    private void setPlacePhoto() {
+        if (this.result.getPhotos() != null && this.result.getPhotos().size() > 0) {
+            for (Photo reference : result.getPhotos()) {
+            Log.i("PaceFormater", "setPlacePhoto: "+reference.getPhotoReference());
+
+            }
+            this.placePhoto = this.result.getPhotos().get(1).getPhotoReference();
+        } else {
+            this.placePhoto = "";
+        }
     }
 
     @Override
     public String toString() {
         return "placeName = " + placeName + "\n" +
                 "placeLat = " + lat + "\n" +
-                "placeLng = " + lng;
+                "placeLng = " + lng + "\n" +
+                "photoUrl = " + placePhoto + "\n" +
+                "rating = " + placeRate;
     }
 }

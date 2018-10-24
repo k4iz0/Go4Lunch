@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
+
+import static ltd.kaizo.go4lunch.models.utils.PlaceService.apiKey;
 
 public class PlaceViewholder extends RecyclerView.ViewHolder {
     @BindView(R.id.item_list_name_textview)
@@ -34,7 +37,7 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView rateStar2;
     @BindView(R.id.item_list_star3_imageview)
     ImageView rateStar3;
-
+    private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&maxheight=100&photoreference=";
 
     public PlaceViewholder(View itemView) {
         super(itemView);
@@ -48,6 +51,14 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         placeName.setText(restaurantList.get(position).getPlaceName());
         placeAdress.setText(restaurantList.get(position).getPlaceAdress());
         this.displayRatingStars(restaurantList.get(position).getPlaceRate());
+            String photoUrl = "";
+        if (!restaurantList.get(position).getPlacePhoto().equals("")) {
+            photoUrl = restaurantList.get(position).getPlacePhoto()+"&key=" + apiKey;
+        }
+            glide.load(photoUrl)
+                    .apply(RequestOptions.centerCropTransform())
+                    .into(this.placePhoto);
+
 //        placeHours.setText(restaurantList.get(position).get);
 
 

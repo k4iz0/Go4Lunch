@@ -4,6 +4,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData
+import ltd.kaizo.go4lunch.models.API.NearbySearch.Result
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData
 import java.util.concurrent.TimeUnit
 

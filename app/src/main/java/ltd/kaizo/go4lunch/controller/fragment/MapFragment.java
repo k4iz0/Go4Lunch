@@ -5,6 +5,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,14 +24,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
@@ -66,8 +65,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private String TAG = getClass().getSimpleName();
     private Location currentLocation;
-    private PlaceDetectionClient placeDetectionClient;
-    private GeoDataClient geoDataClient;
     private Disposable disposable;
     private PlaceApiDataConverter restaurantList;
     private ArrayList<PlaceFormater> placeDetailList;
@@ -110,12 +107,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         if (isServiceOK()) {
             this.getLocationPermission();
             this.configureFloatingButton();
-            // Construct a GeoDataClient.
-            this.geoDataClient = Places.getGeoDataClient(getContext());
-
-            // Construct a PlaceDetectionClient.
-            this.placeDetectionClient = Places.getPlaceDetectionClient(getContext());
-
             // Construct a FusedLocationProviderClient.
             this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
 
@@ -176,7 +167,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     /**
      * check if the Google Play services are available to make map request
      *
-     * @return
+     * @return Boolean
      */
     private boolean isServiceOK() {
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext());
@@ -202,11 +193,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             Log.d(TAG, "onComplete: found location !");
                             currentLocation = (Location) task.getResult();
                             moveCameraToCurrentLocation(currentLocation);
-                            executeStreamFetchNearbyRestaurant();
+//                            executeStreamFetchNearbyRestaurant();
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
-                            Snackbar.make(getView(), "Unable to get current location \nhave you enable localisation on your device ?", 5).show();
+                            Toast.makeText(getContext(), "Unable to get current location \nhave you enable localisation on your device ?", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -229,18 +220,38 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to : lat : " + latLng.latitude + ", long : " + latLng.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        executeStreamFetchNearbyRestaurant();
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+        this.setMapViewStyle();
         if (locationPermissionsGranted) {
             getDeviceLocation();
             this.googleMap.setMyLocationEnabled(false);
 
         }
 
+    }
+
+    private void setMapViewStyle() {
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            if (getContext() != null) {
+                boolean success = googleMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(
+                                this.getContext(), R.raw.style_json));
+
+                if (!success) {
+                    Log.e(TAG, "Style parsing failed.");
+                }
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
     }
 
     //****************************
@@ -272,7 +283,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                         Log.i("StreamFetchNearby", "search complete");
                         placeDetailList = new ArrayList<>();
                         for (String id : placeIdList) {
-                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + id );
+                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + id);
                             executeStreamFetchPlaceDetail(id);
                         }
 
@@ -292,10 +303,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             //add place to list
                             placeDetailList.add(place);
                             // add marker on map
-                            restaurantList.addMarkerFromList(googleMap,place);
+                            restaurantList.addMarkerFromList(googleMap, place);
                             // save the list
                             restaurantList.setPlaceDetailList(placeDetailList);
-                            write(RESTAURANT_LIST_KEY,gson.toJson(restaurantList));
+                            write(RESTAURANT_LIST_KEY, gson.toJson(restaurantList));
 
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
