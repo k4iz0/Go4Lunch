@@ -14,12 +14,12 @@ private String formattedAddress;
     @SerializedName("name")
     @Expose
     private String name;
-    @SerializedName("photos")
-    @Expose
-    private List<Photo> photos = null;
     @SerializedName("opening_hours")
     @Expose
     private OpeningHours openingHours;
+    @SerializedName("photos")
+    @Expose
+    private List<Photo> photos = null;
     @SerializedName("rating")
     @Expose
     private Double rating;
@@ -58,6 +58,7 @@ private String formattedAddress;
     public void setOpeningHours(OpeningHours openingHours) {
         this.openingHours = openingHours;
     }
+
     public List<Photo> getPhotos() {
         return photos;
     }
@@ -65,6 +66,7 @@ private String formattedAddress;
     public void setPhotos(List<Photo> photos) {
         this.photos = photos;
     }
+
     public Double getRating() {
         return rating;
     }

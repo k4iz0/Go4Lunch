@@ -193,7 +193,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             Log.d(TAG, "onComplete: found location !");
                             currentLocation = (Location) task.getResult();
                             moveCameraToCurrentLocation(currentLocation);
-//                            executeStreamFetchNearbyRestaurant();
+                            executeStreamFetchNearbyRestaurant();
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
@@ -220,7 +220,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     public void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to : lat : " + latLng.latitude + ", long : " + latLng.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-        executeStreamFetchNearbyRestaurant();
     }
 
     @SuppressLint("MissingPermission")
@@ -293,7 +292,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
-    private void executeStreamFetchPlaceDetail(String placeId) {
+    private void executeStreamFetchPlaceDetail(final String placeId) {
         this.disposable = PlaceStream.INSTANCE.streamFetchPlaceDetail(placeId)
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
                     @Override

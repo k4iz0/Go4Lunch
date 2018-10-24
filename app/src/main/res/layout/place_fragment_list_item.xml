@@ -3,18 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-   >
+    android:layout_height="96dp">
 
     <TextView
         android:id="@+id/item_list_name_textview"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:textSize="14sp"
-        android:maxLines="1"
         android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@android:color/black"
+        android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/item_list_place_distance_textview"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="Chez Mario" />
@@ -62,8 +61,8 @@
 
     <ImageView
         android:id="@+id/item_list_place_photo_imageview"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
@@ -84,17 +83,17 @@
         android:src="@drawable/ic_person"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/item_list_place_photo_imageview"
-        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/item_list_place_adress_textview"
         app:layout_constraintTop_toBottomOf="@+id/item_list_place_distance_textview"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintVertical_bias="0.268" />
 
     <TextView
         android:id="@+id/item_list_person_number_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/item_list_place_adress_textview"
         app:layout_constraintEnd_toStartOf="@+id/item_list_place_photo_imageview"
         app:layout_constraintHorizontal_bias="1.0"
@@ -106,43 +105,50 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="96dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/item_list_star2_imageview"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912"
-        android:visibility="invisible"/>
+        app:layout_constraintVertical_bias="0.917" />
 
     <ImageView
         android:id="@+id/item_list_star2_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/item_list_person_number_textview"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toStartOf="@+id/item_list_star1_imageview"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/item_list_star3_imageview"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912"
-        android:visibility="invisible"/>
+        app:layout_constraintVertical_bias="0.917" />
 
     <ImageView
         android:id="@+id/item_list_star3_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginStart="260dp"
+        android:layout_marginStart="256dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/item_list_star2_imageview"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/item_list_place_opening_hour_textview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912"
-        android:visibility="invisible"/>
+        app:layout_constraintVertical_bias="0.912" />
+
 </android.support.constraint.ConstraintLayout>

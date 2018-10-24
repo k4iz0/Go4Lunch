@@ -3,6 +3,7 @@ import org.junit.Test;
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
 import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.utils.PlaceStream;
 
 import static org.junit.Assert.assertEquals;
@@ -26,8 +27,8 @@ public class PlaceStreamTest {
 
     @Test
     public void streamFetchPlaceDetailResponseShouldBeOK() {
-        Observable<PlaceApiData> apidata = PlaceStream.INSTANCE.streamFetchPlaceDetail("ChIJ264QumksEkgRyrZAcMn-Zus");
-        TestObserver<PlaceApiData> testObserver = new TestObserver<>();
+        Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchPlaceDetail("ChIJ264QumksEkgRyrZAcMn-Zus");
+        TestObserver<PlaceDetailApiData> testObserver = new TestObserver<>();
         apidata.subscribeWith(testObserver)
                 .assertNoErrors()
                 .assertNoTimeout()

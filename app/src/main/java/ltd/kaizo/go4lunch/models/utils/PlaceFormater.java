@@ -22,8 +22,8 @@ public class PlaceFormater {
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAdress = result.getVicinity();
         this.placeName = result.getName();
-        setPlacePhoto();
         setPlaceRate();
+        setPlacePhoto();
 //        this.placeHour = result.getOpeningHours().getPeriods()
 //        this.placePhoto = result.getPhotos();
 
@@ -39,12 +39,14 @@ public class PlaceFormater {
      */
     private void setPlaceRate() {
         int tmp = 0;
+        double googleRating;
         if (this.result.getRating() != null) {
-            if (placeRate < 1) {
+            googleRating = this.result.getRating();
+            if (googleRating < 1) {
                 tmp = 0;
-            } else if (placeRate <= 2) {
+            } else if (googleRating <= 2) {
                 tmp = 1;
-            } else if (placeRate <= 4) {
+            } else if (googleRating <= 4) {
                 tmp = 2;
             } else {
                 tmp = 3;
@@ -97,7 +99,7 @@ public class PlaceFormater {
             Log.i("PaceFormater", "setPlacePhoto: "+reference.getPhotoReference());
 
             }
-            this.placePhoto = this.result.getPhotos().get(1).getPhotoReference();
+            this.placePhoto = this.result.getPhotos().get(0).getPhotoReference();
         } else {
             this.placePhoto = "";
         }

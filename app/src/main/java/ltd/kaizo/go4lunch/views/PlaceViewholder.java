@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
 
+import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 import static ltd.kaizo.go4lunch.models.utils.PlaceService.apiKey;
 
 public class PlaceViewholder extends RecyclerView.ViewHolder {
@@ -37,7 +39,7 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView rateStar2;
     @BindView(R.id.item_list_star3_imageview)
     ImageView rateStar3;
-    private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&maxheight=100&photoreference=";
+    private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=80&maxheight=80&photoreference=";
 
     public PlaceViewholder(View itemView) {
         super(itemView);
@@ -53,10 +55,11 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         this.displayRatingStars(restaurantList.get(position).getPlaceRate());
             String photoUrl = "";
         if (!restaurantList.get(position).getPlacePhoto().equals("")) {
-            photoUrl = restaurantList.get(position).getPlacePhoto()+"&key=" + apiKey;
+            photoUrl = placePhotoRequestUrl+restaurantList.get(position).getPlacePhoto()+"&key=" + apiKey;
         }
-            glide.load(photoUrl)
-                    .apply(RequestOptions.centerCropTransform())
+
+        glide.load(photoUrl)
+                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                     .into(this.placePhoto);
 
 //        placeHours.setText(restaurantList.get(position).get);
