@@ -57,7 +57,7 @@ public class ListFragment extends BaseFragment {
     }
 
     private void getRestaurantListFromMap() {
-        this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY).getPlaceDetailList();
+        this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
 
 
     }

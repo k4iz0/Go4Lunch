@@ -70,7 +70,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private ArrayList<PlaceFormater> placeDetailList;
     private Gson gson = new Gson();
     private ArrayList<String> placeIdList;
-
+     int nb;
     @Override
     protected int getFragmentLayout() {
         return R.id.fragment_map_layout;
@@ -185,7 +185,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private void getDeviceLocation() {
         try {
             if (locationPermissionsGranted) {
-                Task location = this.fusedLocationProviderClient.getLastLocation();
+                final Task location = this.fusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
@@ -193,7 +193,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             Log.d(TAG, "onComplete: found location !");
                             currentLocation = (Location) task.getResult();
                             moveCameraToCurrentLocation(currentLocation);
-                            executeStreamFetchNearbyRestaurant();
+                            executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
@@ -257,69 +257,45 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     //******  DATA STREAMS *******
     //****************************
 
-    private void executeStreamFetchNearbyRestaurant() {
-        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurant(formatLocationToString())
-                .subscribeWith(new DisposableObserver<PlaceApiData>() {
-                    @Override
-                    public void onNext(PlaceApiData placeApiData) {
-                        if (placeApiData.getResults().size() > 0) {
-                            Log.i(TAG, "onNext: result found !");
-                            restaurantList = new PlaceApiDataConverter(placeApiData.getResults());
-                            placeIdList = restaurantList.getListOfPlaceID();
+    private void executeStreamFetchNearbyRestaurantAndGetPlaceDetail() {
 
-                        } else {
-                            Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i("StreamFetchNearby", "search error : " + e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.i("StreamFetchNearby", "search complete");
-                        placeDetailList = new ArrayList<>();
-                        for (String id : placeIdList) {
-                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + id);
-                            executeStreamFetchPlaceDetail(id);
-                        }
-
-
-                    }
-                });
-
-    }
-
-    private void executeStreamFetchPlaceDetail(final String placeId) {
-        this.disposable = PlaceStream.INSTANCE.streamFetchPlaceDetail(placeId)
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString())
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
                     @Override
+                    protected void onStart() {
+                        super.onStart();
+                        placeDetailList = new ArrayList<>();
+                        nb =0;
+                    }
+                    @Override
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
-                        if (placeDetailApiData.getResult() != null) {
-                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
-                            //add place to list
-                            placeDetailList.add(place);
-                            // add marker on map
-                            restaurantList.addMarkerFromList(googleMap, place);
-                            // save the list
-                            restaurantList.setPlaceDetailList(placeDetailList);
-                            write(RESTAURANT_LIST_KEY, gson.toJson(restaurantList));
-
+                        if (placeDetailApiData != null) {
+                                PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
+                            Log.i(TAG, "onNext: place = "+place.getPlaceName());
+                                //add place to list
+                                placeDetailList.add(place);
+                                // add marker on map
+                                place.addMarkerFromList(googleMap, place);
+                                // save the list
+                                write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
                         }
+                        nb++;
+                        Log.i(TAG, "onNext: nb="+nb);
                     }
-
                     @Override
                     public void onError(Throwable e) {
                         Log.i("StreamFetchPlaceDetail ", "search error : " + e);
                     }
-
                     @Override
                     public void onComplete() {
                         Log.i("StreamFetchPlaceDetail", "search complete ");
+
+                        for (PlaceFormater name : placeDetailList) {
+                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + name.getPlaceName());
+                        }
+
                     }
                 });
 

@@ -2,6 +2,12 @@ package ltd.kaizo.go4lunch.models.utils;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
@@ -104,7 +110,18 @@ public class PlaceFormater {
             this.placePhoto = "";
         }
     }
-
+    public void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
+        MarkerOptions markerOptions = new MarkerOptions();
+        LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
+        // Position of Marker on Map
+        markerOptions.position(latLng);
+        // Adding Title to the Marker
+        markerOptions.title(formatedPlace.getPlaceName());
+        // Adding Marker to the Camera.
+        Marker m = googleMap.addMarker(markerOptions);
+        // Adding colour to the marker
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+    }
     @Override
     public String toString() {
         return "placeName = " + placeName + "\n" +

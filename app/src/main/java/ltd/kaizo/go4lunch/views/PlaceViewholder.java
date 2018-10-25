@@ -59,7 +59,7 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         }
 
         glide.load(photoUrl)
-                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
+//                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                     .into(this.placePhoto);
 
 //        placeHours.setText(restaurantList.get(position).get);

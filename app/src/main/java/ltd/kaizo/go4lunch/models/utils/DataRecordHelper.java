@@ -5,6 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
 
@@ -110,10 +114,11 @@ public class DataRecordHelper {
          * @param KEY the key
          * @return the searchQuery object from sharedPreferences
          */
-        public static PlaceApiDataConverter getRestaurantListFromSharedPreferences(String KEY) {
+        public static ArrayList<PlaceFormater> getRestaurantListFromSharedPreferences(String KEY) {
             Gson gson = new Gson();
             String gsonStr="";
-            return gson.fromJson(read(KEY, gsonStr),PlaceApiDataConverter.class);
+            Type type = new TypeToken<ArrayList<PlaceFormater>>(){}.getType();
+            return gson.fromJson(read(KEY, gsonStr),type);
         }
 
 
