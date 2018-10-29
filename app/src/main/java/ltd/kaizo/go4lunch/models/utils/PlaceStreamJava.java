@@ -11,6 +11,7 @@ import io.reactivex.schedulers.Schedulers;
 import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
 import ltd.kaizo.go4lunch.models.API.NearbySearch.Result;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
+import ltd.kaizo.go4lunch.models.API.Stream.PlaceService;
 
 public class PlaceStreamJava {
     public static Observable<PlaceApiData>  streamFetchNearbyRestaurant(String location) {

@@ -29,5 +29,8 @@
     <string name="user_logout">User log out</string>
     <string name="person">person</string>
     <string name="star">star</string>
+    <string name="call">CALL</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
 
 </resources>

@@ -7,18 +7,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
 
-import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
-import static ltd.kaizo.go4lunch.models.utils.PlaceService.apiKey;
+import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
 public class PlaceViewholder extends RecyclerView.ViewHolder {
     @BindView(R.id.item_list_name_textview)
@@ -39,6 +38,9 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView rateStar2;
     @BindView(R.id.item_list_star3_imageview)
     ImageView rateStar3;
+    /**
+     * The Callback weak ref.
+     */
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=80&maxheight=80&photoreference=";
 
     public PlaceViewholder(View itemView) {
@@ -53,14 +55,14 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         placeName.setText(restaurantList.get(position).getPlaceName());
         placeAdress.setText(restaurantList.get(position).getPlaceAdress());
         this.displayRatingStars(restaurantList.get(position).getPlaceRate());
-            String photoUrl = "";
+        String photoUrl = "";
         if (!restaurantList.get(position).getPlacePhoto().equals("")) {
-            photoUrl = placePhotoRequestUrl+restaurantList.get(position).getPlacePhoto()+"&key=" + apiKey;
+            photoUrl = placePhotoRequestUrl + restaurantList.get(position).getPlacePhoto() + "&key=" + apiKey;
         }
 
         glide.load(photoUrl)
 //                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
-                    .into(this.placePhoto);
+                .into(this.placePhoto);
 
 //        placeHours.setText(restaurantList.get(position).get);
 

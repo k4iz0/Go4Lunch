@@ -4,6 +4,7 @@ package ltd.kaizo.go4lunch.controller.fragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
@@ -39,11 +41,10 @@ import java.util.ArrayList;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
-import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
-import ltd.kaizo.go4lunch.models.utils.PlaceFormater;
-import ltd.kaizo.go4lunch.models.utils.PlaceStream;
+import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
@@ -66,11 +67,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private String TAG = getClass().getSimpleName();
     private Location currentLocation;
     private Disposable disposable;
-    private PlaceApiDataConverter restaurantList;
     private ArrayList<PlaceFormater> placeDetailList;
     private Gson gson = new Gson();
-    private ArrayList<String> placeIdList;
-     int nb;
+
     @Override
     protected int getFragmentLayout() {
         return R.id.fragment_map_layout;
@@ -235,6 +234,23 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    private void configureOnMarkerClick(final ArrayList<PlaceFormater> placeDetailList) {
+        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for (PlaceFormater place : placeDetailList) {
+                    if (marker.getTitle().equalsIgnoreCase(place.getPlaceName())) {
+                        Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
+                        detailActivity.putExtra("PlaceFormater", place);
+                        startActivity(detailActivity);
+
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
     private void setMapViewStyle() {
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -265,33 +281,34 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     protected void onStart() {
                         super.onStart();
                         placeDetailList = new ArrayList<>();
-                        nb =0;
                     }
+
                     @Override
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData != null) {
-                                PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
-                            Log.i(TAG, "onNext: place = "+place.getPlaceName());
-                                //add place to list
-                                placeDetailList.add(place);
-                                // add marker on map
-                                place.addMarkerFromList(googleMap, place);
-                                // save the list
-                                write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
+                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
+                            //add place to list
+                            placeDetailList.add(place);
+                            // add marker on map
+                            place.addMarkerFromList(googleMap, place);
+                            // save the list
+                            write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
                         }
-                        nb++;
-                        Log.i(TAG, "onNext: nb="+nb);
                     }
+
                     @Override
                     public void onError(Throwable e) {
                         Log.i("StreamFetchPlaceDetail ", "search error : " + e);
                     }
+
                     @Override
                     public void onComplete() {
                         Log.i("StreamFetchPlaceDetail", "search complete ");
 
+                        //configure click event
+                        configureOnMarkerClick(placeDetailList);
                         for (PlaceFormater name : placeDetailList) {
                             Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + name.getPlaceName());
                         }

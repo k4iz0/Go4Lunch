@@ -1,5 +1,8 @@
-package ltd.kaizo.go4lunch.models.utils;
+package ltd.kaizo.go4lunch.models;
 
+import android.content.Intent;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -8,10 +11,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
+import ltd.kaizo.go4lunch.controller.activities.MainActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
-public class PlaceFormater {
+public class PlaceFormater implements Parcelable {
 
     private Double lat;
     private Double lng;
@@ -34,6 +39,36 @@ public class PlaceFormater {
 //        this.placePhoto = result.getPhotos();
 
     }
+
+    protected PlaceFormater(Parcel in) {
+        if (in.readByte() == 0) {
+            lat = null;
+        } else {
+            lat = in.readDouble();
+        }
+        if (in.readByte() == 0) {
+            lng = null;
+        } else {
+            lng = in.readDouble();
+        }
+        placeName = in.readString();
+        placeAdress = in.readString();
+        placeHour = in.readString();
+        placeRate = in.readInt();
+        placePhoto = in.readString();
+    }
+
+    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
+        @Override
+        public PlaceFormater createFromParcel(Parcel in) {
+            return new PlaceFormater(in);
+        }
+
+        @Override
+        public PlaceFormater[] newArray(int size) {
+            return new PlaceFormater[size];
+        }
+    };
 
     public int getPlaceRate() {
         return placeRate;
@@ -110,7 +145,7 @@ public class PlaceFormater {
             this.placePhoto = "";
         }
     }
-    public void addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
+    public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
         // Position of Marker on Map
@@ -121,6 +156,7 @@ public class PlaceFormater {
         Marker m = googleMap.addMarker(markerOptions);
         // Adding colour to the marker
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        return m;
     }
     @Override
     public String toString() {
@@ -129,5 +165,31 @@ public class PlaceFormater {
                 "placeLng = " + lng + "\n" +
                 "photoUrl = " + placePhoto + "\n" +
                 "rating = " + placeRate;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (lat == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(lat);
+        }
+        if (lng == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(lng);
+        }
+        dest.writeString(placeName);
+        dest.writeString(placeAdress);
+        dest.writeString(placeHour);
+        dest.writeInt(placeRate);
+        dest.writeString(placePhoto);
     }
 }

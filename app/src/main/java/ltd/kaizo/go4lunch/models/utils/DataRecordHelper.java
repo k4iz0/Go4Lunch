@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import ltd.kaizo.go4lunch.models.PlaceApiDataConverter;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
 
 /**
  * Class to record and read data from the SharedPreferences

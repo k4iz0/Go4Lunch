@@ -3,6 +3,7 @@ import com.google.gms.googleservices.GoogleServicesPlugin
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 27
@@ -17,9 +18,15 @@ android {
 
     }
     buildTypes {
+        debug {
+            buildConfigField 'String', "ApiKey", go4lunch_google_maps_key
+            resValue 'string', "api_key", go4lunch_google_maps_key
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "ApiKey", go4lunch_google_maps_key
+            resValue 'string', "api_key", go4lunch_google_maps_key
         }
     }
 }

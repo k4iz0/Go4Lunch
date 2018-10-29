@@ -1,6 +1,7 @@
-package ltd.kaizo.go4lunch.models.utils;
+package ltd.kaizo.go4lunch.models.API.Stream;
 
 import io.reactivex.Observable;
+import ltd.kaizo.go4lunch.BuildConfig;
 import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import okhttp3.OkHttpClient;
@@ -15,7 +16,7 @@ public interface PlaceService {
     /**
      * The constant apiKey.
      */
-    String apiKey = "AIzaSyAG3j9kLkZrAMW2Y0b4458-wlgUuSDcEsY";
+    String apiKey = BuildConfig.ApiKey;
     /**
      * The constant url.
      */

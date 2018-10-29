@@ -8,7 +8,9 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -52,6 +54,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     DrawerLayout drawerLayout;
     @BindView(R.id.activity_main_nav_view)
     NavigationView navigationView;
+    @BindView(R.id.activity_main_toolbar)
+    Toolbar toolbar;
     TextView usernameTextview;
     TextView emailTextview;
     ImageView avatarImageView;
@@ -71,13 +75,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             this.configureAndShowMapFragment();
             this.configureBottomNavigationView();
+            this.configureToolbar();
             this.configureDrawerLayout();
             this.configureNavigationView();
             this.updateNavHeaderDesign();
         }
 
     }
+    private void configureToolbar() {
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
+        setSupportActionBar(toolbar);
 
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);

@@ -1,4 +1,4 @@
-package ltd.kaizo.go4lunch.models.utils
+package ltd.kaizo.go4lunch.models.API.Stream
 
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers

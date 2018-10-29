@@ -22,8 +22,7 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
 
 public abstract class BaseActivity extends AppCompatActivity {
-    @BindView(R.id.activity_main_toolbar)
-    Toolbar toolbar;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,7 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this);
         DataRecordHelper.init(getApplicationContext());
-        this.configureToolbar();
+
         this.configureDesign();
     }
 
@@ -39,14 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract void configureDesign();
 
-    protected void configureToolbar() {
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
-        setSupportActionBar(toolbar);
 
-    }
 
     @Nullable
     protected FirebaseUser getCurrentUser() {
