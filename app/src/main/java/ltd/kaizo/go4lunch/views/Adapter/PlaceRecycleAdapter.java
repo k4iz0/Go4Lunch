@@ -40,7 +40,11 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewholder> {
 
     @Override
     public int getItemCount() {
-        return restaurantList.size();
+        if (restaurantList != null) {
+            return restaurantList.size();
+        } else {
+            return 0;
+        }
     }
 
 

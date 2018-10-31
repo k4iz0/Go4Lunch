@@ -17,6 +17,8 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
  */
 public class DataRecordHelper {
     public static final String RESTAURANT_LIST_KEY = "RESTAURANT_LIST_KEY";
+    public static final String CURRENT_LATITUDE_KEY = "CURRENT_LATITUDE_KEY";
+    public static final String CURRENT_LONGITUDE_KEY = "CURRENT_LONGITUDE_KEY";
     /**
      * The constant sharedPreferences.
      */
@@ -105,6 +107,28 @@ public class DataRecordHelper {
     public static void write(String key, Integer value) {
         SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
         prefsEditor.putInt(key, value).apply();
+    }
+
+    /**
+     * Read double.
+     *
+     * @param key      the key
+     * @param defValue the def value
+     * @return the double
+     */
+    public static Double read(String key, double defValue) {
+        return (double) sharedPreferences.getLong(key, Double.doubleToLongBits(defValue));
+    }
+
+    /**
+     * Write double value in sharedPreferences
+     * by converting it to LongBits
+     * @param key   the key
+     * @param value the value
+     */
+    public static void write(String key, double value) {
+        SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
+        prefsEditor.putLong(key, Double.doubleToRawLongBits(value)).apply();
     }
 
 

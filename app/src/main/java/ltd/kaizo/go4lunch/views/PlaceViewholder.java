@@ -8,14 +8,12 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
-import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
 
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
@@ -53,18 +51,17 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
             Log.i("ListFragment", "getRestaurantListFromMap: " + place.toString());
         }
         placeName.setText(restaurantList.get(position).getPlaceName());
-        placeAdress.setText(restaurantList.get(position).getPlaceAdress());
+        placeAdress.setText(restaurantList.get(position).getPlaceAddress());
         this.displayRatingStars(restaurantList.get(position).getPlaceRate());
         String photoUrl = "";
         if (!restaurantList.get(position).getPlacePhoto().equals("")) {
             photoUrl = placePhotoRequestUrl + restaurantList.get(position).getPlacePhoto() + "&key=" + apiKey;
         }
-
+        placeDistance.setText(String.valueOf(restaurantList.get(position).getPlaceDistance())+"m");
         glide.load(photoUrl)
 //                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
-
-//        placeHours.setText(restaurantList.get(position).get);
+        placeHours.setText(restaurantList.get(position).formatStringWeekdayList());
 
 
     }
@@ -85,4 +82,5 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
                 break;
         }
     }
+
 }

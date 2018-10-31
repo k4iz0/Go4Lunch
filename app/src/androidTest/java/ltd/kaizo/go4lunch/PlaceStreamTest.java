@@ -1,3 +1,5 @@
+package ltd.kaizo.go4lunch;
+
 import org.junit.Test;
 
 import io.reactivex.Observable;

@@ -1,24 +1,18 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
-import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
-
-import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 
 public class DetailActivity extends BaseActivity {
     @BindView(R.id.activity_detail_photo_imageview)
@@ -57,7 +51,7 @@ public class DetailActivity extends BaseActivity {
 
     private void updateUiWithPlaceData() {
         placename.setText(place.getPlaceName());
-        placeAdress.setText(place.getPlaceAdress());
+        placeAdress.setText(place.getPlaceAddress());
          Glide.with(this).load(placePhotoRequestUrl+place.getPlacePhoto()+"&key="+BuildConfig.ApiKey)
                     .apply(RequestOptions.centerCropTransform())
                 .into(this.placePhoto);

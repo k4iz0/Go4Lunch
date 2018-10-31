@@ -66,5 +66,4 @@ public interface PlaceService {
             "&key=" + apiKey)
     Observable<PlaceDetailApiData> getPlaceDetails(@Query("placeid") String placeid);
 
-
 }

@@ -1,43 +1,54 @@
 package ltd.kaizo.go4lunch.models;
 
-import android.content.Intent;
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.SphericalUtil;
 
-import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
-import ltd.kaizo.go4lunch.controller.activities.MainActivity;
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
+
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 
 public class PlaceFormater implements Parcelable {
 
     private Double lat;
     private Double lng;
     private String placeName;
-    private String placeAdress;
-    private String placeHour;
+    private String placeAddress;
+    private List<String> placeHour;
     private int placeRate;
     private String placePhoto;
     private PlaceDetailResult result;
+    private int placeDistance;
+    private Location currentLocation;
 
-    public PlaceFormater(PlaceDetailResult placeDetailResult) {
+    public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
-        this.placeAdress = result.getVicinity();
+        this.placeAddress = result.getVicinity();
         this.placeName = result.getName();
+        this.currentLocation = currentLocation;
+        setPlaceDistance();
+        setPlaceHour();
         setPlaceRate();
         setPlacePhoto();
-//        this.placeHour = result.getOpeningHours().getPeriods()
-//        this.placePhoto = result.getPhotos();
-
     }
 
     protected PlaceFormater(Parcel in) {
@@ -52,10 +63,11 @@ public class PlaceFormater implements Parcelable {
             lng = in.readDouble();
         }
         placeName = in.readString();
-        placeAdress = in.readString();
-        placeHour = in.readString();
+        placeAddress = in.readString();
+        placeHour = in.createStringArrayList();
         placeRate = in.readInt();
         placePhoto = in.readString();
+        placeDistance = in.readInt();
     }
 
     public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
@@ -70,6 +82,39 @@ public class PlaceFormater implements Parcelable {
         }
     };
 
+    public double getPlaceDistance() {
+        return placeDistance;
+    }
+
+    private void setPlaceDistance() {
+
+        Log.i("PlaceFormater", "setPlaceDistance: lat = " + this.currentLocation.getLatitude() + " longitude = " + this.currentLocation.getLongitude() + "\n" +
+                " place lat = " + this.lat + "\n" +
+                "place lng = " + this.lng);
+        Long tmp =  Math.round(SphericalUtil.computeDistanceBetween(
+                new LatLng(this.currentLocation.getLatitude(), this.currentLocation.getLongitude()), //from
+                new LatLng(this.lat, this.lng)));//to
+        this.placeDistance = tmp.intValue();
+    }
+
+
+
+    public String formatStringWeekdayList() {
+        String str;
+        if (this.result.getOpeningHours() != null && !this.result.getOpeningHours().getOpenNow()) {
+            str = "closed";
+        } else if (this.placeHour.size() == 7 || this.placeHour.size() == 0) {
+            str = "Open 24/7";
+        } else {
+            str = "Open until "+this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+        }
+    return str;
+    }
+
+    private int getDayOfTheWeekNumber() {
+        DateTime dt = new DateTime();
+        return dt.getDayOfWeek()-1;
+    }
     public int getPlaceRate() {
         return placeRate;
     }
@@ -96,14 +141,25 @@ public class PlaceFormater implements Parcelable {
         this.placeRate = tmp;
     }
 
-    public String getPlaceAdress() {
-        return placeAdress;
+    public String getPlaceAddress() {
+        return placeAddress;
     }
 
-    public void setPlaceAdress(String placeAdress) {
-        this.placeAdress = placeAdress;
+    public void setPlaceAddress(String placeAddress) {
+        this.placeAddress = placeAddress;
     }
 
+    public List<String> getPlaceHour() {
+        return placeHour;
+    }
+
+    private void setPlaceHour() {
+        if (this.result.getOpeningHours() != null) {
+            this.placeHour = this.result.getOpeningHours().getWeekdayText();
+        } else {
+            this.placeHour = new ArrayList<>();
+        }
+    }
 
     public Double getLat() {
         return lat;
@@ -167,6 +223,7 @@ public class PlaceFormater implements Parcelable {
                 "rating = " + placeRate;
     }
 
+
     @Override
     public int describeContents() {
         return 0;
@@ -187,9 +244,10 @@ public class PlaceFormater implements Parcelable {
             dest.writeDouble(lng);
         }
         dest.writeString(placeName);
-        dest.writeString(placeAdress);
-        dest.writeString(placeHour);
+        dest.writeString(placeAddress);
+        dest.writeStringList(placeHour);
         dest.writeInt(placeRate);
         dest.writeString(placePhoto);
+        dest.writeDouble(placeDistance);
     }
 }

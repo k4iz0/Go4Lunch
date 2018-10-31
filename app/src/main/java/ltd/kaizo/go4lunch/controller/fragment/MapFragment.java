@@ -46,6 +46,8 @@ import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
@@ -189,8 +191,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                            Log.d(TAG, "onComplete: found location !");
                             currentLocation = (Location) task.getResult();
+                            write(CURRENT_LATITUDE_KEY,currentLocation.getLatitude());
+                            write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
+                            Log.d(TAG, "onComplete: found location ! lat = "+currentLocation.getLatitude() +" et long = "+currentLocation.getLongitude());
                             moveCameraToCurrentLocation(currentLocation);
                             executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
                         } else {
@@ -286,7 +290,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData != null) {
-                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult());
+                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
                             //add place to list
                             placeDetailList.add(place);
                             // add marker on map
@@ -320,6 +324,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     private String formatLocationToString() {
         if (this.currentLocation != null) {
+
             return this.currentLocation.getLatitude() + "," + currentLocation.getLongitude();
 
         } else {

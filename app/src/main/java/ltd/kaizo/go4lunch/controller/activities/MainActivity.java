@@ -39,6 +39,7 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.fragment.ListFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
+import ltd.kaizo.go4lunch.models.API.UserHelper;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
 
@@ -73,8 +74,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
         } else {
-            this.configureAndShowMapFragment();
             this.configureBottomNavigationView();
+            this.configureAndShowMapFragment();
             this.configureToolbar();
             this.configureDrawerLayout();
             this.configureNavigationView();
@@ -82,6 +83,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
     }
+
     private void configureToolbar() {
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -90,6 +92,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         setSupportActionBar(toolbar);
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
@@ -304,8 +307,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (resultCode == RESULT_OK) {//SUCCESS
+            if (this.getCurrentUser() != null) {
+                UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString()).addOnFailureListener(this.onFailureListener());
+            }
             showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             this.configureDesign();
+
         } else {//ERROR
             if (response == null) {
                 showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
@@ -337,7 +344,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
 
     }
+
     private void updateMapWithPlace(LatLng latLng) {
-        this.mapFragment.moveCamera(latLng,DEFAULT_ZOOM);
+        this.mapFragment.moveCamera(latLng, DEFAULT_ZOOM);
     }
 }

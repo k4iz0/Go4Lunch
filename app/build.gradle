@@ -47,12 +47,15 @@ dependencies {
     implementation "com.google.firebase:firebase-core:16.0.4"
     // FirebaseUI
     implementation 'com.firebaseui:firebase-ui-auth:4.2.0'
+    //FIRESTORE
+    implementation 'com.firebaseui:firebase-ui-firestore:4.2.0'
     //FACEBOOK
     implementation 'com.facebook.android:facebook-android-sdk:4.37.0'
     //GOOGLE
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-places:16.0.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
     //GLIDE
     implementation 'com.github.bumptech.glide:glide:4.8.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
@@ -66,6 +69,8 @@ dependencies {
     //LEAKCANARY
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+    //JODATIME
+    implementation 'joda-time:joda-time:2.10.1'
 
 }
 GoogleServicesPlugin.config.disableVersionCheck = true
