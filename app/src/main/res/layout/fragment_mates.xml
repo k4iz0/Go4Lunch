@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     android:id="@+id/fragment_mates_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".controller.fragment.MatesFragment">
 
-    <TextView
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/fragment_mates_recycleView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Mates fragment" />
+        android:layout_height="80dp" />
 
-</FrameLayout>
+</LinearLayout>

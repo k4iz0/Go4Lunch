@@ -82,7 +82,7 @@ public class PlaceFormater implements Parcelable {
         }
     };
 
-    public double getPlaceDistance() {
+    public int getPlaceDistance() {
         return placeDistance;
     }
 
@@ -94,7 +94,7 @@ public class PlaceFormater implements Parcelable {
         Long tmp =  Math.round(SphericalUtil.computeDistanceBetween(
                 new LatLng(this.currentLocation.getLatitude(), this.currentLocation.getLongitude()), //from
                 new LatLng(this.lat, this.lng)));//to
-        this.placeDistance = tmp.intValue();
+        this.placeDistance =tmp.intValue();
     }
 
 

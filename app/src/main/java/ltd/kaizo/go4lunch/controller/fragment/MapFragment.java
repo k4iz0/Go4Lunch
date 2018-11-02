@@ -192,11 +192,19 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
-                            write(CURRENT_LATITUDE_KEY,currentLocation.getLatitude());
+                            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
                             write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
-                            Log.d(TAG, "onComplete: found location ! lat = "+currentLocation.getLatitude() +" et long = "+currentLocation.getLongitude());
+                            Log.d(TAG, "onComplete: found location ! lat = " + currentLocation.getLatitude() + " et long = " + currentLocation.getLongitude());
                             moveCameraToCurrentLocation(currentLocation);
-                            executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+                            //TODO remove condition
+                            if (placeDetailList == null) {
+//                                executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+                            } else {
+                                for (PlaceFormater name : placeDetailList) {
+                                    name.addMarkerFromList(googleMap, name);
+                                    configureOnMarkerClick(placeDetailList);
+                                }
+                            }
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
@@ -313,9 +321,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                         //configure click event
                         configureOnMarkerClick(placeDetailList);
-                        for (PlaceFormater name : placeDetailList) {
-                            Log.i(TAG, "StreamFetchNearby onComplete: executeStreamFetchPlaceDetail for  " + name.getPlaceName());
-                        }
+
 
                     }
                 });

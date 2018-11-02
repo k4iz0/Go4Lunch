@@ -47,9 +47,6 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     }
 
     public void updateViewWithRestaurant(List<PlaceFormater> restaurantList, int position, RequestManager glide) {
-        for (PlaceFormater place : restaurantList) {
-            Log.i("ListFragment", "getRestaurantListFromMap: " + place.toString());
-        }
         placeName.setText(restaurantList.get(position).getPlaceName());
         placeAdress.setText(restaurantList.get(position).getPlaceAddress());
         this.displayRatingStars(restaurantList.get(position).getPlaceRate());
@@ -57,7 +54,7 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         if (!restaurantList.get(position).getPlacePhoto().equals("")) {
             photoUrl = placePhotoRequestUrl + restaurantList.get(position).getPlacePhoto() + "&key=" + apiKey;
         }
-        placeDistance.setText(String.valueOf(restaurantList.get(position).getPlaceDistance())+"m");
+        placeDistance.setText(String.valueOf(restaurantList.get(position).getPlaceDistance()+"m"));
         glide.load(photoUrl)
 //                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
