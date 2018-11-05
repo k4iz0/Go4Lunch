@@ -8,12 +8,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.Restaurant;
 
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
@@ -46,19 +44,20 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void updateViewWithRestaurant(List<PlaceFormater> restaurantList, int position, RequestManager glide) {
-        placeName.setText(restaurantList.get(position).getPlaceName());
-        placeAdress.setText(restaurantList.get(position).getPlaceAddress());
-        this.displayRatingStars(restaurantList.get(position).getPlaceRate());
+    public void updateViewWithRestaurant(Restaurant restaurant, RequestManager glide) {
+        Log.i("PlaceViewHolder", "updateViewWithRestaurant: "+restaurant.getPlaceFormater().getPlaceName());
+        placeName.setText(restaurant.getPlaceFormater().getPlaceName());
+        placeAdress.setText(restaurant.getPlaceFormater().getPlaceAddress());
+        this.displayRatingStars(restaurant.getPlaceFormater().getPlaceRate());
         String photoUrl = "";
-        if (!restaurantList.get(position).getPlacePhoto().equals("")) {
-            photoUrl = placePhotoRequestUrl + restaurantList.get(position).getPlacePhoto() + "&key=" + apiKey;
+        if (!restaurant.getPlaceFormater().getPlacePhoto().equals("")) {
+            photoUrl = placePhotoRequestUrl + restaurant.getPlaceFormater().getPlacePhoto() + "&key=" + apiKey;
         }
-        placeDistance.setText(String.valueOf(restaurantList.get(position).getPlaceDistance()+"m"));
+        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance()+"m"));
         glide.load(photoUrl)
 //                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
-        placeHours.setText(restaurantList.get(position).formatStringWeekdayList());
+        placeHours.setText(restaurant.getPlaceFormater().formatStringWeekdayList());
 
 
     }

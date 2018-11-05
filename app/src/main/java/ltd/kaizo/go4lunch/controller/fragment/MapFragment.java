@@ -51,6 +51,7 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 /**
@@ -194,38 +195,41 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
-                            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
-                            write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
-                            Log.d(TAG, "onComplete: found location ! lat = " + currentLocation.getLatitude() + " et long = " + currentLocation.getLongitude());
-                            moveCameraToCurrentLocation(currentLocation);
-                            //TODO remove condition
-                            if (placeDetailList == null) {
-                                executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
-                            } else {
-                                int i;
-                                for (i = 0; i < placeDetailList.size(); i++)
-                                    placeDetailList.get(i).addMarkerFromList(googleMap, placeDetailList.get(i));
-                                configureOnMarkerClick(placeDetailList);
-                                Log.i(TAG, "RestaurantHelper.createRestaurant: placeDetailList.get(i)");
-                                RestaurantHelper.createRestaurant(String.valueOf(i), placeDetailList.get(i)).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getContext(), "an error has occured " + e, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                Log.i(TAG, "isCurrentLocationChange: "+isCurrentLocationChange(currentLocation));
+                            if (isCurrentLocationChange(currentLocation)) {
+                                    executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+                                    Log.d(TAG, "onComplete: found location ! lat = " + currentLocation.getLatitude() + " et long = " + currentLocation.getLongitude());
 
-                            }
+                                }
+                            moveCameraToCurrentLocation(currentLocation);
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
                             Toast.makeText(getContext(), "Unable to get current location \nhave you enable localisation on your device ?", Toast.LENGTH_LONG).show();
                         }
+
+
                     }
                 });
             }
         } catch (SecurityException e) {
             Log.e("getDeviceLocation", "security exception : " + e.getMessage());
         }
+    }
+
+    private Boolean isCurrentLocationChange(Location currentLocation) {
+        Double previousLocationLat = read(CURRENT_LATITUDE_KEY, 0.0);
+        Double previousLocationLng = read(CURRENT_LONGITUDE_KEY, 0.0);
+        if (previousLocationLat == 0.0 || previousLocationLat != (currentLocation.getLatitude())) {
+            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
+            return true;
+        }
+        if (previousLocationLng == 0.0 || previousLocationLng != (currentLocation.getLongitude())) {
+            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
+            return true;
+        }
+        return false;
+
     }
 
     private void moveCameraToCurrentLocation(Location currentLocation) {
@@ -311,6 +315,15 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
                             //add place to list
                             placeDetailList.add(place);
+                            //add place to firestore
+
+                            RestaurantHelper.createRestaurant(place.getPlaceName() + place.getPlaceDistance(), place).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getActivity(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                             // add marker on map
                             place.addMarkerFromList(googleMap, place);
                             // save the list
@@ -331,17 +344,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                         //configure click event
                         configureOnMarkerClick(placeDetailList);
-                        int i;
-                        for (i = 0; i < placeDetailList.size(); i++) {
-
-                        Log.i(TAG, "RestaurantHelper.createRestaurant: "+placeDetailList.get(i));
-                        RestaurantHelper.createRestaurant(String.valueOf(i), placeDetailList.get(i)).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(getActivity(), "an error has occurred "+e, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        }
 
                     }
                 });

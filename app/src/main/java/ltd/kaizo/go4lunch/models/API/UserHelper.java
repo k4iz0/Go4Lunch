@@ -46,10 +46,9 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
 
     }
-// --- GET All USERS---
+    // --- GET All USERS---
 
-
-    public static Query getAllUser(){
+    public static Query getAllUser() {
 
         return UserHelper.getUsersCollection()
                 .orderBy("username");

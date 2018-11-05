@@ -2,25 +2,23 @@ package ltd.kaizo.go4lunch.views.Adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
-
-import java.util.List;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.views.PlaceViewholder;
 
-public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewholder> {
+public class PlaceRecycleAdapter extends FirestoreRecyclerAdapter<Restaurant, PlaceViewholder> {
 
-    private final List<PlaceFormater> restaurantList;
     private final RequestManager glide;
-    public PlaceRecycleAdapter(List<PlaceFormater> restaurantList, RequestManager glide) {
-        this.restaurantList = restaurantList;
+    public PlaceRecycleAdapter(FirestoreRecyclerOptions<Restaurant> options, RequestManager glide) {
+        super(options);
         this.glide = glide;
     }
 
@@ -34,17 +32,9 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewholder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlaceViewholder holder, int position) {
-        holder.updateViewWithRestaurant(this.restaurantList, position, this.glide);
-    }
+    protected void onBindViewHolder(@NonNull PlaceViewholder holder, int position, @NonNull Restaurant restaurant) {
+        holder.updateViewWithRestaurant(restaurant, this.glide);
 
-    @Override
-    public int getItemCount() {
-        if (restaurantList != null) {
-            return restaurantList.size();
-        } else {
-            return 0;
-        }
     }
 
 

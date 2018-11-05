@@ -3,13 +3,16 @@ package ltd.kaizo.go4lunch.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Restaurants {
+public class Restaurant {
     private String PlaceId;
     private PlaceFormater placeFormater;
     private Boolean isChoosen;
     private List<User> userList;
 
-    public Restaurants(String placeId, PlaceFormater placeFormater, Boolean isChoosen) {
+    public Restaurant() {
+    }
+
+    public Restaurant(String placeId, PlaceFormater placeFormater, Boolean isChoosen) {
         PlaceId = placeId;
         this.placeFormater = placeFormater;
         this.isChoosen = isChoosen;

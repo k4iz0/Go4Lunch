@@ -17,7 +17,6 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
 public class PlaceFormater implements Parcelable {
@@ -33,6 +32,7 @@ public class PlaceFormater implements Parcelable {
             return new PlaceFormater[size];
         }
     };
+
     private Double lat;
     private Double lng;
     private String placeName;
@@ -43,6 +43,9 @@ public class PlaceFormater implements Parcelable {
     private PlaceDetailResult result;
     private int placeDistance;
     private Location currentLocation;
+
+    public PlaceFormater() {
+    }
 
     public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
@@ -93,13 +96,15 @@ public class PlaceFormater implements Parcelable {
 
 
     public String formatStringWeekdayList() {
-        String str;
-        if (this.result.getOpeningHours() != null && !this.result.getOpeningHours().getOpenNow()) {
-            str = "closed";
-        } else if (this.placeHour.size() == 7 || this.placeHour.size() == 0) {
-            str = "Open 24/7";
-        } else {
-            str = "Open until " + this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+        String str = "";
+        if (this.result != null) {
+            if (this.result.getOpeningHours() != null && !this.result.getOpeningHours().getOpenNow()) {
+                str = "closed";
+            } else if (this.placeHour.size() == 7 || this.placeHour.size() == 0) {
+                str = "Open 24/7";
+            } else {
+                str = "Open until " + this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+            }
         }
         return str;
     }
