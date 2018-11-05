@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -21,12 +20,19 @@ import java.util.List;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.Photo;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
-
 public class PlaceFormater implements Parcelable {
 
+    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
+        @Override
+        public PlaceFormater createFromParcel(Parcel in) {
+            return new PlaceFormater(in);
+        }
+
+        @Override
+        public PlaceFormater[] newArray(int size) {
+            return new PlaceFormater[size];
+        }
+    };
     private Double lat;
     private Double lng;
     private String placeName;
@@ -70,18 +76,6 @@ public class PlaceFormater implements Parcelable {
         placeDistance = in.readInt();
     }
 
-    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
-        @Override
-        public PlaceFormater createFromParcel(Parcel in) {
-            return new PlaceFormater(in);
-        }
-
-        @Override
-        public PlaceFormater[] newArray(int size) {
-            return new PlaceFormater[size];
-        }
-    };
-
     public int getPlaceDistance() {
         return placeDistance;
     }
@@ -91,12 +85,11 @@ public class PlaceFormater implements Parcelable {
         Log.i("PlaceFormater", "setPlaceDistance: lat = " + this.currentLocation.getLatitude() + " longitude = " + this.currentLocation.getLongitude() + "\n" +
                 " place lat = " + this.lat + "\n" +
                 "place lng = " + this.lng);
-        Long tmp =  Math.round(SphericalUtil.computeDistanceBetween(
+        Long tmp = Math.round(SphericalUtil.computeDistanceBetween(
                 new LatLng(this.currentLocation.getLatitude(), this.currentLocation.getLongitude()), //from
                 new LatLng(this.lat, this.lng)));//to
-        this.placeDistance =tmp.intValue();
+        this.placeDistance = tmp.intValue();
     }
-
 
 
     public String formatStringWeekdayList() {
@@ -106,15 +99,16 @@ public class PlaceFormater implements Parcelable {
         } else if (this.placeHour.size() == 7 || this.placeHour.size() == 0) {
             str = "Open 24/7";
         } else {
-            str = "Open until "+this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+            str = "Open until " + this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
         }
-    return str;
+        return str;
     }
 
     private int getDayOfTheWeekNumber() {
         DateTime dt = new DateTime();
-        return dt.getDayOfWeek()-1;
+        return dt.getDayOfWeek() - 1;
     }
+
     public int getPlaceRate() {
         return placeRate;
     }
@@ -192,15 +186,12 @@ public class PlaceFormater implements Parcelable {
 
     private void setPlacePhoto() {
         if (this.result.getPhotos() != null && this.result.getPhotos().size() > 0) {
-            for (Photo reference : result.getPhotos()) {
-            Log.i("PaceFormater", "setPlacePhoto: "+reference.getPhotoReference());
-
-            }
             this.placePhoto = this.result.getPhotos().get(0).getPhotoReference();
         } else {
             this.placePhoto = "";
         }
     }
+
     public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
@@ -214,6 +205,7 @@ public class PlaceFormater implements Parcelable {
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         return m;
     }
+
     @Override
     public String toString() {
         return "placeName = " + placeName + "\n" +

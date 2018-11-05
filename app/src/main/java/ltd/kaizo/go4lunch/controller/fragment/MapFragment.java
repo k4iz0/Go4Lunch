@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
@@ -43,6 +44,7 @@ import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 
@@ -198,12 +200,20 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             moveCameraToCurrentLocation(currentLocation);
                             //TODO remove condition
                             if (placeDetailList == null) {
-//                                executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+                                executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
                             } else {
-                                for (PlaceFormater name : placeDetailList) {
-                                    name.addMarkerFromList(googleMap, name);
-                                    configureOnMarkerClick(placeDetailList);
-                                }
+                                int i;
+                                for (i = 0; i < placeDetailList.size(); i++)
+                                    placeDetailList.get(i).addMarkerFromList(googleMap, placeDetailList.get(i));
+                                configureOnMarkerClick(placeDetailList);
+                                Log.i(TAG, "RestaurantHelper.createRestaurant: placeDetailList.get(i)");
+                                RestaurantHelper.createRestaurant(String.valueOf(i), placeDetailList.get(i)).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getContext(), "an error has occured " + e, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
                             }
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
@@ -321,7 +331,17 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                         //configure click event
                         configureOnMarkerClick(placeDetailList);
+                        int i;
+                        for (i = 0; i < placeDetailList.size(); i++) {
 
+                        Log.i(TAG, "RestaurantHelper.createRestaurant: "+placeDetailList.get(i));
+                        RestaurantHelper.createRestaurant(String.valueOf(i), placeDetailList.get(i)).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getActivity(), "an error has occurred "+e, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        }
 
                     }
                 });

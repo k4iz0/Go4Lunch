@@ -340,6 +340,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         } else if (resultCode == RESULT_CANCELED) {
             Log.i(TAG, "handlePlaceAutoCompleteResponse: cancel");
+            finish();
+            startActivity(getIntent());
         }
 
 

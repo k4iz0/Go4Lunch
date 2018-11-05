@@ -47,7 +47,12 @@ public class MatesFragment extends BaseFragment {
 
     public void configureRecycleView() {
         this.matesAdapter = new MatesRecycleAdapter(generateOptionsForAdapter(UserHelper.getAllUser()), Glide.with(this));
-
+        this.matesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                recyclerView.smoothScrollToPosition(positionStart);
+            }
+        });
         this.recyclerView.setAdapter(matesAdapter);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
