@@ -31,5 +31,4 @@ object PlaceStream {
                 .flatMap { streamFetchPlaceDetail(it.placeId) }
     }
 
-
 }

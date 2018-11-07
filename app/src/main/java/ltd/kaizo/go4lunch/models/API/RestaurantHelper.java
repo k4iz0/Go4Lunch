@@ -5,6 +5,9 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
@@ -34,21 +37,19 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().orderBy("placeFormater.placeDistance");
 
     }
-    // --- UPDATE ---
-//
-//    public static Task<Void> addUserToList(String userId, String placeId) {
-//
-//        return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", isMentor);
-//
-//    }
 
+    public static Task<QuerySnapshot> getAllRestaurantsFromFirestore(){
+
+        return RestaurantHelper.getRestaurantsCollection().get();
+
+    }
 
      //--- DELETE ---
 
 
-    public static Task<Void> deleteAllRestaurantFromList() {
+    public static Task<Void> deleteRestaurantFromList(String placeId) {
 
-        return RestaurantHelper.getRestaurantsCollection().document().delete();
+        return RestaurantHelper.getRestaurantsCollection().document(placeId).delete();
 
     }
 

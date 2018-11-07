@@ -34,10 +34,16 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -47,6 +53,7 @@ import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.Restaurant;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
@@ -205,7 +212,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                         } else {
                             Log.d(TAG, "onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
+                            if (getContext() != null) {
                             Toast.makeText(getContext(), "Unable to get current location \nhave you enable localisation on your device ?", Toast.LENGTH_LONG).show();
+                            }
                         }
 
 
@@ -306,6 +315,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     protected void onStart() {
                         super.onStart();
+                        resetRestaurantListFromFirestore();
                         placeDetailList = new ArrayList<>();
                     }
 
@@ -317,7 +327,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             placeDetailList.add(place);
                             //add place to firestore
 
-                            RestaurantHelper.createRestaurant(place.getPlaceName() + place.getPlaceDistance(), place).addOnFailureListener(new OnFailureListener() {
+                            RestaurantHelper.createRestaurant(place.getId(), place).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
                                     Toast.makeText(getActivity(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
@@ -326,8 +336,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                             // add marker on map
                             place.addMarkerFromList(googleMap, place);
-                            // save the list
-                            write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
+
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
                         }
@@ -341,7 +350,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     @Override
                     public void onComplete() {
                         Log.i("StreamFetchPlaceDetail", "search complete ");
-
+                        Collections.sort(placeDetailList,PlaceFormater.compareToByDistance());
+                        // save the list
+                        write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
                         //configure click event
                         configureOnMarkerClick(placeDetailList);
 
@@ -350,6 +361,27 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    private void resetRestaurantListFromFirestore() {
+     RestaurantHelper.getAllRestaurantsFromFirestore().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+         @Override
+         public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+             if (queryDocumentSnapshots.size() > 0) {
+                 List<DocumentSnapshot> restoList = queryDocumentSnapshots.getDocuments();
+                 for (DocumentSnapshot doc : restoList) {
+                    Restaurant restaurant = doc.toObject(Restaurant.class);
+                     RestaurantHelper.deleteRestaurantFromList(restaurant.getPlaceId());
+                 }
+             } else {
+                 Log.i(TAG, "onSuccess: no data found");
+             }
+         }
+     }).addOnFailureListener(new OnFailureListener() {
+         @Override
+         public void onFailure(@NonNull Exception e) {
+             Log.i(TAG, "onFailure: an error as occurred "+e);
+         }
+     });
+    }
     private String formatLocationToString() {
         if (this.currentLocation != null) {
 

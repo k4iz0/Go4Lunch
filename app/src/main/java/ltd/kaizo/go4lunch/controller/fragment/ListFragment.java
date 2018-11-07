@@ -46,7 +46,7 @@ public class ListFragment extends BaseFragment {
 
     @Override
     protected void configureDesign() {
-        this.getRestaurantListFromMap();
+        this.getRestaurantListFromFirestore();
         this.configureRecycleView();
         this.configureOnClickRecyclerView();
     }
@@ -75,10 +75,8 @@ public class ListFragment extends BaseFragment {
                 });
     }
 
-    private void getRestaurantListFromMap() {
+    private void getRestaurantListFromFirestore() {
         this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
-
-
     }
 
     private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {

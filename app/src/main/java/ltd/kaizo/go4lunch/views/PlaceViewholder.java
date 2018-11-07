@@ -7,10 +7,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.Restaurant;
 
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
@@ -34,18 +36,24 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView rateStar2;
     @BindView(R.id.item_list_star3_imageview)
     ImageView rateStar3;
-    /**
-     * The Callback weak ref.
-     */
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=80&maxheight=80&photoreference=";
+    private OnItemClickListener listener;
 
     public PlaceViewholder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                }
+            }
+        });
     }
 
     public void updateViewWithRestaurant(Restaurant restaurant, RequestManager glide) {
-        Log.i("PlaceViewHolder", "updateViewWithRestaurant: "+restaurant.getPlaceFormater().getPlaceName());
+        Log.i("PlaceViewHolder", "updateViewWithRestaurant: " + restaurant.getPlaceFormater().getPlaceName());
         placeName.setText(restaurant.getPlaceFormater().getPlaceName());
         placeAdress.setText(restaurant.getPlaceFormater().getPlaceAddress());
         this.displayRatingStars(restaurant.getPlaceFormater().getPlaceRate());
@@ -53,9 +61,9 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         if (!restaurant.getPlaceFormater().getPlacePhoto().equals("")) {
             photoUrl = placePhotoRequestUrl + restaurant.getPlaceFormater().getPlacePhoto() + "&key=" + apiKey;
         }
-        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance()+"m"));
+        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
         glide.load(photoUrl)
-//                    .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
+        //      .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
         placeHours.setText(restaurant.getPlaceFormater().formatStringWeekdayList());
 
@@ -77,6 +85,14 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
                 rateStar3.setVisibility(View.VISIBLE);
                 break;
         }
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    }
+
+    public void setOnClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
 }

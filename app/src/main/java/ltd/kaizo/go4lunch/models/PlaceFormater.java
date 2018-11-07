@@ -15,6 +15,7 @@ import com.google.maps.android.SphericalUtil;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
@@ -32,7 +33,7 @@ public class PlaceFormater implements Parcelable {
             return new PlaceFormater[size];
         }
     };
-
+    private String id;
     private Double lat;
     private Double lng;
     private String placeName;
@@ -49,6 +50,7 @@ public class PlaceFormater implements Parcelable {
 
     public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
+        this.id = (this.result.getName() + this.result.getVicinity().toLowerCase());
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAddress = result.getVicinity();
@@ -61,6 +63,7 @@ public class PlaceFormater implements Parcelable {
     }
 
     protected PlaceFormater(Parcel in) {
+        id = in.readString();
         if (in.readByte() == 0) {
             lat = null;
         } else {
@@ -77,6 +80,15 @@ public class PlaceFormater implements Parcelable {
         placeRate = in.readInt();
         placePhoto = in.readString();
         placeDistance = in.readInt();
+        currentLocation = in.readParcelable(Location.class.getClassLoader());
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getPlaceDistance() {
@@ -220,6 +232,17 @@ public class PlaceFormater implements Parcelable {
                 "rating = " + placeRate;
     }
 
+    public static Comparator<PlaceFormater> compareToByDistance() {
+        Comparator comp = new Comparator<PlaceFormater>() {
+            @Override
+            public int compare(PlaceFormater place1, PlaceFormater place2) {
+                return place1.getPlaceDistance() - (place2.getPlaceDistance());
+            }
+
+
+        };
+        return comp;
+    }
 
     @Override
     public int describeContents() {
@@ -228,6 +251,7 @@ public class PlaceFormater implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         if (lat == null) {
             dest.writeByte((byte) 0);
         } else {
@@ -245,6 +269,7 @@ public class PlaceFormater implements Parcelable {
         dest.writeStringList(placeHour);
         dest.writeInt(placeRate);
         dest.writeString(placePhoto);
-        dest.writeDouble(placeDistance);
+        dest.writeInt(placeDistance);
+        dest.writeParcelable(currentLocation, flags);
     }
 }
