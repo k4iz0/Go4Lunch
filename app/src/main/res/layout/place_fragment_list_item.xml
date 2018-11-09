@@ -87,7 +87,9 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/item_list_place_adress_textview"
         app:layout_constraintTop_toBottomOf="@+id/item_list_place_distance_textview"
-        app:layout_constraintVertical_bias="0.268" />
+        app:layout_constraintVertical_bias="0.268"
+        android:visibility="invisible"
+        tools:visibility="visible"/>
 
     <TextView
         android:id="@+id/item_list_person_number_textview"
@@ -99,7 +101,9 @@
         app:layout_constraintEnd_toStartOf="@+id/barrier"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/item_list_place_adress_textview"
-        tools:text="(2)" />
+        tools:text="(2)"
+        android:visibility="invisible"
+        tools:visibility="visible"/>
 
     <ImageView
         android:id="@+id/item_list_star1_imageview"

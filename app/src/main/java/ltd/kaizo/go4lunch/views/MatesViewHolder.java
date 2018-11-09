@@ -24,7 +24,6 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateViewWithUserData(User user, RequestManager glide) {
-        Log.i("MatesViewHolder", "updateViewWithUserData: "+user.getUsername());
         matesTextView.setText(user.getUsername());
         glide.load(user.getUrlPicture()).into(matesAvatar);
 

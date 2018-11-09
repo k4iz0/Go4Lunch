@@ -1,7 +1,9 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,6 +14,7 @@ import com.bumptech.glide.request.RequestOptions;
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 
 public class DetailActivity extends BaseActivity {
@@ -30,7 +33,8 @@ public class DetailActivity extends BaseActivity {
     PlaceFormater place;
     @BindView(R.id.activity_detail_recycleview)
     RecyclerView recyclerView;
-
+    @BindView(R.id.fragment_detail_fab)
+    FloatingActionButton floatingActionButton;
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
 
     @Override
@@ -42,6 +46,7 @@ public class DetailActivity extends BaseActivity {
     public void configureDesign() {
         this.getPlaceFormaterFromIntent();
         this.updateUiWithPlaceData();
+        this.configureFloatingButton();
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -57,6 +62,20 @@ public class DetailActivity extends BaseActivity {
                 .into(this.placePhoto);
          displayRatingStars(place.getPlaceRate());
     }
+    private void configureFloatingButton() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addUserToRestaurant();
+            }
+        });
+    }
+
+    private void addUserToRestaurant() {
+        Log.i("detailActivity", "addUserToRestaurant: user = "+getCurrentUser().getUid()+" and placeId = "+place.getId());
+        RestaurantHelper.updateRestauranUserList(getCurrentUser().getUid(), place.getId());
+    }
+
     private void displayRatingStars(int rate) {
         switch (rate) {
             case 1:

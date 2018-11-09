@@ -30,6 +30,8 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView placePhoto;
     @BindView(R.id.item_list_person_number_textview)
     TextView personNumber;
+    @BindView(R.id.item_list_place_person_icon)
+    ImageView personIcon;
     @BindView(R.id.item_list_star1_imageview)
     ImageView rateStar1;
     @BindView(R.id.item_list_star2_imageview)
@@ -66,7 +68,9 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         //      .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
         placeHours.setText(restaurant.getPlaceFormater().formatStringWeekdayList());
-
+        if (restaurant.getUserList().size() > 0) {
+            this.configureMatesIcon(restaurant.getUserList().size());
+        }
 
     }
 
@@ -87,6 +91,11 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         }
     }
 
+    private void configureMatesIcon(int nb) {
+        personNumber.setText("("+nb+")");
+        personNumber.setVisibility(View.VISIBLE);
+        personIcon.setVisibility(View.VISIBLE);
+    }
     public interface OnItemClickListener {
         void onItemClick(DocumentSnapshot documentSnapshot, int position);
     }

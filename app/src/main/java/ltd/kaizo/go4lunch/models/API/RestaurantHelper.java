@@ -46,8 +46,13 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().get();
 
     }
+    //UPDATE
+    public static Task<Void> updateRestauranUserList(String uid, String restoId) {
 
-     //--- DELETE ---
+        return RestaurantHelper.getRestaurantsCollection().document(restoId).update("userList", uid);
+
+    }
+    //--- DELETE ---
      public static Task<Void> deleteRestaurantsFromList (List<DocumentSnapshot> restoList) {
          WriteBatch batch = FirebaseFirestore.getInstance().batch();
          if (restoList != null) {
