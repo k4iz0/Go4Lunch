@@ -44,7 +44,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.android.support:design:27.1.1'
     //FIREBASE
-    implementation "com.google.firebase:firebase-core:16.0.5"
+    implementation "com.google.firebase:firebase-core:16.0.4"
     // FirebaseUI
     implementation 'com.firebaseui:firebase-ui-auth:4.2.1'
     //FIRESTORE

@@ -7,7 +7,7 @@
 
     <TextView
         android:id="@+id/item_list_name_textview"
-        android:layout_width="230dp"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:ellipsize="end"
@@ -48,7 +48,7 @@
 
     <TextView
         android:id="@+id/item_list_place_distance_textview"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"

@@ -2,11 +2,14 @@ package ltd.kaizo.go4lunch.models.API;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
@@ -45,6 +48,23 @@ public class RestaurantHelper {
     }
 
      //--- DELETE ---
+     public static Task<Void> deleteRestaurantsFromList (List<DocumentSnapshot> restoList) {
+         WriteBatch batch = FirebaseFirestore.getInstance().batch();
+         if (restoList != null) {
+
+             for (DocumentSnapshot doc : restoList) {
+                 Restaurant restaurant = doc.toObject(Restaurant.class);
+                 DocumentReference placeRef = RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId());
+                 batch.delete(placeRef);
+
+                 //RestaurantHelper.deleteRestaurantFromList(restaurant.getPlaceId());
+             }
+         }
+
+
+
+         return batch.commit();
+     }
 
 
     public static Task<Void> deleteRestaurantFromList(String placeId) {

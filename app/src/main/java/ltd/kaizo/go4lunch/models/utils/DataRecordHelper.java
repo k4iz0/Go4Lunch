@@ -117,7 +117,7 @@ public class DataRecordHelper {
      * @return the double
      */
     public static Double read(String key, double defValue) {
-        return (double) sharedPreferences.getLong(key, Double.doubleToLongBits(defValue));
+        return Double.longBitsToDouble(sharedPreferences.getLong(key, (long) defValue));
     }
 
     /**
@@ -128,7 +128,7 @@ public class DataRecordHelper {
      */
     public static void write(String key, double value) {
         SharedPreferences.Editor prefsEditor = sharedPreferences.edit();
-        prefsEditor.putLong(key, Double.doubleToRawLongBits(value)).apply();
+        prefsEditor.putLong(key, Double.doubleToLongBits(value)).apply();
     }
 
 
