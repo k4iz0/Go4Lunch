@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
@@ -86,4 +87,14 @@ public class ListFragment extends BaseFragment {
                 .build();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        adapter.startListening();
+    }
 }

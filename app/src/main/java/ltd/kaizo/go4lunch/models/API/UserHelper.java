@@ -46,6 +46,7 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).get();
 
     }
+
     // --- GET All USERS---
 
     public static Query getAllUser() {

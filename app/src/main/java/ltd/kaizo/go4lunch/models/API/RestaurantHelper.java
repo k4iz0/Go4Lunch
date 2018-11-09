@@ -47,9 +47,11 @@ public class RestaurantHelper {
 
     }
     //UPDATE
-    public static Task<Void> updateRestauranUserList(String uid, String restoId) {
+    public static Task<Void> updateRestauranUserList(String placeId, PlaceFormater placeFormater, String userId) {
 
-        return RestaurantHelper.getRestaurantsCollection().document(restoId).update("userList", uid);
+        Restaurant restaurantsToUpdate = new Restaurant(placeId, placeFormater, false);
+        restaurantsToUpdate.getUserList().add(userId);
+        return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToUpdate);
 
     }
     //--- DELETE ---

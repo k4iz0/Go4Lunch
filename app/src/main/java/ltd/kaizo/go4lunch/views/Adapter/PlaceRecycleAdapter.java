@@ -17,6 +17,11 @@ import ltd.kaizo.go4lunch.views.PlaceViewholder;
 public class PlaceRecycleAdapter extends FirestoreRecyclerAdapter<Restaurant, PlaceViewholder> {
 
     private final RequestManager glide;
+
+    public interface Listener {
+
+        String onClickGetPlaceId(int position);
+    }
     public PlaceRecycleAdapter(FirestoreRecyclerOptions<Restaurant> options, RequestManager glide) {
         super(options);
         this.glide = glide;

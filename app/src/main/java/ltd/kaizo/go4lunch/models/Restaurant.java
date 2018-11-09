@@ -7,7 +7,7 @@ public class Restaurant {
     private String PlaceId;
     private PlaceFormater placeFormater;
     private Boolean isChoosen;
-    private List<User> userList;
+    private List<String> userList;
 
     public Restaurant() {
     }
@@ -43,11 +43,11 @@ public class Restaurant {
         isChoosen = choosen;
     }
 
-    public List<User> getUserList() {
+    public List<String> getUserList() {
         return userList;
     }
 
-    public void setUserList(List<User> userList) {
+    public void setUserList(List<String> userList) {
         this.userList = userList;
     }
 }

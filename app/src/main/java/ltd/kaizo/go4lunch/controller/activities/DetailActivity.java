@@ -1,21 +1,34 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
+import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.Restaurant;
+import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
+import ltd.kaizo.go4lunch.views.Adapter.MatesRecycleAdapter;
 
 public class DetailActivity extends BaseActivity {
     @BindView(R.id.activity_detail_photo_imageview)
@@ -36,6 +49,9 @@ public class DetailActivity extends BaseActivity {
     @BindView(R.id.fragment_detail_fab)
     FloatingActionButton floatingActionButton;
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
+    private RecyclerView.Adapter joiningMatesAdapter;
+    private Restaurant restaurant;
+    private ArrayList<User> userList;
 
     @Override
     public int getFragmentLayout() {
@@ -47,6 +63,7 @@ public class DetailActivity extends BaseActivity {
         this.getPlaceFormaterFromIntent();
         this.updateUiWithPlaceData();
         this.configureFloatingButton();
+        this.configureRecycleView();
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -67,13 +84,24 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 addUserToRestaurant();
+                provideRecycleViewWithdata();
+                joiningMatesAdapter.notifyDataSetChanged();
             }
         });
     }
 
     private void addUserToRestaurant() {
         Log.i("detailActivity", "addUserToRestaurant: user = "+getCurrentUser().getUid()+" and placeId = "+place.getId());
-        RestaurantHelper.updateRestauranUserList(getCurrentUser().getUid(), place.getId());
+        RestaurantHelper.updateRestauranUserList(place.getId(), place,getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName()+" has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();            }
+        });
     }
 
     private void displayRatingStars(int rate) {
@@ -92,10 +120,38 @@ public class DetailActivity extends BaseActivity {
                 break;
         }
     }
-//    public void configureRecycleView() {
-//        this.adapter = new PlaceRecycleAdapter(this.restaurantlist, Glide.with(this));
-//        this.recyclerView.setAdapter(adapter);
-//        this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-//
-//    }
+    public void configureRecycleView() {
+        this.provideRecycleViewWithdata();
+        this.joiningMatesAdapter = new JoiningMatesAdapter(userList, Glide.with(this));
+        this.joiningMatesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                recyclerView.smoothScrollToPosition(positionStart);
+            }
+        });
+        this.recyclerView.setAdapter(joiningMatesAdapter);
+        this.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+    }
+
+    private void provideRecycleViewWithdata() {
+        RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                restaurant =  documentSnapshot.toObject(Restaurant.class);
+            }
+        });
+        if (restaurant != null) {
+
+            for (String user : restaurant.getUserList()) {
+                UserHelper.getUser(user).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        userList.add(documentSnapshot.toObject(User.class));
+                    }
+                });
+            }
+        }
+    }
+
 }

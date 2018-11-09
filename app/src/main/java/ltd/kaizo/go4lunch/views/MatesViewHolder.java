@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
@@ -26,6 +28,12 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     public void updateViewWithUserData(User user, RequestManager glide) {
         matesTextView.setText(user.getUsername());
         glide.load(user.getUrlPicture()).into(matesAvatar);
+
+    }
+    public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
+
+        matesTextView.setText(userList.get(position).getUsername());
+        glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
 
     }
 }

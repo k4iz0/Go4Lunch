@@ -200,14 +200,14 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
                             Log.i(TAG, "isCurrentLocationChange: " + isCurrentLocationChange(currentLocation));
-                            //if the location change since last time we search for new restaurant
-                            if (isCurrentLocationChange(currentLocation)) {
+                            //if the location change since last time we search for new restaurant or first time we launch the app
+                            if (isCurrentLocationChange(currentLocation) || read(CURRENT_LATITUDE_KEY, 0.0) == 0.0) {
                                 executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
                                 Log.d(TAG, "onComplete: found location ! lat = " + currentLocation.getLatitude() + " et long = " + currentLocation.getLongitude());
 
                             } else {
                                 placeDetailList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
-
+                                if (placeDetailList != null) {
 
                                 for (PlaceFormater place : placeDetailList) {
                                     // add marker on map
@@ -215,6 +215,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                                 }
                                 //configure click event
                                 configureOnMarkerClick(placeDetailList);
+                                }
                             }
                             moveCameraToCurrentLocation(currentLocation);
                         } else {
@@ -353,10 +354,16 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     public void onComplete() {
                         Log.i("StreamFetchPlaceDetail", "search complete ");
                         Collections.sort(placeDetailList, PlaceFormater.compareToByDistance());
+                        for (PlaceFormater place : placeDetailList) {
+                            Log.i(TAG, "onComplete: create placedetailList = \n" +
+                                    place.getPlaceName() + " " + place.getPlaceDistance());
+                        }
                         // save the list
                         write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
                         //add place to firestore
                         for (PlaceFormater place : placeDetailList) {
+                            Log.i(TAG, "onComplete: create restaurantList = \n" +
+                                    place.getPlaceName()+" "+place.getPlaceDistance());
                             RestaurantHelper.createRestaurant(place.getId(), place).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {

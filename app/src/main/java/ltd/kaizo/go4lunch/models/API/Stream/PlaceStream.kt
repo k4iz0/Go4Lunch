@@ -27,8 +27,8 @@ object PlaceStream {
 
     fun streamFetchNearbyRestaurantAndGetPlaceDetail(location: String): Observable<PlaceDetailApiData> {
         return streamFetchNearbyRestaurant(location)
-                .flatMapIterable { it.results }
-                .flatMap { streamFetchPlaceDetail(it.placeId) }
+                .concatMapIterable { it.results }
+                .concatMap { streamFetchPlaceDetail(it.placeId) }
     }
 
 }
