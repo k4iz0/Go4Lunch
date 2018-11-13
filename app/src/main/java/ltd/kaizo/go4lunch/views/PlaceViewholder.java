@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.lang.ref.WeakReference;
@@ -19,6 +21,8 @@ import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.utils.ItemClickSupport;
 import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
 
+import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
 public class PlaceViewholder extends RecyclerView.ViewHolder{
@@ -61,7 +65,7 @@ public class PlaceViewholder extends RecyclerView.ViewHolder{
         }
         placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
         glide.load(photoUrl)
-        //      .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
+              .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
                 .into(this.placePhoto);
         placeHours.setText(restaurant.getPlaceFormater().formatStringWeekdayList());
         if (restaurant.getUserList().size() > 0) {

@@ -28,7 +28,6 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
-import ltd.kaizo.go4lunch.views.Adapter.MatesRecycleAdapter;
 
 public class DetailActivity extends BaseActivity {
     @BindView(R.id.activity_detail_photo_imageview)
@@ -51,7 +50,8 @@ public class DetailActivity extends BaseActivity {
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
     private RecyclerView.Adapter joiningMatesAdapter;
     private Restaurant restaurant;
-    private ArrayList<User> userList;
+    private ArrayList<User> userList = new ArrayList<>();
+    private String TAG = getClass().getSimpleName();
 
     @Override
     public int getFragmentLayout() {
@@ -62,8 +62,8 @@ public class DetailActivity extends BaseActivity {
     public void configureDesign() {
         this.getPlaceFormaterFromIntent();
         this.updateUiWithPlaceData();
-        this.configureFloatingButton();
         this.configureRecycleView();
+        this.configureFloatingButton();
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -84,8 +84,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 addUserToRestaurant();
-                provideRecycleViewWithdata();
-                joiningMatesAdapter.notifyDataSetChanged();
+                provideRecycleViewWithData();
             }
         });
     }
@@ -121,8 +120,9 @@ public class DetailActivity extends BaseActivity {
         }
     }
     public void configureRecycleView() {
-        this.provideRecycleViewWithdata();
-        this.joiningMatesAdapter = new JoiningMatesAdapter(userList, Glide.with(this));
+
+
+        this.joiningMatesAdapter = new JoiningMatesAdapter(this.provideRecycleViewWithData(), Glide.with(this));
         this.joiningMatesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -134,24 +134,35 @@ public class DetailActivity extends BaseActivity {
 
     }
 
-    private void provideRecycleViewWithdata() {
+    private ArrayList<User> provideRecycleViewWithData() {
         RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 restaurant =  documentSnapshot.toObject(Restaurant.class);
+
             }
         });
-        if (restaurant != null) {
-
-            for (String user : restaurant.getUserList()) {
+        if (this.restaurant != null) {
+            userList.clear();
+            for (String user : this.restaurant.getUserList()) {
+                Log.i(TAG, "onSuccess: userId = "+user);
                 UserHelper.getUser(user).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
+
                         userList.add(documentSnapshot.toObject(User.class));
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "onFailure: fail to retrieve user");
                     }
                 });
             }
+            joiningMatesAdapter.notifyDataSetChanged();
         }
+        return userList;
     }
 
 }
