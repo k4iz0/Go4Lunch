@@ -1,12 +1,15 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +50,12 @@ public class DetailActivity extends BaseActivity {
     RecyclerView recyclerView;
     @BindView(R.id.fragment_detail_fab)
     FloatingActionButton floatingActionButton;
+    @BindView(R.id.activity_detail_phone_btn)
+    ImageButton phoneBtn;
+    @BindView(R.id.activity_detail_star_btn)
+    ImageButton likeBtn;
+    @BindView(R.id.activity_detail_web_btn)
+    ImageButton webBtn;
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
     private RecyclerView.Adapter joiningMatesAdapter;
     private Restaurant restaurant;
@@ -78,7 +87,44 @@ public class DetailActivity extends BaseActivity {
                     .apply(RequestOptions.centerCropTransform())
                 .into(this.placePhoto);
          displayRatingStars(place.getPlaceRate());
+         this.configureButtons();
     }
+
+    private void configureButtons() { Log.i(TAG, "phoneOnclick: phone  = "+place.getPhoneNumber());
+        if (place.getPhoneNumber() != null && isTelephonyEnabled()) {
+
+        phoneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                callIntent.setData(Uri.parse("tel:"+place.getPhoneNumber()));
+
+                startActivity(callIntent);
+            }
+        });
+        }
+        if (place.getWebsiteUrl() != null) {
+            webBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(place.getWebsiteUrl()));
+                    Log.i(TAG, "phoneOnclick: website  = "+place.getWebsiteUrl());
+                    startActivity(browserIntent);
+                }
+            });
+        }
+            likeBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: 13/11/2018 implement like function on click
+                }
+            });
+        }
+    private boolean isTelephonyEnabled(){
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
+        return telephonyManager != null && telephonyManager.getSimState()==TelephonyManager.SIM_STATE_READY;
+    }
+
     private void configureFloatingButton() {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +167,9 @@ public class DetailActivity extends BaseActivity {
     }
     public void configureRecycleView() {
 
-
+        for (User user : this.userList) {
+            Log.i(TAG, "configureRecycleView: "+user.getUsername());
+        }
         this.joiningMatesAdapter = new JoiningMatesAdapter(this.provideRecycleViewWithData(), Glide.with(this));
         this.joiningMatesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override

@@ -1,13 +1,17 @@
 package ltd.kaizo.go4lunch.models.API.PlaceDetail;
 
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
+public class PlaceDetailResult {
 
-public class PlaceDetailResult {@SerializedName("formatted_address")
-@Expose
-private String formattedAddress;
+    @SerializedName("formatted_address")
+    @Expose
+    private String formattedAddress;
+    @SerializedName("formatted_phone_number")
+    @Expose
+    private String formattedPhoneNumber;
     @SerializedName("geometry")
     @Expose
     private Geometry geometry;
@@ -26,6 +30,9 @@ private String formattedAddress;
     @SerializedName("vicinity")
     @Expose
     private String vicinity;
+    @SerializedName("website")
+    @Expose
+    private String website;
 
     public String getFormattedAddress() {
         return formattedAddress;
@@ -33,6 +40,14 @@ private String formattedAddress;
 
     public void setFormattedAddress(String formattedAddress) {
         this.formattedAddress = formattedAddress;
+    }
+
+    public String getFormattedPhoneNumber() {
+        return formattedPhoneNumber;
+    }
+
+    public void setFormattedPhoneNumber(String formattedPhoneNumber) {
+        this.formattedPhoneNumber = formattedPhoneNumber;
     }
 
     public Geometry getGeometry() {
@@ -82,5 +97,14 @@ private String formattedAddress;
     public void setVicinity(String vicinity) {
         this.vicinity = vicinity;
     }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
 
 }

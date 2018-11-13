@@ -60,7 +60,9 @@ public interface PlaceService {
     @GET("details/json?fields=name," +
             "rating," +
             "geometry," +
-            "photo,"+
+            "photo," +
+            "website," +
+            "formatted_phone_number," +
             "vicinity," +
             "opening_hours" +
             "&key=" + apiKey)

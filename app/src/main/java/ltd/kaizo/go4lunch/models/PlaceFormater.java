@@ -20,34 +20,77 @@ import java.util.List;
 
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
+/**
+ * The type Place formater.
+ */
 public class PlaceFormater implements Parcelable {
 
-    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
-        @Override
-        public PlaceFormater createFromParcel(Parcel in) {
-            return new PlaceFormater(in);
-        }
 
-        @Override
-        public PlaceFormater[] newArray(int size) {
-            return new PlaceFormater[size];
-        }
-    };
+    /**
+     * The Id.
+     */
     private String id;
+    /**
+     * The Lat.
+     */
     private Double lat;
+    /**
+     * The Lng.
+     */
     private Double lng;
+    /**
+     * The Place name.
+     */
     private String placeName;
+    /**
+     * The Place address.
+     */
     private String placeAddress;
+    /**
+     * The Place hour.
+     */
     private List<String> placeHour;
+    /**
+     * The Place rate.
+     */
     private int placeRate;
+    /**
+     * The Place photo.
+     */
     private String placePhoto;
+    /**
+     * The Result.
+     */
     private PlaceDetailResult result;
+    /**
+     * The Place distance.
+     */
     private int placeDistance;
+    /**
+     * The Current location.
+     */
     private Location currentLocation;
+    /**
+     * The Website url.
+     */
+    private  String websiteUrl;
+    /**
+     * The Phone number.
+     */
+    private  String phoneNumber;
 
+    /**
+     * Instantiates a new Place formater.
+     */
     public PlaceFormater() {
     }
 
+    /**
+     * Instantiates a new Place formater.
+     *
+     * @param placeDetailResult the place detail result
+     * @param currentLocation   the current location
+     */
     public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
         this.id = (this.result.getName() + this.result.getVicinity().toLowerCase());
@@ -56,12 +99,20 @@ public class PlaceFormater implements Parcelable {
         this.placeAddress = result.getVicinity();
         this.placeName = result.getName();
         this.currentLocation = currentLocation;
+        this.phoneNumber = result.getFormattedPhoneNumber();
+        this.websiteUrl = result.getWebsite();
         setPlaceDistance();
         setPlaceHour();
         setPlaceRate();
         setPlacePhoto();
     }
 
+
+    /**
+     * Instantiates a new Place formater.
+     *
+     * @param in the in
+     */
     protected PlaceFormater(Parcel in) {
         id = in.readString();
         if (in.readByte() == 0) {
@@ -81,20 +132,91 @@ public class PlaceFormater implements Parcelable {
         placePhoto = in.readString();
         placeDistance = in.readInt();
         currentLocation = in.readParcelable(Location.class.getClassLoader());
+        websiteUrl = in.readString();
+        phoneNumber = in.readString();
     }
 
+    /**
+     * The constant CREATOR.
+     */
+    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
+        @Override
+        public PlaceFormater createFromParcel(Parcel in) {
+            return new PlaceFormater(in);
+        }
+
+        @Override
+        public PlaceFormater[] newArray(int size) {
+            return new PlaceFormater[size];
+        }
+    };
+
+    /**
+     * Gets website url.
+     *
+     * @return the website url
+     */
+    public String getWebsiteUrl() {
+        return websiteUrl;
+    }
+
+    /**
+     * Sets website url.
+     *
+     * @param websiteUrl the website url
+     */
+    public void setWebsiteUrl(String websiteUrl) {
+        this.websiteUrl = websiteUrl;
+    }
+
+    /**
+     * Gets phone number.
+     *
+     * @return the phone number
+     */
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * Sets phone number.
+     *
+     * @param phoneNumber the phone number
+     */
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * Gets id.
+     *
+     * @return the id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets id.
+     *
+     * @param id the id
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Gets place distance.
+     *
+     * @return the place distance
+     */
     public int getPlaceDistance() {
         return placeDistance;
     }
 
+    /**
+     * Sets place distance.
+     */
     private void setPlaceDistance() {
 
         Log.i("PlaceFormater", "setPlaceDistance: lat = " + this.currentLocation.getLatitude() + " longitude = " + this.currentLocation.getLongitude() + "\n" +
@@ -107,6 +229,11 @@ public class PlaceFormater implements Parcelable {
     }
 
 
+    /**
+     * Format string weekday list string.
+     *
+     * @return the string
+     */
     public String formatStringWeekdayList() {
         String str = "";
         if (this.result != null) {
@@ -121,11 +248,21 @@ public class PlaceFormater implements Parcelable {
         return str;
     }
 
+    /**
+     * Gets day of the week number.
+     *
+     * @return the day of the week number
+     */
     private int getDayOfTheWeekNumber() {
         DateTime dt = new DateTime();
         return dt.getDayOfWeek() - 1;
     }
 
+    /**
+     * Gets place rate.
+     *
+     * @return the place rate
+     */
     public int getPlaceRate() {
         return placeRate;
     }
@@ -152,18 +289,36 @@ public class PlaceFormater implements Parcelable {
         this.placeRate = tmp;
     }
 
+    /**
+     * Gets place address.
+     *
+     * @return the place address
+     */
     public String getPlaceAddress() {
         return placeAddress;
     }
 
+    /**
+     * Sets place address.
+     *
+     * @param placeAddress the place address
+     */
     public void setPlaceAddress(String placeAddress) {
         this.placeAddress = placeAddress;
     }
 
+    /**
+     * Gets place hour.
+     *
+     * @return the place hour
+     */
     public List<String> getPlaceHour() {
         return placeHour;
     }
 
+    /**
+     * Sets place hour.
+     */
     private void setPlaceHour() {
         if (this.result.getOpeningHours() != null) {
             this.placeHour = this.result.getOpeningHours().getWeekdayText();
@@ -172,35 +327,73 @@ public class PlaceFormater implements Parcelable {
         }
     }
 
+    /**
+     * Gets lat.
+     *
+     * @return the lat
+     */
     public Double getLat() {
         return lat;
     }
 
+    /**
+     * Sets lat.
+     *
+     * @param lat the lat
+     */
     public void setLat(Double lat) {
         this.lat = lat;
     }
 
+    /**
+     * Gets lng.
+     *
+     * @return the lng
+     */
     public Double getLng() {
         return lng;
     }
 
+    /**
+     * Sets lng.
+     *
+     * @param lng the lng
+     */
     public void setLng(Double lng) {
         this.lng = lng;
     }
 
+    /**
+     * Gets place name.
+     *
+     * @return the place name
+     */
     public String getPlaceName() {
         return placeName;
     }
 
+    /**
+     * Sets place name.
+     *
+     * @param placeName the place name
+     */
     public void setPlaceName(String placeName) {
         this.placeName = placeName;
     }
 
 
+    /**
+     * Gets place photo.
+     *
+     * @return the place photo
+     */
     public String getPlacePhoto() {
         return placePhoto;
     }
 
+    /**
+     * Sets place photo.
+     */
     private void setPlacePhoto() {
         if (this.result.getPhotos() != null && this.result.getPhotos().size() > 0) {
             this.placePhoto = this.result.getPhotos().get(0).getPhotoReference();
@@ -209,6 +402,13 @@ public class PlaceFormater implements Parcelable {
         }
     }
 
+    /**
+     * Add marker from list marker.
+     *
+     * @param googleMap     the google map
+     * @param formatedPlace the formated place
+     * @return the marker
+     */
     public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
@@ -229,9 +429,16 @@ public class PlaceFormater implements Parcelable {
                 "placeLat = " + lat + "\n" +
                 "placeLng = " + lng + "\n" +
                 "photoUrl = " + placePhoto + "\n" +
-                "rating = " + placeRate;
+                "rating = " + placeRate+"\n" +
+                "phone number = "+phoneNumber+" \n" +
+                "website = "+websiteUrl;
     }
 
+    /**
+     * Compare to by distance comparator.
+     *
+     * @return the comparator
+     */
     public static Comparator<PlaceFormater> compareToByDistance() {
         Comparator comp = new Comparator<PlaceFormater>() {
             @Override
@@ -243,6 +450,7 @@ public class PlaceFormater implements Parcelable {
         };
         return comp;
     }
+
 
     @Override
     public int describeContents() {
@@ -271,5 +479,7 @@ public class PlaceFormater implements Parcelable {
         dest.writeString(placePhoto);
         dest.writeInt(placeDistance);
         dest.writeParcelable(currentLocation, flags);
+        dest.writeString(websiteUrl);
+        dest.writeString(phoneNumber);
     }
 }
