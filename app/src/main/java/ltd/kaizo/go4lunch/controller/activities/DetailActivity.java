@@ -72,7 +72,6 @@ public class DetailActivity extends BaseActivity {
         this.getPlaceFormaterFromIntent();
         this.updateUiWithPlaceData();
         this.configureRecycleView();
-        this.configureFloatingButton();
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -80,84 +79,9 @@ public class DetailActivity extends BaseActivity {
         place = intent.getParcelableExtra("PlaceFormater");
     }
 
-    private void updateUiWithPlaceData() {
-        placename.setText(place.getPlaceName());
-        placeAdress.setText(place.getPlaceAddress());
-         Glide.with(this).load(placePhotoRequestUrl+place.getPlacePhoto()+"&key="+BuildConfig.ApiKey)
-                    .apply(RequestOptions.centerCropTransform())
-                .into(this.placePhoto);
-         displayRatingStars(place.getPlaceRate());
-         this.configureButtons();
-    }
-
-    private void configureButtons() { Log.i(TAG, "phoneOnclick: phone  = "+place.getPhoneNumber());
-        if (place.getPhoneNumber() != null && isTelephonyEnabled()) {
-
-        phoneBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                callIntent.setData(Uri.parse("tel:"+place.getPhoneNumber()));
-
-                startActivity(callIntent);
-            }
-        });
-        }
-        if (place.getWebsiteUrl() != null) {
-            webBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(place.getWebsiteUrl()));
-                    Log.i(TAG, "phoneOnclick: website  = "+place.getWebsiteUrl());
-                    startActivity(browserIntent);
-                }
-            });
-        }
-            likeBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // TODO: 13/11/2018 implement like function on click
-                }
-            });
-        }
-    private boolean isTelephonyEnabled(){
-        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
-        return telephonyManager != null && telephonyManager.getSimState()==TelephonyManager.SIM_STATE_READY;
-    }
-
-    private void configureFloatingButton() {
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addUserToRestaurant();
-                addRestaurantToUser();
-                provideRecycleViewWithData();
-            }
-        });
-    }
-
-    private void addUserToRestaurant() {
-        Log.i("detailActivity", "addUserToRestaurant: user = "+getCurrentUser().getUid()+" and placeId = "+place.getId());
-        RestaurantHelper.updateRestauranUserList(place.getId(), place,getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName()+" has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();            }
-        });
-    }
- private void addRestaurantToUser() {
-     UserHelper.updateChosenRestaurant(place.getId(), getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
-         @Override
-         public void onFailure(@NonNull Exception e) {
-             Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
-
-         }
-     });
-    }
+    //****************************
+    //*********** UI *************
+    //****************************
 
     private void displayRatingStars(int rate) {
         switch (rate) {
@@ -175,10 +99,99 @@ public class DetailActivity extends BaseActivity {
                 break;
         }
     }
+
+
+    private void updateUiWithPlaceData() {
+        placename.setText(place.getPlaceName());
+        placeAdress.setText(place.getPlaceAddress());
+        Glide.with(this).load(placePhotoRequestUrl + place.getPlacePhoto() + "&key=" + BuildConfig.ApiKey)
+                .apply(RequestOptions.centerCropTransform())
+                .into(this.placePhoto);
+        displayRatingStars(place.getPlaceRate());
+        this.configureButtons();
+    }
+
+    private void configureButtons() {
+        //floatingActionButton
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addUserToRestaurant();
+                addRestaurantToUser();
+                provideRecycleViewWithData();
+            }
+        });
+        //PhoneButton
+        if (place.getPhoneNumber() != null && isTelephonyEnabled()) {
+
+            phoneBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                    callIntent.setData(Uri.parse("tel:" + place.getPhoneNumber()));
+
+                    startActivity(callIntent);
+                }
+            });
+        }
+        //WebsiteButton
+        if (place.getWebsiteUrl() != null) {
+            webBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(place.getWebsiteUrl()));
+                    Log.i(TAG, "phoneOnclick: website  = " + place.getWebsiteUrl());
+                    startActivity(browserIntent);
+                }
+            });
+        }
+        likeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: 13/11/2018 implement like function on click
+            }
+        });
+    }
+
+    private boolean isTelephonyEnabled() {
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        return telephonyManager != null && telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY;
+    }
+
+    //****************************
+    //******** FIREBASE **********
+    //****************************
+
+    private void addUserToRestaurant() {
+        Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
+        RestaurantHelper.updateRestauranUserList(place.getId(), place, getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addRestaurantToUser() {
+        UserHelper.updateChosenRestaurant(place.getId(), getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+    }
+
+
     public void configureRecycleView() {
 
         for (User user : this.userList) {
-            Log.i(TAG, "configureRecycleView: "+user.getUsername());
+            Log.i(TAG, "configureRecycleView: " + user.getUsername());
         }
         this.joiningMatesAdapter = new JoiningMatesAdapter(this.provideRecycleViewWithData(), Glide.with(this));
         this.joiningMatesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -196,14 +209,19 @@ public class DetailActivity extends BaseActivity {
         RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                restaurant =  documentSnapshot.toObject(Restaurant.class);
+                restaurant = documentSnapshot.toObject(Restaurant.class);
 
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i(TAG, "onFailure: fail to retrieve restaurant info");
             }
         });
         if (this.restaurant != null) {
-            userList.clear();
+
             for (String user : this.restaurant.getUserList()) {
-                Log.i(TAG, "onSuccess: userId = "+user);
+                Log.i(TAG, "onSuccess: userId = " + user);
                 UserHelper.getUser(user).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
 
                     @Override

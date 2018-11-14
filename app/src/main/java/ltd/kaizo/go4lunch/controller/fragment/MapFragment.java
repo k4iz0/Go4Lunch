@@ -210,13 +210,15 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                                 placeDetailList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
                                 if (placeDetailList != null) {
 
-                                for (PlaceFormater place : placeDetailList) {
-                                    // add marker on map
-                                    place.addMarkerFromList(googleMap, place);
+                                    for (PlaceFormater place : placeDetailList) {
+                                        // add marker on map
+                                        place.addMarkerFromList(googleMap, place);
+                                    }
+                                    //configure click event
+                                } else {
+                                    executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
                                 }
-                                //configure click event
                                 configureOnMarkerClick(placeDetailList);
-                                }
                             }
                             moveCameraToCurrentLocation(currentLocation);
                         } else {

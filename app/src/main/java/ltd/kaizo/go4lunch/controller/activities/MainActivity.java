@@ -133,11 +133,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.activity_main_drawer_lunch:
-                if (getChoosenRestaurantID().equalsIgnoreCase("")) {
+                if (getChosenRestaurantID().equalsIgnoreCase("")) {
                     showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
                 } else {
 
-                    RestaurantHelper.getRestaurant(getChoosenRestaurantID()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    RestaurantHelper.getRestaurant(getChosenRestaurantID()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             Restaurant chosenRestaurant = documentSnapshot.toObject(Restaurant.class);
@@ -164,7 +164,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return true;
     }
 
-    private String getChoosenRestaurantID() {
+    private String getChosenRestaurantID() {
 
         UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
