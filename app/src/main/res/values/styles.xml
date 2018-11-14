@@ -50,4 +50,10 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:background">@android:color/white</item>
     </style>
+    //ALERT DIALOG
+    <style name="AlertDialogCustom" parent="@android:style/Theme.Dialog">
+        <item name="android:textColor">#FFFF</item>
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 </resources>

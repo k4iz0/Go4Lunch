@@ -60,9 +60,9 @@ public class UserHelper {
     // --- UPDATE ---
 
 
-    public static Task<Void> updateUsername(String username, String uid) {
+    public static Task<Void> updateChosenRestaurant(String restaurantId, String uid) {
 
-        return UserHelper.getUsersCollection().document(uid).update("username", username);
+        return UserHelper.getUsersCollection().document(uid).update("chosenRestaurant", restaurantId);
 
     }
 

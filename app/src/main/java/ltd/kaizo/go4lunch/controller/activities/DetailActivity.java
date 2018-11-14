@@ -130,6 +130,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 addUserToRestaurant();
+                addRestaurantToUser();
                 provideRecycleViewWithData();
             }
         });
@@ -147,6 +148,15 @@ public class DetailActivity extends BaseActivity {
             public void onSuccess(Void aVoid) {
                 Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName()+" has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();            }
         });
+    }
+ private void addRestaurantToUser() {
+     UserHelper.updateChosenRestaurant(place.getId(), getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
+         @Override
+         public void onFailure(@NonNull Exception e) {
+             Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
+
+         }
+     });
     }
 
     private void displayRatingStars(int rate) {

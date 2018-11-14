@@ -156,6 +156,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             ActivityCompat.requestPermissions(getActivity(),
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
+
         }
 
     }

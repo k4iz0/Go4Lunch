@@ -50,6 +50,11 @@
             android:label="Detail"
             android:parentActivityName=".controller.activities.MainActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".controller.activities.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".controller.activities.MainActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -4,7 +4,7 @@ public class User {
     private String uid;
     private String urlPicture;
     private String username;
-
+    private String ChosenRestaurant;
     public User() {
     }
 
@@ -12,6 +12,15 @@ public class User {
         this.uid = uid;
         this.urlPicture = urlPicture;
         this.username = username;
+        this.ChosenRestaurant = "";
+    }
+
+    public String getChosenRestaurant() {
+        return ChosenRestaurant;
+    }
+
+    public void setChosenRestaurant(String chosenRestaurant) {
+        ChosenRestaurant = chosenRestaurant;
     }
 
     public String getUid() {

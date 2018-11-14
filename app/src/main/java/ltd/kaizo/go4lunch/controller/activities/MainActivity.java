@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -30,7 +29,9 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
 
@@ -39,7 +40,10 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.fragment.ListFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.Restaurant;
+import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
 
@@ -62,6 +66,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     ImageView avatarImageView;
     private String TAG = "MainActivity";
     private MapFragment mapFragment;
+    private String chosenRestaurantId="";
 
     @Override
     public int getFragmentLayout() {
@@ -128,10 +133,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.activity_main_drawer_lunch:
-                Toast.makeText(this, "lunch", Toast.LENGTH_SHORT).show();
+                if (getChoosenRestaurantID().equalsIgnoreCase("")) {
+                    showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
+                } else {
+
+                    RestaurantHelper.getRestaurant(getChoosenRestaurantID()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Restaurant chosenRestaurant = documentSnapshot.toObject(Restaurant.class);
+                            Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                            detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
+                            startActivity(detailActivity);
+                        }
+                    });
+                }
                 break;
             case R.id.activity_main_drawer_settings:
-                Toast.makeText(this, "setting", Toast.LENGTH_SHORT).show();
+                Intent settingActivity = new Intent(this, SettingsActivity.class);
+                startActivity(settingActivity);
 
                 break;
             case R.id.activity_main_drawer_logout:
@@ -143,6 +162,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private String getChoosenRestaurantID() {
+
+        UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                chosenRestaurantId = documentSnapshot.toObject(User.class).getChosenRestaurant();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                chosenRestaurantId = "";
+            }
+        });
+        return chosenRestaurantId;
     }
 
     @Override
