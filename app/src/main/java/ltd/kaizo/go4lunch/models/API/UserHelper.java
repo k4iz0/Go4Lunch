@@ -8,6 +8,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
+
 import ltd.kaizo.go4lunch.models.User;
 
 import static com.firebase.ui.auth.AuthUI.TAG;

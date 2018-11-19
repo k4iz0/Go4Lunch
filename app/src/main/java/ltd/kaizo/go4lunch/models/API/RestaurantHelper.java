@@ -14,6 +14,7 @@ import java.util.List;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
+import ltd.kaizo.go4lunch.models.User;
 
 public class RestaurantHelper {
 
@@ -29,11 +30,12 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToCreate);
     }
 
-    //GET
+    //GET RESTAURANT
     public static Task<DocumentSnapshot> getRestaurant(String placeId) {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).get();
     }
-// --- GET All RESTAURANT---
+
+    // --- GET All RESTAURANT---
 
     public static Query getAllRestaurants(){
 
@@ -47,10 +49,10 @@ public class RestaurantHelper {
 
     }
     //UPDATE
-    public static Task<Void> updateRestauranUserList(String placeId, PlaceFormater placeFormater, String userId) {
+    public static Task<Void> updateRestauranUserList(String placeId, PlaceFormater placeFormater, User user) {
 
         Restaurant restaurantsToUpdate = new Restaurant(placeId, placeFormater, false);
-        restaurantsToUpdate.getUserList().add(userId);
+        restaurantsToUpdate.getUserList().add(user);
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToUpdate);
 
     }

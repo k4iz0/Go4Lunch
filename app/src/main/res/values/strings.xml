@@ -109,5 +109,8 @@
     <string name="popup_message_confirmation_delete_account">you\'re going to delete your account, are you sure ?</string>
     <string name="popup_message_choice_yes">yes</string>
     <string name="popup_message_choice_no">no</string>
+    <string name="isJoining"> is joining!</string>
+    <string name="decideYet"> hasn\'t decided yet</string>
+    <string name="eatingAt"> is eating at</string>
 
 </resources>

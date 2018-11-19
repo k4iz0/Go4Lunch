@@ -29,8 +29,10 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.Arrays;
@@ -66,7 +68,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     ImageView avatarImageView;
     private String TAG = "MainActivity";
     private MapFragment mapFragment;
-    private String chosenRestaurantId="";
+    private String chosenRestaurantId = "";
 
     @Override
     public int getFragmentLayout() {
@@ -133,20 +135,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.activity_main_drawer_lunch:
-                if (getChosenRestaurantID().equalsIgnoreCase("")) {
-                    showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
-                } else {
-
-                    RestaurantHelper.getRestaurant(getChosenRestaurantID()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            Restaurant chosenRestaurant = documentSnapshot.toObject(Restaurant.class);
-                            Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                            detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
-                            startActivity(detailActivity);
-                        }
-                    });
-                }
+                this.getChosenRestaurant();
                 break;
             case R.id.activity_main_drawer_settings:
                 Intent settingActivity = new Intent(this, SettingsActivity.class);
@@ -164,20 +153,33 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return true;
     }
 
-    private String getChosenRestaurantID() {
-
-        UserHelper.getUser(getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                chosenRestaurantId = documentSnapshot.toObject(User.class).getChosenRestaurant();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
+    private void getChosenRestaurant() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
                 chosenRestaurantId = "";
             }
+        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().getData() != null && !task.getResult().equals("")) {
+                        chosenRestaurantId = task.getResult().toObject(User.class).getChosenRestaurant();
+                        RestaurantHelper.getRestaurant(chosenRestaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Restaurant chosenRestaurant = documentSnapshot.toObject(Restaurant.class);
+                                Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                                detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
+                                startActivity(detailActivity);
+                            }
+                        });
+                    }
+                }
+            }
         });
-        return chosenRestaurantId;
+
     }
 
     @Override

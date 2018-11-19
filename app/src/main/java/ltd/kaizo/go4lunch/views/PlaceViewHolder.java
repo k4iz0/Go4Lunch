@@ -14,11 +14,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.Restaurant;
+import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
-public class PlaceViewholder extends RecyclerView.ViewHolder {
+public class PlaceViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.item_list_name_textview)
     TextView placeName;
     @BindView(R.id.item_list_place_adress_textview)
@@ -41,13 +42,12 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
     ImageView rateStar3;
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=80&maxheight=80&photoreference=";
 
-    public PlaceViewholder(View itemView) {
+    public PlaceViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }
 
     public void updateViewWithRestaurant(Restaurant restaurant, RequestManager glide) {
-        Log.i("PlaceViewHolder", "updateViewWithRestaurant: " + restaurant.getPlaceFormater().getPlaceName());
         placeName.setText(restaurant.getPlaceFormater().getPlaceName());
         placeAdress.setText(restaurant.getPlaceFormater().getPlaceAddress());
         this.displayRatingStars(restaurant.getPlaceFormater().getPlaceRate());
@@ -57,8 +57,10 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         }
         placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
         glide.load(photoUrl)
-                .apply(RequestOptions.centerCropTransform()).apply(bitmapTransform(new RoundedCorners(15)))
+              .apply(bitmapTransform(new RoundedCorners(10)) .fitCenter())
                 .into(this.placePhoto);
+        //TODO mettre photo par défaut
+        Log.i("PlaceViewHolder", "updateViewWithRestaurant: " + restaurant.getPlaceFormater().formatStringWeekdayList());
         placeHours.setText(restaurant.getPlaceFormater().formatStringWeekdayList());
         if (restaurant.getUserList().size() > 0) {
             this.configureMatesIcon(restaurant.getUserList().size());
@@ -88,5 +90,6 @@ public class PlaceViewholder extends RecyclerView.ViewHolder {
         personNumber.setVisibility(View.VISIBLE);
         personIcon.setVisibility(View.VISIBLE);
     }
+
 
 }

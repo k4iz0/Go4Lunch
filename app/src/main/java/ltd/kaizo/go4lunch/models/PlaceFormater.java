@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ltd.kaizo.go4lunch.models.API.PlaceDetail.OpeningHours;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
 /**
@@ -49,7 +50,7 @@ public class PlaceFormater implements Parcelable {
     /**
      * The Place hour.
      */
-    private List<String> placeHour;
+    private OpeningHours placeHour;
     /**
      * The Place rate.
      */
@@ -94,6 +95,7 @@ public class PlaceFormater implements Parcelable {
     public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
         this.id = (this.result.getName() + this.result.getVicinity().toLowerCase());
+        //TODO changer ID
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAddress = result.getVicinity();
@@ -108,11 +110,6 @@ public class PlaceFormater implements Parcelable {
     }
 
 
-    /**
-     * Instantiates a new Place formater.
-     *
-     * @param in the in
-     */
     protected PlaceFormater(Parcel in) {
         id = in.readString();
         if (in.readByte() == 0) {
@@ -127,7 +124,6 @@ public class PlaceFormater implements Parcelable {
         }
         placeName = in.readString();
         placeAddress = in.readString();
-        placeHour = in.createStringArrayList();
         placeRate = in.readInt();
         placePhoto = in.readString();
         placeDistance = in.readInt();
@@ -136,9 +132,6 @@ public class PlaceFormater implements Parcelable {
         phoneNumber = in.readString();
     }
 
-    /**
-     * The constant CREATOR.
-     */
     public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
         @Override
         public PlaceFormater createFromParcel(Parcel in) {
@@ -227,7 +220,12 @@ public class PlaceFormater implements Parcelable {
                 new LatLng(this.lat, this.lng)));//to
         this.placeDistance = tmp.intValue();
     }
-
+    /**
+     * Sets place hour.
+     */
+    private void setPlaceHour() {
+             this.placeHour = this.result.getOpeningHours();
+          }
 
     /**
      * Format string weekday list string.
@@ -235,14 +233,12 @@ public class PlaceFormater implements Parcelable {
      * @return the string
      */
     public String formatStringWeekdayList() {
-        String str = "";
-        if (this.result != null) {
-            if (this.result.getOpeningHours() != null && !this.result.getOpeningHours().getOpenNow()) {
-                str = "closed";
-            } else if (this.placeHour.size() == 7 || this.placeHour.size() == 0) {
+        String str = "closed";
+        if (this.placeHour != null) {
+            if (this.placeHour.getWeekdayText().size() == 7 || this.placeHour.getWeekdayText().size() == 0) {
                 str = "Open 24/7";
             } else {
-                str = "Open until " + this.result.getOpeningHours().getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+                str = "Open until " + this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
             }
         }
         return str;
@@ -307,27 +303,7 @@ public class PlaceFormater implements Parcelable {
         this.placeAddress = placeAddress;
     }
 
-    /**
-     * Gets place hour.
-     *
-     * @return the place hour
-     */
-    public List<String> getPlaceHour() {
-        return placeHour;
-    }
-
-    /**
-     * Sets place hour.
-     */
-    private void setPlaceHour() {
-        if (this.result.getOpeningHours() != null) {
-            this.placeHour = this.result.getOpeningHours().getWeekdayText();
-        } else {
-            this.placeHour = new ArrayList<>();
-        }
-    }
-
-    /**
+     /**
      * Gets lat.
      *
      * @return the lat
@@ -474,7 +450,6 @@ public class PlaceFormater implements Parcelable {
         }
         dest.writeString(placeName);
         dest.writeString(placeAddress);
-        dest.writeStringList(placeHour);
         dest.writeInt(placeRate);
         dest.writeString(placePhoto);
         dest.writeInt(placeDistance);

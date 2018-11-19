@@ -1,13 +1,12 @@
 package ltd.kaizo.go4lunch.models;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Restaurant {
     private String PlaceId;
     private PlaceFormater placeFormater;
     private Boolean isChoosen;
-    private List<String> userList;
+    private ArrayList<User> userList;
 
     public Restaurant() {
     }
@@ -43,11 +42,11 @@ public class Restaurant {
         isChoosen = choosen;
     }
 
-    public List<String> getUserList() {
+    public ArrayList<User> getUserList() {
         return userList;
     }
 
-    public void setUserList(List<String> userList) {
+    public void setUserList(ArrayList<User> userList) {
         this.userList = userList;
     }
 }

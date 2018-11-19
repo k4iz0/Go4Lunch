@@ -1,7 +1,7 @@
 package ltd.kaizo.go4lunch.views;
 
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,7 +13,13 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
 
 public class MatesViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.mates_recycleViewItem_avatar)
@@ -26,13 +32,28 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateViewWithUserData(User user, RequestManager glide) {
-        matesTextView.setText(user.getUsername());
-        glide.load(user.getUrlPicture()).into(matesAvatar);
+        if (user.getChosenRestaurant().equalsIgnoreCase("")) {
+            matesTextView.setText(user.getUsername() );
+//            matesTextView.setText(user.getUsername() + Resources.getSystem().getString(R.string.decideYet));
 
+        } else {
+            ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
+            String restaurantName = "";
+            for (PlaceFormater place : restaurantList) {
+                if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
+                    restaurantName = place.getPlaceName();
+                }
+            }
+            matesTextView.setText(user.getUsername()+" " + restaurantName);
+//            matesTextView.setText(user.getUsername()+Resources.getSystem().getString(R.string.eatingAt)+ restaurantName);
+        }
+
+        glide.load(user.getUrlPicture()).into(matesAvatar);
     }
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
 
         matesTextView.setText(userList.get(position).getUsername());
+//        matesTextView.setText(userList.get(position).getUsername()+Resources.getSystem().getString(R.string.isJoining));
         glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
 
     }

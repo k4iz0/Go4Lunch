@@ -16,8 +16,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -57,10 +59,12 @@ public class DetailActivity extends BaseActivity {
     @BindView(R.id.activity_detail_web_btn)
     ImageButton webBtn;
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
-    private RecyclerView.Adapter joiningMatesAdapter;
+    private JoiningMatesAdapter joiningMatesAdapter;
     private Restaurant restaurant;
     private ArrayList<User> userList = new ArrayList<>();
     private String TAG = getClass().getSimpleName();
+    private User currentUser;
+    private Boolean isFabPressed = false;
 
     @Override
     public int getFragmentLayout() {
@@ -70,6 +74,9 @@ public class DetailActivity extends BaseActivity {
     @Override
     public void configureDesign() {
         this.getPlaceFormaterFromIntent();
+        this.currentUser = new User(getCurrentUser().getUid(),
+                getCurrentUser().getDisplayName(),
+                getCurrentUser().getPhotoUrl().toString());
         this.updateUiWithPlaceData();
         this.configureRecycleView();
     }
@@ -112,15 +119,7 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void configureButtons() {
-        //floatingActionButton
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addUserToRestaurant();
-                addRestaurantToUser();
-                provideRecycleViewWithData();
-            }
-        });
+        this.configureFloatingActionButton();
         //PhoneButton
         if (place.getPhoneNumber() != null && isTelephonyEnabled()) {
 
@@ -144,11 +143,55 @@ public class DetailActivity extends BaseActivity {
                     startActivity(browserIntent);
                 }
             });
+        } else {
+            Toast.makeText(this, "website Url unavailable", Toast.LENGTH_SHORT).show();
         }
         likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO: 13/11/2018 implement like function on click
+            }
+        });
+    }
+
+    private void configureFloatingActionButton() {
+        //floatingActionButton
+        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
+
+            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot != null) {
+                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                        Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
+                        isFabPressed = restaurant.getUserList().contains(currentUser);
+
+                    }
+                }
+            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    Log.i(TAG, "onSuccess: isFabPressed2 = " + isFabPressed);
+                    if (isFabPressed) {
+                        floatingActionButton.setBackgroundResource(R.drawable.ic_check);
+                    }
+                }
+            });
+        }
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isFabPressed) {
+                    removeUserFromRestaurant();
+                    joiningMatesAdapter.notifyDataSetChanged();
+                    floatingActionButton.setBackgroundResource(R.drawable.ic_checked);
+                    Log.i(TAG, "onClick: ispressed");
+                } else {
+                    addUserToRestaurant();
+                    addRestaurantToUser();
+                    floatingActionButton.setBackgroundResource(R.drawable.ic_check);
+                    Log.i(TAG, "onClick: not pressed");
+                }
             }
         });
     }
@@ -163,8 +206,10 @@ public class DetailActivity extends BaseActivity {
     //****************************
 
     private void addUserToRestaurant() {
+        this.removeUserFromRestaurant();
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
-        RestaurantHelper.updateRestauranUserList(place.getId(), place, getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
+        RestaurantHelper.updateRestauranUserList(place.getId(),
+                place, currentUser).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
@@ -174,7 +219,35 @@ public class DetailActivity extends BaseActivity {
             public void onSuccess(Void aVoid) {
                 Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
             }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                provideRecycleViewWithData();
+
+            }
         });
+        Log.i("JoiningMatesAdapter", "provideRecycleViewWithData: taille de la liste " + this.userList.size());
+    }
+
+    private void removeUserFromRestaurant() {
+        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
+
+            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot != null) {
+                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                        restaurant.getUserList().remove(currentUser);
+                        userList.remove(currentUser);
+                    }
+                }
+            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    joiningMatesAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     private void addRestaurantToUser() {
@@ -186,59 +259,42 @@ public class DetailActivity extends BaseActivity {
             }
         });
     }
-
+    //****************************
+    //****** RECYCLE VIEW ********
+    //****************************
 
     public void configureRecycleView() {
-
-        for (User user : this.userList) {
-            Log.i(TAG, "configureRecycleView: " + user.getUsername());
-        }
-        this.joiningMatesAdapter = new JoiningMatesAdapter(this.provideRecycleViewWithData(), Glide.with(this));
-        this.joiningMatesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                recyclerView.smoothScrollToPosition(positionStart);
-            }
-        });
+        this.provideRecycleViewWithData();
+        this.joiningMatesAdapter = new JoiningMatesAdapter(this.userList, Glide.with(this));
         this.recyclerView.setAdapter(joiningMatesAdapter);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
     }
 
-    private ArrayList<User> provideRecycleViewWithData() {
+    private void provideRecycleViewWithData() {
+
         RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 restaurant = documentSnapshot.toObject(Restaurant.class);
-
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.i(TAG, "onFailure: fail to retrieve restaurant info");
             }
-        });
-        if (this.restaurant != null) {
+        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
-            for (String user : this.restaurant.getUserList()) {
-                Log.i(TAG, "onSuccess: userId = " + user);
-                UserHelper.getUser(user).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                        userList.add(documentSnapshot.toObject(User.class));
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i(TAG, "onFailure: fail to retrieve user");
-                    }
-                });
+                if (restaurant != null) {
+                    userList.addAll(restaurant.getUserList());
+                }
+                joiningMatesAdapter.notifyDataSetChanged();
             }
-            joiningMatesAdapter.notifyDataSetChanged();
-        }
-        return userList;
+        });
+
+
     }
 
 }

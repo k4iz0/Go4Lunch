@@ -1,11 +1,13 @@
 package ltd.kaizo.go4lunch.controller.fragment;
 
 
+import android.content.Intent;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -13,8 +15,12 @@ import com.google.firebase.firestore.Query;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.models.utils.ItemClickSupport;
 import ltd.kaizo.go4lunch.views.Adapter.MatesRecycleAdapter;
 
 /**
@@ -38,6 +44,7 @@ public class MatesFragment extends BaseFragment {
     @Override
     protected void configureDesign() {
         this.configureRecycleView();
+        this.configureOnClickRecyclerView();
     }
 
     @Override
@@ -56,5 +63,17 @@ public class MatesFragment extends BaseFragment {
                 .setQuery(query, User.class)
                 .setLifecycleOwner(this)
                 .build();
+    }
+    private void configureOnClickRecyclerView() {
+        ItemClickSupport.addTo(recyclerView, R.layout.place_fragment_list_item)
+                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
+//                        RestaurantHelper.getRestaurant(g)
+//                        detailActivity.putExtra("PlaceFormater", restaurantlist.get(position));
+                        startActivity(detailActivity);
+                    }
+                });
     }
 }

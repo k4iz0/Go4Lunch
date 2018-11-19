@@ -3,27 +3,30 @@ package ltd.kaizo.go4lunch.views.Adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import java.util.ArrayList;
 
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 import ltd.kaizo.go4lunch.views.MatesViewHolder;
 
 public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
     private RequestManager glide;
     private ArrayList<User> userList;
-
-    public JoiningMatesAdapter(ArrayList<User> userList, RequestManager glide) {
+    public JoiningMatesAdapter(ArrayList<User> userArrayList, RequestManager glide) {
+        this.userList = userArrayList;
         this.glide = glide;
-        this.userList = userList;
-    }
 
+    }
 
     @NonNull
     @Override
@@ -36,15 +39,14 @@ public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MatesViewHolder holder, int position) {
-        holder.updateViewWithUserDataForJoiningList(userList, position, glide);
+        holder.updateViewWithUserDataForJoiningList(this.userList, position, glide);
     }
 
     @Override
     public int getItemCount() {
-        if (this.userList != null) {
-            return this.userList.size();
-        } else {
-            return 0;
-        }
+
+        return this.userList.size();
     }
+
+
 }
