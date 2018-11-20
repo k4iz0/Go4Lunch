@@ -3,7 +3,9 @@ package ltd.kaizo.go4lunch.controller.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
@@ -20,9 +22,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
@@ -74,11 +83,21 @@ public class DetailActivity extends BaseActivity {
     @Override
     public void configureDesign() {
         this.getPlaceFormaterFromIntent();
-        this.currentUser = new User(getCurrentUser().getUid(),
-                getCurrentUser().getDisplayName(),
-                getCurrentUser().getPhotoUrl().toString());
-        this.updateUiWithPlaceData();
+        this.configureCurrentUser();
         this.configureRecycleView();
+        this.testFirebase();
+    }
+
+    private void configureCurrentUser() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.getResult() != null) {
+                currentUser = task.getResult().toObject(User.class);
+                updateUiWithPlaceData();
+                }
+            }
+        });
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -156,6 +175,7 @@ public class DetailActivity extends BaseActivity {
 
     private void configureFloatingActionButton() {
         //floatingActionButton
+        Log.i(TAG, "configureFloatingActionButton: "+currentUser.getChosenRestaurant()+" user = "+currentUser.getUsername());
         if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
 
             RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -164,7 +184,12 @@ public class DetailActivity extends BaseActivity {
                     if (documentSnapshot != null) {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
                         Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
-                        isFabPressed = restaurant.getUserList().contains(currentUser);
+                        for (User user : restaurant.getUserList()) {
+                            if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
+                                isFabPressed = true;
+                                return;
+                            }
+                        }
 
                     }
                 }
@@ -184,13 +209,13 @@ public class DetailActivity extends BaseActivity {
                 if (isFabPressed) {
                     removeUserFromRestaurant();
                     joiningMatesAdapter.notifyDataSetChanged();
-                    floatingActionButton.setBackgroundResource(R.drawable.ic_checked);
-                    Log.i(TAG, "onClick: ispressed");
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_checked));
+                    isFabPressed =false;
                 } else {
                     addUserToRestaurant();
                     addRestaurantToUser();
-                    floatingActionButton.setBackgroundResource(R.drawable.ic_check);
-                    Log.i(TAG, "onClick: not pressed");
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_plus_one));
+                    isFabPressed = true;
                 }
             }
         });
@@ -204,7 +229,40 @@ public class DetailActivity extends BaseActivity {
     //****************************
     //******** FIREBASE **********
     //****************************
+    private void testFirebase() {
+        RestaurantHelper.getRestaurantsCollection().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) return;
 
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    DocumentSnapshot documentSnapshot = dc.getDocument();
+                    String id = documentSnapshot.getId();
+
+                    switch (dc.getType()) {
+                        case ADDED:
+                            Log.i(TAG, "onEvent: added");
+                            break;
+                        case REMOVED:
+                            Log.i(TAG, "onEvent: removed");
+                            break;
+                        case MODIFIED:
+                            Log.i(TAG, "onEvent: modified");
+                            Log.i(TAG, "onEvent: size = "+documentSnapshot.get("userList").toString());
+
+                            ArrayList<HashMap<String, String>> tmp = (ArrayList<HashMap<String, String>>) documentSnapshot.get("userList");
+                            userList.clear();
+                            for (HashMap<String, String> user : tmp) {
+                                userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                            }
+                            joiningMatesAdapter.setUserList(userList);
+                            break;
+                    }
+                }
+            }
+        });
+
+    }
     private void addUserToRestaurant() {
         this.removeUserFromRestaurant();
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
@@ -239,7 +297,11 @@ public class DetailActivity extends BaseActivity {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
                         restaurant.getUserList().remove(currentUser);
                         userList.remove(currentUser);
+                    final Map<String, Object> removeUserMap = new HashMap<>();
+                    removeUserMap.put("userList", FieldValue.arrayRemove(currentUser.getUid()));
+                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(removeUserMap);
                     }
+
                 }
             }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override

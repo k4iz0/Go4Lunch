@@ -1,6 +1,5 @@
 package ltd.kaizo.go4lunch.views;
 
-import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,9 +12,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
-import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
@@ -26,16 +23,17 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     ImageView matesAvatar;
     @BindView(R.id.mates_recycleViewItem_textview)
     TextView matesTextView;
+
     public MatesViewHolder(View itemView) {
         super(itemView);
-        ButterKnife.bind(this,itemView);
+        ButterKnife.bind(this, itemView);
     }
 
-    public void updateViewWithUserData(User user, RequestManager glide) {
+    public void updateViewWithUserData(MatesViewHolder holder, User user, RequestManager glide) {
         if (user.getChosenRestaurant().equalsIgnoreCase("")) {
-            matesTextView.setText(user.getUsername() );
+            matesTextView.setText(user.getUsername());
 //            matesTextView.setText(user.getUsername() + Resources.getSystem().getString(R.string.decideYet));
-
+            itemView.setClickable(false);
         } else {
             ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
             String restaurantName = "";
@@ -44,12 +42,14 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                     restaurantName = place.getPlaceName();
                 }
             }
-            matesTextView.setText(user.getUsername()+" " + restaurantName);
-//            matesTextView.setText(user.getUsername()+Resources.getSystem().getString(R.string.eatingAt)+ restaurantName);
+            matesTextView.setText(user.getUsername() + " " + restaurantName);
+
+//            matesTextView.setText(user.getUsername()+holder.getString(R.string.eatingAt)+ restaurantName);
         }
 
         glide.load(user.getUrlPicture()).into(matesAvatar);
     }
+
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
 
         matesTextView.setText(userList.get(position).getUsername());

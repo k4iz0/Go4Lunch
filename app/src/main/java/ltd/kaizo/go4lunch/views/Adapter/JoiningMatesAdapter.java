@@ -49,4 +49,8 @@ public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
     }
 
 
+    public void setUserList(ArrayList<User> userList) {
+        this.userList = userList;
+        notifyDataSetChanged();
+    }
 }

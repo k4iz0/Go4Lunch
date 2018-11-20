@@ -30,7 +30,7 @@ public class MatesRecycleAdapter extends FirestoreRecyclerAdapter<User, MatesVie
 
     @Override
     protected void onBindViewHolder(@NonNull MatesViewHolder holder, int position, @NonNull User user) {
-    holder.updateViewWithUserData(user,glide);
+    holder.updateViewWithUserData(holder, user,glide);
     }
 
     @NonNull
