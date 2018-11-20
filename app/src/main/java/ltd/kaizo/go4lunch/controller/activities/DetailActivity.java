@@ -93,8 +93,8 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.getResult() != null) {
-                currentUser = task.getResult().toObject(User.class);
-                updateUiWithPlaceData();
+                    currentUser = task.getResult().toObject(User.class);
+                    updateUiWithPlaceData();
                 }
             }
         });
@@ -175,7 +175,6 @@ public class DetailActivity extends BaseActivity {
 
     private void configureFloatingActionButton() {
         //floatingActionButton
-        Log.i(TAG, "configureFloatingActionButton: "+currentUser.getChosenRestaurant()+" user = "+currentUser.getUsername());
         if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
 
             RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -208,13 +207,12 @@ public class DetailActivity extends BaseActivity {
             public void onClick(View v) {
                 if (isFabPressed) {
                     removeUserFromRestaurant();
-                    joiningMatesAdapter.notifyDataSetChanged();
-                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_checked));
-                    isFabPressed =false;
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_checked));
+                    isFabPressed = false;
                 } else {
                     addUserToRestaurant();
                     addRestaurantToUser();
-                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(),R.drawable.ic_plus_one));
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_plus_one));
                     isFabPressed = true;
                 }
             }
@@ -238,20 +236,29 @@ public class DetailActivity extends BaseActivity {
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
                     String id = documentSnapshot.getId();
-
+                    ArrayList<HashMap<String, String>> tmp = (ArrayList<HashMap<String, String>>) documentSnapshot.get("userList");
+                    userList.clear();
                     switch (dc.getType()) {
                         case ADDED:
                             Log.i(TAG, "onEvent: added");
+                            for (HashMap<String, String> user : tmp) {
+                                userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                            }
+                            joiningMatesAdapter.setUserList(userList);
                             break;
                         case REMOVED:
                             Log.i(TAG, "onEvent: removed");
+
+                            for (HashMap<String, String> user : tmp) {
+                                userList.remove(user.get("userId"));
+                            }
+                            joiningMatesAdapter.setUserList(userList);
                             break;
                         case MODIFIED:
                             Log.i(TAG, "onEvent: modified");
-                            Log.i(TAG, "onEvent: size = "+documentSnapshot.get("userList").toString());
+                            Log.i(TAG, "onEvent: size = " + documentSnapshot.get("userList").toString());
 
-                            ArrayList<HashMap<String, String>> tmp = (ArrayList<HashMap<String, String>>) documentSnapshot.get("userList");
-                            userList.clear();
+
                             for (HashMap<String, String> user : tmp) {
                                 userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
                             }
@@ -263,6 +270,7 @@ public class DetailActivity extends BaseActivity {
         });
 
     }
+
     private void addUserToRestaurant() {
         this.removeUserFromRestaurant();
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
@@ -288,6 +296,7 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void removeUserFromRestaurant() {
+        Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
         if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
 
             RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -297,9 +306,9 @@ public class DetailActivity extends BaseActivity {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
                         restaurant.getUserList().remove(currentUser);
                         userList.remove(currentUser);
-                    final Map<String, Object> removeUserMap = new HashMap<>();
-                    removeUserMap.put("userList", FieldValue.arrayRemove(currentUser.getUid()));
-                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(removeUserMap);
+                        final Map<String, Object> removeUserMap = new HashMap<>();
+                        removeUserMap.put("userList", FieldValue.arrayRemove(currentUser.getUid()));
+                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(removeUserMap);
                     }
 
                 }

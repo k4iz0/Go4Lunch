@@ -37,10 +37,13 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
         } else {
             ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
             String restaurantName = "";
+            if (restaurantList != null) {
+
             for (PlaceFormater place : restaurantList) {
                 if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
                     restaurantName = place.getPlaceName();
                 }
+            }
             }
             matesTextView.setText(user.getUsername() + " " + restaurantName);
 

@@ -1,6 +1,8 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -9,7 +11,10 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.squareup.haha.perflib.Main;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -57,7 +62,20 @@ public class SettingsActivity extends BaseActivity {
             AuthUI.getInstance()
                     .delete(this)
                     .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
-            UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener());
+            UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    AuthUI.getInstance()
+                            .signOut(getApplicationContext()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                                    startActivity(mainActivity);
+                                }
+                            });
+                }
+            });
+
         }
 
     }
