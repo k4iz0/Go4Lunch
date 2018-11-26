@@ -5,6 +5,7 @@ public class User {
     private String urlPicture;
     private String username;
     private String ChosenRestaurant;
+    private Boolean hasChoose;
     public User() {
     }
 
@@ -21,6 +22,14 @@ public class User {
 
     public void setChosenRestaurant(String chosenRestaurant) {
         ChosenRestaurant = chosenRestaurant;
+    }
+
+    public Boolean getHasChoose() {
+        return !this.getChosenRestaurant().equalsIgnoreCase("");
+    }
+
+    public void setHasChoose(Boolean hasChoose) {
+        this.hasChoose = hasChoose;
     }
 
     public String getUid() {

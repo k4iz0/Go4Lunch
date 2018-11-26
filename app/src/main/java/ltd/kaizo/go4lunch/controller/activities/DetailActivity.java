@@ -175,14 +175,14 @@ public class DetailActivity extends BaseActivity {
 
     private void configureFloatingActionButton() {
         //floatingActionButton
-        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
+        if (currentUser.getHasChoose()) {
 
             RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot != null) {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-
+                        Log.i(TAG, "onSuccess: documentSnapshot = "+documentSnapshot.get("placeName"));
                             for (User user : restaurant.getUserList()) {
                                 if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
                                     isFabPressed = true;
@@ -191,6 +191,7 @@ public class DetailActivity extends BaseActivity {
                                     return;
                                 }
                             }
+
 
                     }
                 }
@@ -273,7 +274,9 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void addUserToRestaurant() {
+        if (currentUser.getHasChoose()) {
         this.removeUserFromRestaurant();
+        }
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
         RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -296,9 +299,9 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 userList.add(currentUser);
                 Log.i(TAG, "onComplete: userlist = " + userList.toString() + " size = " + userList.size());
-                Map<String, Object> userlistMap = new HashMap<>();
-                userlistMap.put("userList", FieldValue.arrayUnion(currentUser.getUid()));
-                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(userlistMap);
+                Map<String, Object> userListMap = new HashMap<>();
+                userListMap.put("userList", currentUser);
+                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList",userListMap);
                 provideRecycleViewWithData();
             }
         });
