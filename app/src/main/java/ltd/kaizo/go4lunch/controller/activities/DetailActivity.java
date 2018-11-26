@@ -85,7 +85,7 @@ public class DetailActivity extends BaseActivity {
         this.getPlaceFormaterFromIntent();
         this.configureCurrentUser();
         this.configureRecycleView();
-        this.testFirebase();
+        this.firebaseListener();
     }
 
     private void configureCurrentUser() {
@@ -182,10 +182,11 @@ public class DetailActivity extends BaseActivity {
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot != null) {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                        Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
                         for (User user : restaurant.getUserList()) {
                             if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
                                 isFabPressed = true;
+                                floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
+                                Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
                                 return;
                             }
                         }
@@ -207,7 +208,7 @@ public class DetailActivity extends BaseActivity {
             public void onClick(View v) {
                 if (isFabPressed) {
                     removeUserFromRestaurant();
-                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_checked));
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
                     isFabPressed = false;
                 } else {
                     addUserToRestaurant();
@@ -227,7 +228,7 @@ public class DetailActivity extends BaseActivity {
     //****************************
     //******** FIREBASE **********
     //****************************
-    private void testFirebase() {
+    private void firebaseListener() {
         RestaurantHelper.getRestaurantsCollection().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -235,7 +236,6 @@ public class DetailActivity extends BaseActivity {
 
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
-                    String id = documentSnapshot.getId();
                     ArrayList<HashMap<String, String>> tmp = (ArrayList<HashMap<String, String>>) documentSnapshot.get("userList");
                     userList.clear();
                     switch (dc.getType()) {
@@ -274,22 +274,31 @@ public class DetailActivity extends BaseActivity {
     private void addUserToRestaurant() {
         this.removeUserFromRestaurant();
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
-        RestaurantHelper.updateRestauranUserList(place.getId(),
-                place, currentUser).addOnFailureListener(new OnFailureListener() {
+        RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
             }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(Void aVoid) {
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                provideRecycleViewWithData();
+                Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
+                userList.addAll(restaurant.getUserList());
+
+
+            }
+
+        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                userList.add(currentUser);
+                Log.i(TAG, "onComplete: userlist = "+userList.toString()+" size = "+userList.size());
+                Map<String, Object> userlistMap = new HashMap<>();
+                userlistMap.put("userList", FieldValue.arrayUnion(currentUser.getUid()));
+                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(userlistMap);
+                provideRecycleViewWithData();
             }
         });
         Log.i("JoiningMatesAdapter", "provideRecycleViewWithData: taille de la liste " + this.userList.size());
@@ -306,7 +315,7 @@ public class DetailActivity extends BaseActivity {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
                         restaurant.getUserList().remove(currentUser);
                         userList.remove(currentUser);
-                        final Map<String, Object> removeUserMap = new HashMap<>();
+                        Map<String, Object> removeUserMap = new HashMap<>();
                         removeUserMap.put("userList", FieldValue.arrayRemove(currentUser.getUid()));
                         RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(removeUserMap);
                     }

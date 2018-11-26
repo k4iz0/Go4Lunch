@@ -10,6 +10,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
@@ -54,6 +55,12 @@ public class RestaurantHelper {
         Restaurant restaurantsToUpdate = new Restaurant(placeId, placeFormater, false);
         restaurantsToUpdate.getUserList().add(user);
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToUpdate);
+
+    }
+    //UPDATE
+    public static Task<Void> updateRestaurant(String placeId, ArrayList<User> userlist) {
+
+        return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", userlist);
 
     }
     //--- DELETE ---

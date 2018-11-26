@@ -54,6 +54,10 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
     //FACEBOOK
     implementation 'com.facebook.android:facebook-android-sdk:4.37.0'
+    //TWITTER
+    implementation('com.twitter.sdk.android:twitter:3.0.0@aar') {
+        transitive = true
+    }
     //GOOGLE
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-places:16.0.0'

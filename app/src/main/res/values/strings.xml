@@ -6,6 +6,9 @@
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">2320666658219620</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">2320666658219620</string>
+    //TWITTER
+        <string name="twitter_consumer_key" translatable="false">GOz3syHBxkxHoBOfAqvuMKGEA</string>
+        <string name="twitter_consumer_secret" translatable="false">ApVeNNU3j5SF9O2GxdkcLBLr9Jzv8YyAonjevmCr1tAFWcajiR</string>
     <!--Firebase-->
     <string name="error_unknown_error">"an error has occurred"</string>
     <string name="error_not_connected">You need to be logged</string>
