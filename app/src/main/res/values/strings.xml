@@ -4,7 +4,7 @@
     <string name="list_view">List View</string>
     <string name="workmates">Workmates</string>
     <!-- FACEBOOK PURPOSE -->
-    <string name="facebook_application_id" translatable="false">2320666658219620</string>
+    <string name="facebook_application_id">2320666658219620</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">2320666658219620</string>
     //TWITTER
         <string name="twitter_consumer_key" translatable="false">GOz3syHBxkxHoBOfAqvuMKGEA</string>

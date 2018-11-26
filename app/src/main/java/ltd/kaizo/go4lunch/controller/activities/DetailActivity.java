@@ -182,14 +182,15 @@ public class DetailActivity extends BaseActivity {
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot != null) {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                        for (User user : restaurant.getUserList()) {
-                            if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
-                                isFabPressed = true;
-                                floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
-                                Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
-                                return;
+
+                            for (User user : restaurant.getUserList()) {
+                                if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
+                                    isFabPressed = true;
+                                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
+                                    Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
+                                    return;
+                                }
                             }
-                        }
 
                     }
                 }
@@ -208,12 +209,12 @@ public class DetailActivity extends BaseActivity {
             public void onClick(View v) {
                 if (isFabPressed) {
                     removeUserFromRestaurant();
-                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_plus_one));
                     isFabPressed = false;
                 } else {
                     addUserToRestaurant();
                     addRestaurantToUser();
-                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_plus_one));
+                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
                     isFabPressed = true;
                 }
             }
@@ -294,7 +295,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 userList.add(currentUser);
-                Log.i(TAG, "onComplete: userlist = "+userList.toString()+" size = "+userList.size());
+                Log.i(TAG, "onComplete: userlist = " + userList.toString() + " size = " + userList.size());
                 Map<String, Object> userlistMap = new HashMap<>();
                 userlistMap.put("userList", FieldValue.arrayUnion(currentUser.getUid()));
                 RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(userlistMap);

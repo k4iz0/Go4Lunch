@@ -1,0 +1,37 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Go4Lunch</string>
+    <string name="map_view">Map View</string>
+    <string name="list_view">List View</string>
+    <string name="workmates">Workmates</string>
+     <!--Firebase-->
+    <string name="error_unknown_error">"une erreur est arrivée"</string>
+    <string name="error_not_connected">Vous devez être authentifié</string>
+    <string name="error_authentication_canceled">Authentication annulée !</string>
+    <string name="error_no_internet">Pas de connection internet !</string>
+    <string name="connection_succeed">Authentication réussie !</string>
+    <string name="welcome_text">Trouvez un restaurant sympa pour manger avec vos collègues!</string>
+    <string name="avatar_picture">avatar picture</string>
+    <string name="your_lunch">Votre déjeuner</string>
+    <string name="settings">Paramètre</string>
+    <string name="logout">Deconnexion</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="search">recherche</string>
+    <string name="logo">logo</string>
+    <string name="search_restaurants">rechercher restaurants</string>
+    <string name="user_logout">Utilisateur déconnecté</string>
+    <string name="person">personne</string>
+    <string name="star">étoile</string>
+    <string name="call">APPEL</string>
+    <string name="like">LIKE</string>
+    <string name="website">SITE</string>
+    <string name="title_activity_settings">Paramètres</string>
+
+    <string name="delete_account">effacer le compte</string>
+    <string name="popup_message_confirmation_delete_account">Vous êtes sur le point de supprimer votre compte, êtes vous sur ?</string>
+    <string name="popup_message_choice_yes">oui</string>
+    <string name="popup_message_choice_no">non</string>
+    <string name="isJoining"> rejoint ce restaurant!</string>
+    <string name="decideYet"> n\'a pas encore décidé</string>
+    <string name="eatingAt"> mange chez</string>
+
+</resources>
