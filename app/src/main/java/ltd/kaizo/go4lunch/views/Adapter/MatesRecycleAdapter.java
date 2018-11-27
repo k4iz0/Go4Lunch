@@ -2,7 +2,6 @@ package ltd.kaizo.go4lunch.views.Adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import ltd.kaizo.go4lunch.views.MatesViewHolder;
 
 public class MatesRecycleAdapter extends FirestoreRecyclerAdapter<User, MatesViewHolder> {
     private final RequestManager glide;
+
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
      * FirestoreRecyclerOptions} for configuration options.
@@ -30,7 +30,7 @@ public class MatesRecycleAdapter extends FirestoreRecyclerAdapter<User, MatesVie
 
     @Override
     protected void onBindViewHolder(@NonNull MatesViewHolder holder, int position, @NonNull User user) {
-    holder.updateViewWithUserData(holder, user,glide);
+        holder.updateViewWithUserData(user, glide);
     }
 
     @NonNull

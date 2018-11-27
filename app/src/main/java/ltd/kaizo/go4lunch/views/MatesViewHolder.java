@@ -29,25 +29,26 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void updateViewWithUserData(MatesViewHolder holder, User user, RequestManager glide) {
+    public void updateViewWithUserData(User user, RequestManager glide) {
         if (user.getChosenRestaurant().equalsIgnoreCase("")) {
             matesTextView.setText(user.getUsername());
-//            matesTextView.setText(user.getUsername() + Resources.getSystem().getString(R.string.decideYet));
+            matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.decideYet));
             itemView.setClickable(false);
         } else {
             ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
             String restaurantName = "";
             if (restaurantList != null) {
 
-            for (PlaceFormater place : restaurantList) {
-                if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
-                    restaurantName = place.getPlaceName();
+                for (PlaceFormater place : restaurantList) {
+                    if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
+                        restaurantName = place.getPlaceName();
+                    }
                 }
-            }
             }
             matesTextView.setText(user.getUsername() + " " + restaurantName);
 
-//            matesTextView.setText(user.getUsername()+holder.getString(R.string.eatingAt)+ restaurantName);
+            matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + restaurantName);
+
         }
 
         glide.load(user.getUrlPicture()).into(matesAvatar);
@@ -56,7 +57,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
 
         matesTextView.setText(userList.get(position).getUsername());
-//        matesTextView.setText(userList.get(position).getUsername()+Resources.getSystem().getString(R.string.isJoining));
+        matesTextView.setText(userList.get(position).getUsername() + " " + matesTextView.getContext().getString(R.string.isJoining));
         glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
 
     }

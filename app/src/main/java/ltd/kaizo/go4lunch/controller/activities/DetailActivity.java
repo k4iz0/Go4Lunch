@@ -31,7 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
@@ -74,6 +73,7 @@ public class DetailActivity extends BaseActivity {
     private String TAG = getClass().getSimpleName();
     private User currentUser;
     private Boolean isFabPressed = false;
+    private HashMap<String, String> userHash;
 
     @Override
     public int getFragmentLayout() {
@@ -85,7 +85,7 @@ public class DetailActivity extends BaseActivity {
         this.getPlaceFormaterFromIntent();
         this.configureCurrentUser();
         this.configureRecycleView();
-        this.firebaseListener();
+
     }
 
     private void configureCurrentUser() {
@@ -95,9 +95,19 @@ public class DetailActivity extends BaseActivity {
                 if (task.getResult() != null) {
                     currentUser = task.getResult().toObject(User.class);
                     updateUiWithPlaceData();
+                    firebaseListener();
                 }
             }
         });
+    }
+
+    private HashMap<String, String> configureHashMapWithUserData(User user) {
+        this.userHash = new HashMap<>();
+        this.userHash.put("uid", user.getUid());
+        this.userHash.put("urlPicture", user.getUrlPicture());
+        this.userHash.put("username", user.getUsername());
+        this.userHash.put("ChosenRestaurant", user.getChosenRestaurant());
+        return userHash;
     }
 
     private void getPlaceFormaterFromIntent() {
@@ -175,35 +185,35 @@ public class DetailActivity extends BaseActivity {
 
     private void configureFloatingActionButton() {
         //floatingActionButton
-        if (currentUser.getHasChoose()) {
-
-            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot != null) {
-                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                        Log.i(TAG, "onSuccess: documentSnapshot = "+documentSnapshot.get("placeName"));
-                            for (User user : restaurant.getUserList()) {
-                                if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
-                                    isFabPressed = true;
-                                    floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
-                                    Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
-                                    return;
-                                }
-                            }
-
-
-                    }
-                }
-            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    Log.i(TAG, "onSuccess: isFabPressed2 = " + isFabPressed);
-                    if (isFabPressed) {
-                        floatingActionButton.setBackgroundResource(R.drawable.ic_check);
-                    }
-                }
-            });
+        if (currentUser.getHasChoose(place.getId())) {
+//
+//            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                @Override
+//                public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                    if (documentSnapshot != null) {
+//                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+//                        Log.i(TAG, "onSuccess: documentSnapshot = " + documentSnapshot.get("placeName"));
+//                        for (User user : restaurant.getUserList()) {
+//                            if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
+                                isFabPressed = true;
+                                floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
+//                                Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
+//                                return;
+//                            }
+//                        }
+//
+//
+//                    }
+//                }
+//            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                    Log.i(TAG, "onSuccess: isFabPressed2 = " + isFabPressed);
+//                    if (isFabPressed) {
+//                        floatingActionButton.setBackgroundResource(R.drawable.ic_check);
+//                    }
+//                }
+//            });
         }
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -244,7 +254,9 @@ public class DetailActivity extends BaseActivity {
                         case ADDED:
                             Log.i(TAG, "onEvent: added");
                             for (HashMap<String, String> user : tmp) {
-                                userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                                if (!currentUser.getUid().equalsIgnoreCase(user.get("uid"))) {
+                                    userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                                }
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
@@ -274,8 +286,8 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void addUserToRestaurant() {
-        if (currentUser.getHasChoose()) {
-        this.removeUserFromRestaurant();
+        if (currentUser.getHasChoose(place.getId())) {
+            this.removeUserFromRestaurant();
         }
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
         RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
@@ -288,40 +300,34 @@ public class DetailActivity extends BaseActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
                 Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-
+                userList.clear();
                 userList.addAll(restaurant.getUserList());
-
-
+                userList.add(currentUser);
             }
 
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                userList.add(currentUser);
+
                 Log.i(TAG, "onComplete: userlist = " + userList.toString() + " size = " + userList.size());
-                Map<String, Object> userListMap = new HashMap<>();
-                userListMap.put("userList", currentUser);
-                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList",userListMap);
-                provideRecycleViewWithData();
+//                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList",configureHashMapWithUserData(currentUser));
+                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(configureHashMapWithUserData(currentUser)));
+                //RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).set(userListMap, SetOptions.merge());
+                joiningMatesAdapter.notifyDataSetChanged();
             }
         });
-        Log.i("JoiningMatesAdapter", "provideRecycleViewWithData: taille de la liste " + this.userList.size());
     }
 
     private void removeUserFromRestaurant() {
         Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
-        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
-
+        if (currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
             RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot != null) {
                         Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                        restaurant.getUserList().remove(currentUser);
                         userList.remove(currentUser);
-                        Map<String, Object> removeUserMap = new HashMap<>();
-                        removeUserMap.put("userList", FieldValue.arrayRemove(currentUser.getUid()));
-                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update(removeUserMap);
+                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(configureHashMapWithUserData(currentUser)));
                     }
 
                 }
