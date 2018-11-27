@@ -31,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.BuildConfig;
@@ -70,6 +71,7 @@ public class DetailActivity extends BaseActivity {
     private JoiningMatesAdapter joiningMatesAdapter;
     private Restaurant restaurant;
     private ArrayList<User> userList = new ArrayList<>();
+    private List<User> allUserList = new ArrayList<>();
     private String TAG = getClass().getSimpleName();
     private User currentUser;
     private Boolean isFabPressed = false;
@@ -82,6 +84,7 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     public void configureDesign() {
+        this.configureUserListFromFirebase();
         this.getPlaceFormaterFromIntent();
         this.configureCurrentUser();
         this.configureRecycleView();
@@ -110,6 +113,16 @@ public class DetailActivity extends BaseActivity {
         return userHash;
     }
 
+    private void configureUserListFromFirebase() {
+        UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                   allUserList = task.getResult().toObjects(User.class);
+                }
+            }
+        });
+    }
     private void getPlaceFormaterFromIntent() {
         Intent intent = getIntent();
         place = intent.getParcelableExtra("PlaceFormater");
@@ -237,6 +250,15 @@ public class DetailActivity extends BaseActivity {
         return telephonyManager != null && telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY;
     }
 
+    private User getUserDataFromId(String userId) {
+        User tmpUser = null;
+        for (User user : allUserList) {
+            if (user.getUid().equalsIgnoreCase(userId)) {
+                tmpUser = user;
+            }
+        }
+        return tmpUser;
+    }
     //****************************
     //******** FIREBASE **********
     //****************************
@@ -248,23 +270,23 @@ public class DetailActivity extends BaseActivity {
 
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
-                    ArrayList<HashMap<String, String>> tmp = (ArrayList<HashMap<String, String>>) documentSnapshot.get("userList");
-                    userList.clear();
+                    List<String> tmp = documentSnapshot.toObject(Restaurant.class).getUserList();
                     switch (dc.getType()) {
                         case ADDED:
                             Log.i(TAG, "onEvent: added");
-                            for (HashMap<String, String> user : tmp) {
-                                if (!currentUser.getUid().equalsIgnoreCase(user.get("uid"))) {
-                                    userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                            for (String userId : tmp) {
+                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
+                                    userList.add(getUserDataFromId(userId));
                                 }
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
                         case REMOVED:
                             Log.i(TAG, "onEvent: removed");
-
-                            for (HashMap<String, String> user : tmp) {
-                                userList.remove(user.get("userId"));
+                            for (String userId : tmp) {
+                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
+                                    userList.remove(getUserDataFromId(userId));
+                                }
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
@@ -272,9 +294,10 @@ public class DetailActivity extends BaseActivity {
                             Log.i(TAG, "onEvent: modified");
                             Log.i(TAG, "onEvent: size = " + documentSnapshot.get("userList").toString());
 
-
-                            for (HashMap<String, String> user : tmp) {
-                                userList.add(new User(user.get("uid"), user.get("username"), user.get("urlPicture")));
+                            for (String userId : tmp) {
+                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
+                                    userList.add(getUserDataFromId(userId));
+                                }
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
@@ -299,21 +322,26 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
-                Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                userList.clear();
-                userList.addAll(restaurant.getUserList());
-                userList.add(currentUser);
+
+//                userList.clear();
+//                userList.addAll(restaurant.getUserList());
+//                userList.add(currentUser);
             }
 
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                Log.i(TAG, "onComplete: userlist = " + userList.toString() + " size = " + userList.size());
+                if (task.isSuccessful() && task.getResult() != null) {
+                Restaurant restaurant = task.getResult().toObject(Restaurant.class);
 //                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList",configureHashMapWithUserData(currentUser));
-                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(configureHashMapWithUserData(currentUser)));
+                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        joiningMatesAdapter.notifyDataSetChanged();
+                    }
+                });
                 //RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).set(userListMap, SetOptions.merge());
-                joiningMatesAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
@@ -321,20 +349,18 @@ public class DetailActivity extends BaseActivity {
     private void removeUserFromRestaurant() {
         Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
         if (currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
-            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot != null) {
-                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-                        userList.remove(currentUser);
-                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(configureHashMapWithUserData(currentUser)));
-                    }
-
-                }
-            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    joiningMatesAdapter.notifyDataSetChanged();
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                joiningMatesAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -378,7 +404,9 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
                 if (restaurant != null) {
-                    userList.addAll(restaurant.getUserList());
+                    for (String userId : restaurant.getUserList()) {
+                        userList.add(getUserDataFromId(userId));
+                    }
                 }
                 joiningMatesAdapter.notifyDataSetChanged();
             }

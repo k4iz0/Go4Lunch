@@ -5,16 +5,16 @@ import java.util.ArrayList;
 public class Restaurant {
     private String PlaceId;
     private PlaceFormater placeFormater;
-    private Boolean isChoosen;
-    private ArrayList<User> userList;
+    private Boolean isChosen;
+    private ArrayList<String> userList;
 
     public Restaurant() {
     }
 
-    public Restaurant(String placeId, PlaceFormater placeFormater, Boolean isChoosen) {
+    public Restaurant(String placeId, PlaceFormater placeFormater, Boolean isChosen) {
         PlaceId = placeId;
         this.placeFormater = placeFormater;
-        this.isChoosen = isChoosen;
+        this.isChosen = isChosen;
         this.userList = new ArrayList<>();
     }
 
@@ -35,18 +35,18 @@ public class Restaurant {
     }
 
     public Boolean getChoosen() {
-        return isChoosen;
+        return isChosen;
     }
 
     public void setChoosen(Boolean choosen) {
-        isChoosen = choosen;
+        isChosen = choosen;
     }
 
-    public ArrayList<User> getUserList() {
+    public ArrayList<String> getUserList() {
         return userList;
     }
 
-    public void setUserList(ArrayList<User> userList) {
+    public void setUserList(ArrayList<String> userList) {
         this.userList = userList;
     }
 }
