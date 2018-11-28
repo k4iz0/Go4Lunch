@@ -25,7 +25,7 @@ public class User {
     }
 
     public Boolean getHasChoose(String placeid) {
-        return !this.getChosenRestaurant().equalsIgnoreCase(placeid);
+        return this.getChosenRestaurant().equalsIgnoreCase(placeid);
     }
 
     public void setHasChoose(Boolean hasChoose) {

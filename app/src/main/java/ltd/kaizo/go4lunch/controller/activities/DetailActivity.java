@@ -75,7 +75,6 @@ public class DetailActivity extends BaseActivity {
     private String TAG = getClass().getSimpleName();
     private User currentUser;
     private Boolean isFabPressed = false;
-    private HashMap<String, String> userHash;
 
     @Override
     public int getFragmentLayout() {
@@ -104,25 +103,17 @@ public class DetailActivity extends BaseActivity {
         });
     }
 
-    private HashMap<String, String> configureHashMapWithUserData(User user) {
-        this.userHash = new HashMap<>();
-        this.userHash.put("uid", user.getUid());
-        this.userHash.put("urlPicture", user.getUrlPicture());
-        this.userHash.put("username", user.getUsername());
-        this.userHash.put("ChosenRestaurant", user.getChosenRestaurant());
-        return userHash;
-    }
-
     private void configureUserListFromFirebase() {
         UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                   allUserList = task.getResult().toObjects(User.class);
+                    allUserList = task.getResult().toObjects(User.class);
                 }
             }
         });
     }
+
     private void getPlaceFormaterFromIntent() {
         Intent intent = getIntent();
         place = intent.getParcelableExtra("PlaceFormater");
@@ -148,7 +139,6 @@ public class DetailActivity extends BaseActivity {
                 break;
         }
     }
-
 
     private void updateUiWithPlaceData() {
         placename.setText(place.getPlaceName());
@@ -199,34 +189,8 @@ public class DetailActivity extends BaseActivity {
     private void configureFloatingActionButton() {
         //floatingActionButton
         if (currentUser.getHasChoose(place.getId())) {
-//
-//            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                @Override
-//                public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                    if (documentSnapshot != null) {
-//                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
-//                        Log.i(TAG, "onSuccess: documentSnapshot = " + documentSnapshot.get("placeName"));
-//                        for (User user : restaurant.getUserList()) {
-//                            if (currentUser.getUid().equalsIgnoreCase(user.getUid())) {
-                                isFabPressed = true;
-                                floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
-//                                Log.i(TAG, "onSuccess: isFabPressed = " + isFabPressed);
-//                                return;
-//                            }
-//                        }
-//
-//
-//                    }
-//                }
-//            }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                    Log.i(TAG, "onSuccess: isFabPressed2 = " + isFabPressed);
-//                    if (isFabPressed) {
-//                        floatingActionButton.setBackgroundResource(R.drawable.ic_check);
-//                    }
-//                }
-//            });
+            isFabPressed = true;
+            floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
         }
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,6 +223,7 @@ public class DetailActivity extends BaseActivity {
         }
         return tmpUser;
     }
+
     //****************************
     //******** FIREBASE **********
     //****************************
@@ -274,30 +239,27 @@ public class DetailActivity extends BaseActivity {
                     switch (dc.getType()) {
                         case ADDED:
                             Log.i(TAG, "onEvent: added");
+                            userList.clear();
                             for (String userId : tmp) {
-                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
-                                    userList.add(getUserDataFromId(userId));
-                                }
+                                userList.add(getUserDataFromId(userId));
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
                         case REMOVED:
                             Log.i(TAG, "onEvent: removed");
                             for (String userId : tmp) {
-                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
                                     userList.remove(getUserDataFromId(userId));
-                                }
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
                         case MODIFIED:
                             Log.i(TAG, "onEvent: modified");
-                            Log.i(TAG, "onEvent: size = " + documentSnapshot.get("userList").toString());
-
+                            Log.i(TAG, "onEvent: size = " + tmp.size());
+                            userList.clear();
                             for (String userId : tmp) {
-                                if (!currentUser.getUid().equalsIgnoreCase(userId)) {
-                                    userList.add(getUserDataFromId(userId));
-                                }
+
+                                userList.add(getUserDataFromId(userId));
+
                             }
                             joiningMatesAdapter.setUserList(userList);
                             break;
@@ -309,7 +271,7 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void addUserToRestaurant() {
-        if (currentUser.getHasChoose(place.getId())) {
+        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
             this.removeUserFromRestaurant();
         }
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
@@ -318,29 +280,19 @@ public class DetailActivity extends BaseActivity {
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
             }
-        }).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
-
-//                userList.clear();
-//                userList.addAll(restaurant.getUserList());
-//                userList.add(currentUser);
-            }
-
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-//                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList",configureHashMapWithUserData(currentUser));
-                RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        joiningMatesAdapter.notifyDataSetChanged();
-                    }
-                });
-                //RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).set(userListMap, SetOptions.merge());
+                    final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            currentUser.setChosenRestaurant(restaurant.getPlaceId());
+                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
+                            joiningMatesAdapter.notifyDataSetChanged();
+                        }
+                    });
                 }
             }
         });
@@ -348,22 +300,23 @@ public class DetailActivity extends BaseActivity {
 
     private void removeUserFromRestaurant() {
         Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
-        if (currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
-            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                        RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                joiningMatesAdapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
+
+        RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
+                            joiningMatesAdapter.setUserList(userList);
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
+
     }
 
     private void addRestaurantToUser() {
@@ -389,12 +342,7 @@ public class DetailActivity extends BaseActivity {
 
     private void provideRecycleViewWithData() {
 
-        RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                restaurant = documentSnapshot.toObject(Restaurant.class);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
+        RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.i(TAG, "onFailure: fail to retrieve restaurant info");
@@ -402,16 +350,14 @@ public class DetailActivity extends BaseActivity {
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-
-                if (restaurant != null) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    restaurant = task.getResult().toObject(Restaurant.class);
                     for (String userId : restaurant.getUserList()) {
                         userList.add(getUserDataFromId(userId));
                     }
                 }
-                joiningMatesAdapter.notifyDataSetChanged();
             }
         });
-
 
     }
 

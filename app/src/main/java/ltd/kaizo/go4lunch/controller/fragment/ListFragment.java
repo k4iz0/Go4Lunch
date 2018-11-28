@@ -92,9 +92,16 @@ public class ListFragment extends BaseFragment {
         super.onStart();
         adapter.startListening();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.startListening();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
-        adapter.startListening();
+        adapter.stopListening();
     }
 }

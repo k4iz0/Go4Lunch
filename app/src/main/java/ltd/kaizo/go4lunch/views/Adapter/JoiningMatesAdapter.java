@@ -40,8 +40,11 @@ public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
 
     @Override
     public int getItemCount() {
-
+        if (this.userList == null) {
+            return 0;
+        } else {
         return this.userList.size();
+        }
     }
 
 

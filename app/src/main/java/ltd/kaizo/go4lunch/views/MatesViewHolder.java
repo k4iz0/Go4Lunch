@@ -55,10 +55,10 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
-
-        matesTextView.setText(userList.get(position).getUsername());
-        matesTextView.setText(userList.get(position).getUsername() + " " + matesTextView.getContext().getString(R.string.isJoining));
-        glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
+        if (userList.size() > 0) {
+            matesTextView.setText(userList.get(position).getUsername() + " " + matesTextView.getContext().getString(R.string.isJoining));
+            glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
+        }
 
     }
 }
