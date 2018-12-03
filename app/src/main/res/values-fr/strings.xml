@@ -1,9 +1,9 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Go4Lunch</string>
     <string name="map_view">Map View</string>
     <string name="list_view">List View</string>
     <string name="workmates">Workmates</string>
-     <!--Firebase-->
+    <!--Firebase-->
     <string name="error_unknown_error">"une erreur est arrivée"</string>
     <string name="error_not_connected">Vous devez être authentifié</string>
     <string name="error_authentication_canceled">Authentication annulée !</string>
@@ -32,6 +32,9 @@
     <string name="popup_message_choice_no">non</string>
     <string name="isJoining"> rejoint ce restaurant!</string>
     <string name="decideYet"> n\'a pas encore décidé</string>
-    <string name="eatingAt"> mange chez</string>
+    <string name="eatingAt"> mange chez </string>
+    <string name="default_notification_channel_id">firebaseNotification</string>
+    <string name="notificationTitle">Rappel</string>
+    <string name="incoming_message">message de Go4Lunch</string>
 
 </resources>

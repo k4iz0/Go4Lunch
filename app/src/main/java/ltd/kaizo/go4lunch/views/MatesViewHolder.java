@@ -18,6 +18,7 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.User;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+import static com.bumptech.glide.request.RequestOptions.circleCropTransform;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
 
@@ -48,14 +49,14 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                 }
                 matesTextView.setText(user.getUsername() + " " + restaurantName);
 
-                matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + restaurantName);
+                matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) +" "+ restaurantName);
             }
 
 
         }
 
         glide.load(user.getUrlPicture())
-                .apply(bitmapTransform(new RoundedCorners(10)) .fitCenter())
+                .apply(circleCropTransform())
                 .into(matesAvatar);
     }
 

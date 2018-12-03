@@ -41,6 +41,7 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
@@ -62,7 +63,7 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends BaseFragment implements OnMapReadyCallback {
-    public static final float DEFAULT_ZOOM = 12f;
+    public static final float DEFAULT_ZOOM = 15f;
     static final LatLng DEFAULT_LOCATION = new LatLng(48.858093, 2.294694); //PARIS
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -332,7 +333,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             //add place to list
                             placeDetailList.add(place);
                             // add marker on map
-                            place.addMarkerFromList(googleMap, place);
+                            place.addMarkerFromList(googleMap, place, false);
 
                         } else {
                             Snackbar.make(getView(), "No place found !", Snackbar.LENGTH_SHORT).show();
@@ -367,7 +368,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                         }
                         //configure click event
                         configureOnMarkerClick(placeDetailList);
-
+                        switchMarkerColor();
                     }
                 });
 
@@ -410,16 +411,35 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                 if (task.isSuccessful() && task.getResult() != null) {
                     for (PlaceFormater place : placeDetailList) {
                         // add marker on map
-                        place.addMarkerFromList(googleMap, place);
+                        place.addMarkerFromList(googleMap, place, false);
                     }
-                    write(RESTAURANT_LIST_KEY,gson.toJson(placeDetailList));
-                configureOnMarkerClick(placeDetailList);
+                    write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
+                    configureOnMarkerClick(placeDetailList);
+                    switchMarkerColor();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+            }
+        });
+
+
+    }
+
+    private void switchMarkerColor() {
+        RestaurantHelper.getAllRestaurantsFromFirestore().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    List<Restaurant> restaurantArrayList = task.getResult().toObjects(Restaurant.class);
+                    for (Restaurant restaurant : restaurantArrayList) {
+                        if (restaurant.getUserList().size() > 0) {
+                            restaurant.getPlaceFormater().addMarkerFromList(googleMap, restaurant.getPlaceFormater(), true);
+                        }
+                    }
+                }
             }
         });
 

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.OpeningHours;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 
@@ -385,18 +386,21 @@ public class PlaceFormater implements Parcelable {
      * @param formatedPlace the formated place
      * @return the marker
      */
-    public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace) {
+    public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace, Boolean isJoining) {
         MarkerOptions markerOptions = new MarkerOptions();
         LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
         // Position of Marker on Map
         markerOptions.position(latLng);
         // Adding Title to the Marker
         markerOptions.title(formatedPlace.getPlaceName());
-        // Adding Marker to the Camera.
-        Marker m = googleMap.addMarker(markerOptions);
         // Adding colour to the marker
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        return m;
+        if (isJoining) {
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon_green));
+        } else {
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon));
+        }
+        // Adding Marker to the Camera.
+        return googleMap.addMarker(markerOptions);
     }
 
     @Override
