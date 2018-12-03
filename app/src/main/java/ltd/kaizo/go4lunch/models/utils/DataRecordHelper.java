@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
+import ltd.kaizo.go4lunch.models.User;
 
 /**
  * Class to record and read data from the SharedPreferences
@@ -19,6 +20,8 @@ public class DataRecordHelper {
     public static final String RESTAURANT_LIST_KEY = "RESTAURANT_LIST_KEY";
     public static final String CURRENT_LATITUDE_KEY = "CURRENT_LATITUDE_KEY";
     public static final String CURRENT_LONGITUDE_KEY = "CURRENT_LONGITUDE_KEY";
+    public static final String ALL_USER_LIST = "ALL_USER_LIST";
+
     /**
      * The constant sharedPreferences.
      */
@@ -123,6 +126,7 @@ public class DataRecordHelper {
     /**
      * Write double value in sharedPreferences
      * by converting it to LongBits
+     *
      * @param key   the key
      * @param value the value
      */
@@ -132,18 +136,27 @@ public class DataRecordHelper {
     }
 
 
-        /**
-         * Gets list of result from sharedPreferences.
-         *
-         * @param KEY the key
-         * @return the searchQuery object from sharedPreferences
-         */
-        public static ArrayList<PlaceFormater> getRestaurantListFromSharedPreferences(String KEY) {
-            Gson gson = new Gson();
-            String gsonStr="";
-            Type type = new TypeToken<ArrayList<PlaceFormater>>(){}.getType();
-            return gson.fromJson(read(KEY, gsonStr),type);
-        }
+    /**
+     * Gets list of result from sharedPreferences.
+     *
+     * @param KEY the key
+     * @return the searchQuery object from sharedPreferences
+     */
+    public static ArrayList<PlaceFormater> getRestaurantListFromSharedPreferences(String KEY) {
+        Gson gson = new Gson();
+        String gsonStr = "";
+        Type type = new TypeToken<ArrayList<PlaceFormater>>() {
+        }.getType();
+        return gson.fromJson(read(KEY, gsonStr), type);
+    }
+
+    public static ArrayList<User> getUserListFromSharedPreferences(String KEY) {
+        Gson gson = new Gson();
+        String gsonStr = "";
+        Type type = new TypeToken<ArrayList<User>>() {
+        }.getType();
+        return gson.fromJson(read(KEY, gsonStr), type);
+    }
 
 
 }

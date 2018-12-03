@@ -49,22 +49,6 @@ public class RestaurantHelper {
 
     }
 
-    //UPDATE
-//    public static Task<Void> updateRestauranUserList(String placeId, PlaceFormater placeFormater, User user) {
-//
-//        Restaurant restaurantsToUpdate = new Restaurant(placeId, placeFormater, false);
-//        restaurantsToUpdate.getUserList().add(user);
-//        return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToUpdate);
-//
-//    }
-
-    //UPDATE
-    public static Task<Void> updateRestaurant(String placeId, ArrayList<User> userlist) {
-
-        return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", userlist);
-
-    }
-
     //--- DELETE ---
     public static Task<Void> deleteRestaurantsFromList(List<DocumentSnapshot> restoList) {
         WriteBatch batch = FirebaseFirestore.getInstance().batch();

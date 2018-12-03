@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ltd.kaizo.go4lunch.models.User;
 
@@ -77,5 +78,13 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).delete();
 
     }
-
+    public static User getUserDataFromId(String userId, List<User> allUserList) {
+        User tmpUser = null;
+        for (User user : allUserList) {
+            if (user.getUid().equalsIgnoreCase(userId)) {
+                tmpUser = user;
+            }
+        }
+        return tmpUser;
+    }
 }

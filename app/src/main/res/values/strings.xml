@@ -115,5 +115,8 @@
     <string name="isJoining"> is joining!</string>
     <string name="decideYet"> hasn\'t decided yet</string>
     <string name="eatingAt"> is eating at</string>
+    <string name="default_notification_channel_id">firebaseNotification</string>
+    <string name="notificationTitle">reminder</string>
+    <string name="incoming_message">incoming message from Firebase</string>
 
 </resources>

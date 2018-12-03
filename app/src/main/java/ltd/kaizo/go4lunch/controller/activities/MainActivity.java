@@ -163,16 +163,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (task.getResult().getData() != null && !task.getResult().equals("")) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    if (task.getResult().getData() != null && !task.getResult().get("chosenRestaurant").equals("")) {
                         chosenRestaurantId = task.getResult().toObject(User.class).getChosenRestaurant();
-                        RestaurantHelper.getRestaurant(chosenRestaurantId).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        RestaurantHelper.getRestaurant(chosenRestaurantId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                Restaurant chosenRestaurant = documentSnapshot.toObject(Restaurant.class);
-                                Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                                detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
-                                startActivity(detailActivity);
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful() && task.getResult() != null) {
+                                    Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
+                                    Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                                    detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
+                                    startActivity(detailActivity);
+                                }
                             }
                         });
                     }

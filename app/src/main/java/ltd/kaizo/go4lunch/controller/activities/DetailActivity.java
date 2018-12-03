@@ -28,6 +28,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +42,12 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
 import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
+
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 public class DetailActivity extends BaseActivity {
     @BindView(R.id.activity_detail_photo_imageview)
@@ -75,7 +81,7 @@ public class DetailActivity extends BaseActivity {
     private String TAG = getClass().getSimpleName();
     private User currentUser;
     private Boolean isFabPressed = false;
-
+    private Gson gson = new Gson();
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_detail;
@@ -109,6 +115,7 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     allUserList = task.getResult().toObjects(User.class);
+                    write(ALL_USER_LIST,gson.toJson(allUserList));
                 }
             }
         });
@@ -237,21 +244,14 @@ public class DetailActivity extends BaseActivity {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
                     List<String> tmp = documentSnapshot.toObject(Restaurant.class).getUserList();
                     switch (dc.getType()) {
-                        case ADDED:
-                            Log.i(TAG, "onEvent: added");
-                            userList.clear();
-                            for (String userId : tmp) {
-                                userList.add(getUserDataFromId(userId));
-                            }
-                            joiningMatesAdapter.setUserList(userList);
-                            break;
-                        case REMOVED:
-                            Log.i(TAG, "onEvent: removed");
-                            for (String userId : tmp) {
-                                    userList.remove(getUserDataFromId(userId));
-                            }
-                            joiningMatesAdapter.setUserList(userList);
-                            break;
+//                        case ADDED:
+//                            Log.i(TAG, "onEvent: added");
+//                            userList.clear();
+//                            for (String userId : tmp) {
+//                                userList.add(getUserDataFromId(userId));
+//                            }
+//                            joiningMatesAdapter.setUserList(userList);
+//                            break;
                         case MODIFIED:
                             Log.i(TAG, "onEvent: modified");
                             Log.i(TAG, "onEvent: size = " + tmp.size());
@@ -352,9 +352,11 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     restaurant = task.getResult().toObject(Restaurant.class);
+                    userList.clear();
                     for (String userId : restaurant.getUserList()) {
                         userList.add(getUserDataFromId(userId));
                     }
+                    joiningMatesAdapter.setUserList(userList);
                 }
             }
         });

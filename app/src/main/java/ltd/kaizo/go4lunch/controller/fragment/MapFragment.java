@@ -210,7 +210,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                             } else {
                                 addAllRestaurantFromFirestoreToList();
-
                             }
                             moveCameraToCurrentLocation(currentLocation);
                         } else {
@@ -395,28 +394,26 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
     private void addAllRestaurantFromFirestoreToList() {
+        placeDetailList = new ArrayList<>();
         RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
-                    placeDetailList = new ArrayList<>();
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
                         placeDetailList.add(restaurant.getPlaceFormater());
                     }
-
                 }
             }
         }).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (placeDetailList != null) {
-                    Collections.sort(placeDetailList, PlaceFormater.compareToByDistance());
+                if (task.isSuccessful() && task.getResult() != null) {
                     for (PlaceFormater place : placeDetailList) {
                         // add marker on map
                         place.addMarkerFromList(googleMap, place);
                     }
-                    write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
-                    configureOnMarkerClick(placeDetailList);
+                    write(RESTAURANT_LIST_KEY,gson.toJson(placeDetailList));
+                configureOnMarkerClick(placeDetailList);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
