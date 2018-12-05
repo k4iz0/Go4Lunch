@@ -20,18 +20,15 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,46 +39,115 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
-import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
 import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
+/**
+ * The type Detail activity.
+ */
 public class DetailActivity extends BaseActivity {
+    /**
+     * The Place photo.
+     */
     @BindView(R.id.activity_detail_photo_imageview)
     ImageView placePhoto;
+    /**
+     * The Placename.
+     */
     @BindView(R.id.activity_detail_place_name_textview)
     TextView placename;
+    /**
+     * The Place adress.
+     */
     @BindView(R.id.activity_detail_place_address_textview)
     TextView placeAdress;
+    /**
+     * The Rating star 1.
+     */
     @BindView(R.id.activity_detail_star1_imageview)
     ImageView ratingStar1;
+    /**
+     * The Rating star 2.
+     */
     @BindView(R.id.activity_detail_star2_imageview)
     ImageView ratingStar2;
+    /**
+     * The Rating star 3.
+     */
     @BindView(R.id.activity_detail_star3_imageview)
     ImageView ratingStar3;
+    /**
+     * The Place.
+     */
     PlaceFormater place;
+    /**
+     * The Recycler view.
+     */
     @BindView(R.id.activity_detail_recycleview)
     RecyclerView recyclerView;
+    /**
+     * The Floating action button.
+     */
     @BindView(R.id.fragment_detail_fab)
     FloatingActionButton floatingActionButton;
+    /**
+     * The Phone btn.
+     */
     @BindView(R.id.activity_detail_phone_btn)
     ImageButton phoneBtn;
+    /**
+     * The Like btn.
+     */
     @BindView(R.id.activity_detail_star_btn)
     ImageButton likeBtn;
+    /**
+     * The Web btn.
+     */
     @BindView(R.id.activity_detail_web_btn)
     ImageButton webBtn;
+    /**
+     * The Place photo request url.
+     */
     private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
+    /**
+     * The Joining mates adapter.
+     */
     private JoiningMatesAdapter joiningMatesAdapter;
+    /**
+     * The Restaurant.
+     */
     private Restaurant restaurant;
+    /**
+     * The User list.
+     */
     private ArrayList<User> userList = new ArrayList<>();
+    /**
+     * The All user list.
+     */
     private List<User> allUserList = new ArrayList<>();
+    /**
+     * The Tag.
+     */
     private String TAG = getClass().getSimpleName();
+    /**
+     * The Current user.
+     */
     private User currentUser;
+    /**
+     * Boolean is fab pressed.
+     */
     private Boolean isFabPressed = false;
+    /**
+     * Boolean like button pressed
+     */
+    private Boolean isLikePressed = false;
+    /**
+     * The Gson.
+     */
     private Gson gson = new Gson();
+
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_detail;
@@ -96,6 +162,9 @@ public class DetailActivity extends BaseActivity {
 
     }
 
+    /**
+     * Configure current user.
+     */
     private void configureCurrentUser() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -109,18 +178,24 @@ public class DetailActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Configure user list from firebase.
+     */
     private void configureUserListFromFirebase() {
         UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     allUserList = task.getResult().toObjects(User.class);
-                    write(ALL_USER_LIST,gson.toJson(allUserList));
+                    write(ALL_USER_LIST, gson.toJson(allUserList));
                 }
             }
         });
     }
 
+    /**
+     * Gets place formater from intent.
+     */
     private void getPlaceFormaterFromIntent() {
         Intent intent = getIntent();
         place = intent.getParcelableExtra("PlaceFormater");
@@ -130,6 +205,11 @@ public class DetailActivity extends BaseActivity {
     //*********** UI *************
     //****************************
 
+    /**
+     * Display rating stars.
+     *
+     * @param rate the rate
+     */
     private void displayRatingStars(int rate) {
         switch (rate) {
             case 1:
@@ -147,6 +227,9 @@ public class DetailActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Update ui with place data.
+     */
     private void updateUiWithPlaceData() {
         placename.setText(place.getPlaceName());
         placeAdress.setText(place.getPlaceAddress());
@@ -154,9 +237,21 @@ public class DetailActivity extends BaseActivity {
                 .apply(RequestOptions.centerCropTransform())
                 .into(this.placePhoto);
         displayRatingStars(place.getPlaceRate());
+        if (currentUser.getRestaurantLikeList() != null) {
+
+            for (String restauId : currentUser.getRestaurantLikeList()) {
+                if (restauId.equalsIgnoreCase(place.getId())) {
+                    likeBtn.setImageResource(R.drawable.ic_star_yellow);
+                    isLikePressed = true;
+                }
+            }
+        }
         this.configureButtons();
     }
 
+    /**
+     * Configure buttons.
+     */
     private void configureButtons() {
         this.configureFloatingActionButton();
         //PhoneButton
@@ -188,11 +283,22 @@ public class DetailActivity extends BaseActivity {
         likeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: 13/11/2018 implement like function on click
+                if (isLikePressed) {
+                    unlikeRestaurant();
+                    isLikePressed = false;
+                    likeBtn.setImageResource(R.drawable.ic_star);
+                } else {
+                    likeRestaurant();
+                    isLikePressed = true;
+                    likeBtn.setImageResource(R.drawable.ic_star_yellow);
+                }
             }
         });
     }
 
+    /**
+     * Configure floating action button.
+     */
     private void configureFloatingActionButton() {
         //floatingActionButton
         if (currentUser.getHasChoose(place.getId())) {
@@ -216,11 +322,22 @@ public class DetailActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Is telephony enabled boolean.
+     *
+     * @return the boolean
+     */
     private boolean isTelephonyEnabled() {
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         return telephonyManager != null && telephonyManager.getSimState() == TelephonyManager.SIM_STATE_READY;
     }
 
+    /**
+     * Gets user data from id.
+     *
+     * @param userId the user id
+     * @return the user data from id
+     */
     private User getUserDataFromId(String userId) {
         User tmpUser = null;
         for (User user : allUserList) {
@@ -230,10 +347,13 @@ public class DetailActivity extends BaseActivity {
         }
         return tmpUser;
     }
-
     //****************************
     //******** FIREBASE **********
     //****************************
+
+    /**
+     * Firebase listener.
+     */
     private void firebaseListener() {
         RestaurantHelper.getRestaurantsCollection().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
@@ -242,26 +362,19 @@ public class DetailActivity extends BaseActivity {
 
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
-                    List<String> tmp = documentSnapshot.toObject(Restaurant.class).getUserList();
+                    Restaurant tmp = documentSnapshot.toObject(Restaurant.class);
                     switch (dc.getType()) {
-//                        case ADDED:
-//                            Log.i(TAG, "onEvent: added");
-//                            userList.clear();
-//                            for (String userId : tmp) {
-//                                userList.add(getUserDataFromId(userId));
-//                            }
-//                            joiningMatesAdapter.setUserList(userList);
-//                            break;
                         case MODIFIED:
                             Log.i(TAG, "onEvent: modified");
-                            Log.i(TAG, "onEvent: size = " + tmp.size());
-                            userList.clear();
-                            for (String userId : tmp) {
+                            Log.i(TAG, "onEvent: size = " + tmp.getUserList().size());
 
-                                userList.add(getUserDataFromId(userId));
-
+                            if (tmp.getPlaceId().equalsIgnoreCase(place.getId())) {
+                                userList.clear();
+                                for (String userId : tmp.getUserList()) {
+                                    userList.add(getUserDataFromId(userId));
+                                }
+                                joiningMatesAdapter.setUserList(userList);
                             }
-                            joiningMatesAdapter.setUserList(userList);
                             break;
                     }
                 }
@@ -270,10 +383,14 @@ public class DetailActivity extends BaseActivity {
 
     }
 
+    /**
+     * Add user to restaurant.
+     */
     private void addUserToRestaurant() {
         if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
             this.removeUserFromRestaurant();
         }
+
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
         RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -285,7 +402,7 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayUnion(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    RestaurantHelper.updateUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             currentUser.setChosenRestaurant(restaurant.getPlaceId());
@@ -298,6 +415,9 @@ public class DetailActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Remove user from restaurant.
+     */
     private void removeUserFromRestaurant() {
         Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
 
@@ -306,11 +426,12 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).update("userList", FieldValue.arrayRemove(currentUser.getUid())).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
-                            joiningMatesAdapter.setUserList(userList);
+                            //remove chosen restaurant from user
+                            UserHelper.updateChosenRestaurant("", currentUser.getUid());
                         }
                     });
                 }
@@ -319,6 +440,9 @@ public class DetailActivity extends BaseActivity {
 
     }
 
+    /**
+     * Add restaurant to user.
+     */
     private void addRestaurantToUser() {
         UserHelper.updateChosenRestaurant(place.getId(), getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -328,10 +452,22 @@ public class DetailActivity extends BaseActivity {
             }
         });
     }
+
+    private void likeRestaurant() {
+        UserHelper.updateLikeRestaurant(place.getId(), currentUser.getUid());
+    }
+
+    private void unlikeRestaurant() {
+        UserHelper.deleteLikeRestaurant(place.getId(), currentUser.getUid());
+    }
+
     //****************************
     //****** RECYCLE VIEW ********
     //****************************
 
+    /**
+     * Configure recycle view.
+     */
     public void configureRecycleView() {
         this.provideRecycleViewWithData();
         this.joiningMatesAdapter = new JoiningMatesAdapter(this.userList, Glide.with(this));
@@ -340,6 +476,9 @@ public class DetailActivity extends BaseActivity {
 
     }
 
+    /**
+     * Provide recycle view with data.
+     */
     private void provideRecycleViewWithData() {
 
         RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {

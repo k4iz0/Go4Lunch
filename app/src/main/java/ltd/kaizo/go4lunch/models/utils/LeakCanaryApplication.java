@@ -6,7 +6,7 @@ import android.app.Application;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
-        * The type Leak canary application.
+ * The type Leak canary application.
  */
 public class LeakCanaryApplication extends Application {
 

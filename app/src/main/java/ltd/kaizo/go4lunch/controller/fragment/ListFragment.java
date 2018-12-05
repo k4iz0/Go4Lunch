@@ -34,11 +34,23 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantList
  * A simple {@link Fragment} subclass.
  */
 public class ListFragment extends BaseFragment {
+    /**
+     * The Recycler view.
+     */
     @BindView(R.id.fragment_list_recycleview)
     RecyclerView recyclerView;
+    /**
+     * The Adapter.
+     */
     private PlaceRecycleAdapter adapter;
+    /**
+     * The Restaurantlist.
+     */
     private List<PlaceFormater> restaurantlist;
 
+    /**
+     * Instantiates a new List fragment.
+     */
     public ListFragment() {
         // Required empty public constructor
     }
@@ -61,6 +73,9 @@ public class ListFragment extends BaseFragment {
 
     }
 
+    /**
+     * Configure recycle view.
+     */
     public void configureRecycleView() {
         this.adapter = new PlaceRecycleAdapter(generateOptionsForAdapter(RestaurantHelper.getAllRestaurants()), Glide.with(this));
         this.recyclerView.setAdapter(adapter);
@@ -68,6 +83,9 @@ public class ListFragment extends BaseFragment {
 
     }
 
+    /**
+     * Configure on click recycler view.
+     */
     private void configureOnClickRecyclerView() {
         ItemClickSupport.addTo(recyclerView, R.layout.place_fragment_list_item)
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
@@ -80,10 +98,19 @@ public class ListFragment extends BaseFragment {
                 });
     }
 
+    /**
+     * Gets restaurant list from firestore.
+     */
     private void getRestaurantListFromFirestore() {
         this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
     }
 
+    /**
+     * Generate options for adapter firestore recycler options.
+     *
+     * @param query the query
+     * @return the firestore recycler options
+     */
     private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<Restaurant>()
                 .setQuery(query, Restaurant.class)

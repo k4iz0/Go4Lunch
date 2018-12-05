@@ -48,26 +48,74 @@ import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 
+/**
+ * The type Main activity.
+ */
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+    /**
+     * The constant PLACE_AUTOCOMPLETE_REQUEST_CODE.
+     */
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    /**
+     * The constant RC_SIGN_IN.
+     */
     private static final int RC_SIGN_IN = 123;
+    /**
+     * The constant SIGN_OUT_TASK.
+     */
     private static final int SIGN_OUT_TASK = 10;
+    /**
+     * The Coordinator layout.
+     */
     @BindView(R.id.activity_main_coordinator_layout)
     CoordinatorLayout coordinatorLayout;
+    /**
+     * The Bottom navigation view.
+     */
     @BindView(R.id.activity_main_bottom_navigation)
     BottomNavigationView bottomNavigationView;
+    /**
+     * The Drawer layout.
+     */
     @BindView(R.id.activity_main_drawer_layout)
     DrawerLayout drawerLayout;
+    /**
+     * The Navigation view.
+     */
     @BindView(R.id.activity_main_nav_view)
     NavigationView navigationView;
+    /**
+     * The Toolbar.
+     */
     @BindView(R.id.activity_main_toolbar)
     Toolbar toolbar;
+    /**
+     * The Username textview.
+     */
     TextView usernameTextview;
+    /**
+     * The Email textview.
+     */
     TextView emailTextview;
+    /**
+     * The Avatar image view.
+     */
     ImageView avatarImageView;
+    /**
+     * The Tag.
+     */
     private String TAG = "MainActivity";
+    /**
+     * The Map fragment.
+     */
     private MapFragment mapFragment;
+    /**
+     * The Chosen restaurant id.
+     */
     private String chosenRestaurantId = "";
 
     @Override
@@ -91,6 +139,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Configure toolbar.
+     */
     private void configureToolbar() {
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
@@ -153,6 +204,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return true;
     }
 
+    /**
+     * Gets chosen restaurant.
+     */
     private void getChosenRestaurant() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -195,6 +249,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * Configure drawer layout.
+     */
     private void configureDrawerLayout() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -202,6 +259,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
 
+    /**
+     * Configure navigation view.
+     */
     private void configureNavigationView() {
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
@@ -211,6 +271,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //*******   DESIGN   *********
     //****************************
 
+    /**
+     * Configure and show map fragment.
+     */
     private void configureAndShowMapFragment() {
         this.mapFragment = new MapFragment();
         getSupportFragmentManager().beginTransaction()
@@ -218,12 +281,18 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 .commit();
     }
 
+    /**
+     * Configure and show list fragment.
+     */
     private void configureAndShowListFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new ListFragment())
                 .commit();
     }
 
+    /**
+     * Configure and show workmates fragment.
+     */
     private void configureAndShowWorkmatesFragment() {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, new MatesFragment())
@@ -231,6 +300,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Configure bottom navigation view.
+     */
     private void configureBottomNavigationView() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -253,6 +325,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Update nav header design.
+     */
     private void updateNavHeaderDesign() {
         usernameTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
         emailTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
@@ -306,6 +381,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * Start sign in activity.
+     */
     private void startSignInActivity() {
         startActivityForResult(
                 AuthUI.getInstance()
@@ -321,12 +399,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 RC_SIGN_IN);
     }
 
+    /**
+     * Sign out user from firebase.
+     */
     private void signOutUserFromFirebase() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
     }
 
+    /**
+     * Update ui after rest requests completed on success listener.
+     *
+     * @param origin the origin
+     * @return the on success listener
+     */
     private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
 
         return new OnSuccessListener<Void>() {
@@ -340,10 +427,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         };
     }
 
+    /**
+     * Show snack bar.
+     *
+     * @param coordinatorLayout the coordinator layout
+     * @param message           the message
+     */
     private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
+    /**
+     * Handle response after sign in.
+     *
+     * @param resultCode the result code
+     * @param data       the data
+     */
     private void handleResponseAfterSignIn(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
@@ -368,6 +467,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Handle place auto complete response.
+     *
+     * @param resultCode the result code
+     * @param data       the data
+     */
     private void handlePlaceAutoCompleteResponse(int resultCode, Intent data) {
 
         if (resultCode == RESULT_OK) {
@@ -388,6 +493,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Update map with place.
+     *
+     * @param latLng the lat lng
+     */
     private void updateMapWithPlace(LatLng latLng) {
         this.mapFragment.moveCamera(latLng, DEFAULT_ZOOM);
     }

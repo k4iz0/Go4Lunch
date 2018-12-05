@@ -32,10 +32,19 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantList
  * A simple {@link Fragment} subclass.
  */
 public class MatesFragment extends BaseFragment {
+    /**
+     * The Recycler view.
+     */
     @BindView(R.id.fragment_mates_recycleView)
     RecyclerView recyclerView;
+    /**
+     * The Mates adapter.
+     */
     private RecyclerView.Adapter matesAdapter;
 
+    /**
+     * Instantiates a new Mates fragment.
+     */
     public MatesFragment() {
         // Required empty public constructor
     }
@@ -57,6 +66,9 @@ public class MatesFragment extends BaseFragment {
 
     }
 
+    /**
+     * Configure recycle view.
+     */
     public void configureRecycleView() {
         this.matesAdapter = new MatesRecycleAdapter(generateOptionsForAdapter(UserHelper.getAllUser()), Glide.with(this));
         this.recyclerView.setAdapter(matesAdapter);
@@ -64,6 +76,12 @@ public class MatesFragment extends BaseFragment {
 
     }
 
+    /**
+     * Generate options for adapter firestore recycler options.
+     *
+     * @param query the query
+     * @return the firestore recycler options
+     */
     private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
@@ -71,6 +89,9 @@ public class MatesFragment extends BaseFragment {
                 .build();
     }
 
+    /**
+     * Configure on click recycler view.
+     */
     private void configureOnClickRecyclerView() {
         ItemClickSupport.addTo(recyclerView, R.layout.place_fragment_list_item)
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {

@@ -14,9 +14,7 @@ import com.google.maps.android.SphericalUtil;
 
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.OpeningHours;
@@ -28,6 +26,20 @@ import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
 public class PlaceFormater implements Parcelable {
 
 
+    /**
+     * The constant CREATOR.
+     */
+    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
+        @Override
+        public PlaceFormater createFromParcel(Parcel in) {
+            return new PlaceFormater(in);
+        }
+
+        @Override
+        public PlaceFormater[] newArray(int size) {
+            return new PlaceFormater[size];
+        }
+    };
     /**
      * The Id.
      */
@@ -75,17 +87,22 @@ public class PlaceFormater implements Parcelable {
     /**
      * The Website url.
      */
-    private  String websiteUrl;
+    private String websiteUrl;
     /**
      * The Phone number.
      */
-    private  String phoneNumber;
+    private String phoneNumber;
+    /**
+     * The Open or close.
+     */
+    private String openOrClose;
 
     /**
      * Instantiates a new Place formater.
      */
     public PlaceFormater() {
     }
+
 
     /**
      * Instantiates a new Place formater.
@@ -108,9 +125,14 @@ public class PlaceFormater implements Parcelable {
         setPlaceHour();
         setPlaceRate();
         setPlacePhoto();
+        setOpenOrClose();
     }
 
-
+    /**
+     * Instantiates a new Place formater.
+     *
+     * @param in the in
+     */
     protected PlaceFormater(Parcel in) {
         id = in.readString();
         if (in.readByte() == 0) {
@@ -131,19 +153,25 @@ public class PlaceFormater implements Parcelable {
         currentLocation = in.readParcelable(Location.class.getClassLoader());
         websiteUrl = in.readString();
         phoneNumber = in.readString();
+        openOrClose = in.readString();
     }
 
-    public static final Creator<PlaceFormater> CREATOR = new Creator<PlaceFormater>() {
-        @Override
-        public PlaceFormater createFromParcel(Parcel in) {
-            return new PlaceFormater(in);
-        }
+    /**
+     * Compare to by distance comparator.
+     *
+     * @return the comparator
+     */
+    public static Comparator<PlaceFormater> compareToByDistance() {
+        Comparator comp = new Comparator<PlaceFormater>() {
+            @Override
+            public int compare(PlaceFormater place1, PlaceFormater place2) {
+                return place1.getPlaceDistance() - (place2.getPlaceDistance());
+            }
 
-        @Override
-        public PlaceFormater[] newArray(int size) {
-            return new PlaceFormater[size];
-        }
-    };
+
+        };
+        return comp;
+    }
 
     /**
      * Gets website url.
@@ -200,6 +228,15 @@ public class PlaceFormater implements Parcelable {
     }
 
     /**
+     * Gets open or close.
+     *
+     * @return the open or close
+     */
+    public String getOpenOrClose() {
+        return openOrClose;
+    }
+
+    /**
      * Gets place distance.
      *
      * @return the place distance
@@ -221,28 +258,31 @@ public class PlaceFormater implements Parcelable {
                 new LatLng(this.lat, this.lng)));//to
         this.placeDistance = tmp.intValue();
     }
+
     /**
      * Sets place hour.
      */
     private void setPlaceHour() {
-             this.placeHour = this.result.getOpeningHours();
-          }
+        this.placeHour = this.result.getOpeningHours();
+    }
 
     /**
      * Format string weekday list string.
      *
      * @return the string
      */
-    public String formatStringWeekdayList() {
+    public void setOpenOrClose() {
         String str = "closed";
         if (this.placeHour != null) {
-            if (this.placeHour.getWeekdayText().size() == 7 || this.placeHour.getWeekdayText().size() == 0) {
+            if (this.placeHour.getWeekdayText().size() == 0) {
                 str = "Open 24/7";
             } else {
-                str = "Open until " + this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime();
+                String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
+                String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
+                str = "Open until " + hour + "H" + min;
             }
         }
-        return str;
+        this.openOrClose = str;
     }
 
     /**
@@ -304,7 +344,7 @@ public class PlaceFormater implements Parcelable {
         this.placeAddress = placeAddress;
     }
 
-     /**
+    /**
      * Gets lat.
      *
      * @return the lat
@@ -358,7 +398,6 @@ public class PlaceFormater implements Parcelable {
         this.placeName = placeName;
     }
 
-
     /**
      * Gets place photo.
      *
@@ -384,6 +423,7 @@ public class PlaceFormater implements Parcelable {
      *
      * @param googleMap     the google map
      * @param formatedPlace the formated place
+     * @param isJoining     the is joining
      * @return the marker
      */
     public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace, Boolean isJoining) {
@@ -409,28 +449,10 @@ public class PlaceFormater implements Parcelable {
                 "placeLat = " + lat + "\n" +
                 "placeLng = " + lng + "\n" +
                 "photoUrl = " + placePhoto + "\n" +
-                "rating = " + placeRate+"\n" +
-                "phone number = "+phoneNumber+" \n" +
-                "website = "+websiteUrl;
+                "rating = " + placeRate + "\n" +
+                "phone number = " + phoneNumber + " \n" +
+                "website = " + websiteUrl;
     }
-
-    /**
-     * Compare to by distance comparator.
-     *
-     * @return the comparator
-     */
-    public static Comparator<PlaceFormater> compareToByDistance() {
-        Comparator comp = new Comparator<PlaceFormater>() {
-            @Override
-            public int compare(PlaceFormater place1, PlaceFormater place2) {
-                return place1.getPlaceDistance() - (place2.getPlaceDistance());
-            }
-
-
-        };
-        return comp;
-    }
-
 
     @Override
     public int describeContents() {
@@ -460,5 +482,6 @@ public class PlaceFormater implements Parcelable {
         dest.writeParcelable(currentLocation, flags);
         dest.writeString(websiteUrl);
         dest.writeString(phoneNumber);
+        dest.writeString(openOrClose);
     }
 }

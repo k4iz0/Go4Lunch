@@ -22,17 +22,37 @@ import static com.bumptech.glide.request.RequestOptions.circleCropTransform;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
 
+/**
+ * The type Mates view holder.
+ */
 public class MatesViewHolder extends RecyclerView.ViewHolder {
+    /**
+     * The Mates avatar.
+     */
     @BindView(R.id.mates_recycleViewItem_avatar)
     ImageView matesAvatar;
+    /**
+     * The Mates text view.
+     */
     @BindView(R.id.mates_recycleViewItem_textview)
     TextView matesTextView;
 
+    /**
+     * Instantiates a new Mates view holder.
+     *
+     * @param itemView the item view
+     */
     public MatesViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
     }
 
+    /**
+     * Update view with user data.
+     *
+     * @param user  the user
+     * @param glide the glide
+     */
     public void updateViewWithUserData(User user, RequestManager glide) {
         if (user.getChosenRestaurant().equalsIgnoreCase("")) {
             matesTextView.setText(user.getUsername());
@@ -46,10 +66,10 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                     if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
                         restaurantName = place.getPlaceName();
                     }
-                }
                 matesTextView.setText(user.getUsername() + " " + restaurantName);
 
                 matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) +" "+ restaurantName);
+                }
             }
 
 
@@ -60,6 +80,13 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                 .into(matesAvatar);
     }
 
+    /**
+     * Update view with user data for joining list.
+     *
+     * @param userList the user list
+     * @param position the position
+     * @param glide    the glide
+     */
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
         if (userList.size() > 0) {
             for (User user : userList) {

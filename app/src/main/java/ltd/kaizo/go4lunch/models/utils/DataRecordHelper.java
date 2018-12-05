@@ -17,9 +17,21 @@ import ltd.kaizo.go4lunch.models.User;
  * Class to record and read data from the SharedPreferences
  */
 public class DataRecordHelper {
+    /**
+     * The constant RESTAURANT_LIST_KEY.
+     */
     public static final String RESTAURANT_LIST_KEY = "RESTAURANT_LIST_KEY";
+    /**
+     * The constant CURRENT_LATITUDE_KEY.
+     */
     public static final String CURRENT_LATITUDE_KEY = "CURRENT_LATITUDE_KEY";
+    /**
+     * The constant CURRENT_LONGITUDE_KEY.
+     */
     public static final String CURRENT_LONGITUDE_KEY = "CURRENT_LONGITUDE_KEY";
+    /**
+     * The constant ALL_USER_LIST.
+     */
     public static final String ALL_USER_LIST = "ALL_USER_LIST";
 
     /**
@@ -150,6 +162,12 @@ public class DataRecordHelper {
         return gson.fromJson(read(KEY, gsonStr), type);
     }
 
+    /**
+     * Gets user list from shared preferences.
+     *
+     * @param KEY the key
+     * @return the user list from shared preferences
+     */
     public static ArrayList<User> getUserListFromSharedPreferences(String KEY) {
         Gson gson = new Gson();
         String gsonStr = "";

@@ -63,21 +63,69 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
  * A simple {@link Fragment} subclass.
  */
 public class MapFragment extends BaseFragment implements OnMapReadyCallback {
+    /**
+     * The constant DEFAULT_ZOOM.
+     */
     public static final float DEFAULT_ZOOM = 15f;
+    /**
+     * The Default location.
+     */
     static final LatLng DEFAULT_LOCATION = new LatLng(48.858093, 2.294694); //PARIS
+    /**
+     * The constant ERROR_DIALOG_REQUEST.
+     */
     private static final int ERROR_DIALOG_REQUEST = 9001;
+    /**
+     * The constant FINE_LOCATION.
+     */
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    /**
+     * The constant COARSE_LOCATION.
+     */
     private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    /**
+     * The constant LOCATION_PERMISSION_REQUEST_CODE.
+     */
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    /**
+     * The Map view.
+     */
     private MapView mapView;
+    /**
+     * The Floating action button.
+     */
     private FloatingActionButton floatingActionButton;
+    /**
+     * The Google map.
+     */
     private GoogleMap googleMap;
+    /**
+     * The Location permissions granted.
+     */
     private Boolean locationPermissionsGranted = false;
+    /**
+     * The Fused location provider client.
+     */
     private FusedLocationProviderClient fusedLocationProviderClient;
+    /**
+     * The Tag.
+     */
     private String TAG = getClass().getSimpleName();
+    /**
+     * The Current location.
+     */
     private Location currentLocation;
+    /**
+     * The Disposable.
+     */
     private Disposable disposable;
+    /**
+     * The Place detail list.
+     */
     private ArrayList<PlaceFormater> placeDetailList;
+    /**
+     * The Gson.
+     */
     private Gson gson = new Gson();
 
     @Override
@@ -112,6 +160,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     //*******  GOOGLE MAP ********
     //****************************
 
+    /**
+     * Configure google map.
+     */
     private void configureGoogleMap() {
         if (isServiceOK()) {
             this.getLocationPermission();
@@ -122,6 +173,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Configure floating button.
+     */
     private void configureFloatingButton() {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,11 +185,17 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         });
     }
 
+    /**
+     * Ini map.
+     */
     private void iniMap() {
         mapView.getMapAsync(this);
     }
 
-    //****************************
+    /**
+     * Gets location permission.
+     */
+//****************************
     //*******  PERMISSIONS *******
     //****************************
     private void getLocationPermission() {
@@ -179,7 +239,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     /**
      * check if the Google Play services are available to make map request
      *
-     * @return Boolean
+     * @return Boolean boolean
      */
     private boolean isServiceOK() {
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext());
@@ -194,6 +254,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
 
+    /**
+     * Gets device location.
+     */
     private void getDeviceLocation() {
         try {
             if (locationPermissionsGranted) {
@@ -231,6 +294,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Is current location change boolean.
+     *
+     * @param currentLocation the current location
+     * @return the boolean
+     */
     private Boolean isCurrentLocationChange(Location currentLocation) {
         Double previousLocationLat = read(CURRENT_LATITUDE_KEY, 0.0);
         Double previousLocationLng = read(CURRENT_LONGITUDE_KEY, 0.0);
@@ -248,6 +317,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Move camera to current location.
+     *
+     * @param currentLocation the current location
+     */
     private void moveCameraToCurrentLocation(Location currentLocation) {
         this.currentLocation = currentLocation;
         if (this.currentLocation != null) {
@@ -258,6 +332,12 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Move camera.
+     *
+     * @param latLng the lat lng
+     * @param zoom   the zoom
+     */
     public void moveCamera(LatLng latLng, float zoom) {
         Log.d(TAG, "moveCamera: moving the camera to : lat : " + latLng.latitude + ", long : " + latLng.longitude);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
@@ -276,6 +356,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Configure on marker click.
+     *
+     * @param placeDetailList the place detail list
+     */
     private void configureOnMarkerClick(final ArrayList<PlaceFormater> placeDetailList) {
         this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -293,6 +378,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         });
     }
 
+    /**
+     * Sets map view style.
+     */
     private void setMapViewStyle() {
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -315,6 +403,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     //******  DATA STREAMS *******
     //****************************
 
+    /**
+     * Execute stream fetch nearby restaurant and get place detail.
+     */
     private void executeStreamFetchNearbyRestaurantAndGetPlaceDetail() {
 
         this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString())
@@ -374,6 +465,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Reset restaurant list from firestore.
+     */
     private void resetRestaurantListFromFirestore() {
         Log.i(TAG, "resetRestaurantListFromFirestore: deleting the list");
         RestaurantHelper.getAllRestaurantsFromFirestore().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -394,6 +488,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         });
     }
 
+    /**
+     * Add all restaurant from firestore to list.
+     */
     private void addAllRestaurantFromFirestoreToList() {
         placeDetailList = new ArrayList<>();
         RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -428,6 +525,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Switch marker color.
+     */
     private void switchMarkerColor() {
         RestaurantHelper.getAllRestaurantsFromFirestore().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -446,6 +546,11 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Format location to string string.
+     *
+     * @return the string
+     */
     private String formatLocationToString() {
         if (this.currentLocation != null) {
 

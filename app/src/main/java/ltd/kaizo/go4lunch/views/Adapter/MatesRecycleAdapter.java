@@ -14,14 +14,21 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.User;
 import ltd.kaizo.go4lunch.views.MatesViewHolder;
 
+/**
+ * The type Mates recycle adapter.
+ */
 public class MatesRecycleAdapter extends FirestoreRecyclerAdapter<User, MatesViewHolder> {
+    /**
+     * The Glide.
+     */
     private final RequestManager glide;
 
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
-     * FirestoreRecyclerOptions} for configuration options.
+     * FirestoreRecyclerOptions}* for configuration options.
      *
-     * @param options
+     * @param options the options
+     * @param glide   the glide
      */
     public MatesRecycleAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide) {
         super(options);

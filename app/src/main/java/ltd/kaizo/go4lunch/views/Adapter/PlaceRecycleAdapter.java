@@ -16,14 +16,36 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.views.PlaceViewHolder;
 
+/**
+ * The type Place recycle adapter.
+ */
 public class PlaceRecycleAdapter extends FirestoreRecyclerAdapter<Restaurant, PlaceViewHolder> {
 
+    /**
+     * The Glide.
+     */
     private final RequestManager glide;
 
+    /**
+     * The interface Listener.
+     */
     public interface Listener {
 
+        /**
+         * On click get place id string.
+         *
+         * @param position the position
+         * @return the string
+         */
         String onClickGetPlaceId(int position);
     }
+
+    /**
+     * Instantiates a new Place recycle adapter.
+     *
+     * @param options the options
+     * @param glide   the glide
+     */
     public PlaceRecycleAdapter(FirestoreRecyclerOptions<Restaurant> options, RequestManager glide) {
         super(options);
         this.glide = glide;

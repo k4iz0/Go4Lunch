@@ -21,12 +21,27 @@ import butterknife.OnClick;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
 
+/**
+ * The type Settings activity.
+ */
 public class SettingsActivity extends BaseActivity {
 
+    /**
+     * The constant DELETE_USER_TASK.
+     */
     private static final int DELETE_USER_TASK = 20;
+    /**
+     * The constant UPDATE_USERNAME.
+     */
     private static final int UPDATE_USERNAME = 30;
+    /**
+     * The Toolbar.
+     */
     @BindView(R.id.setting_activity_toolbar)
     Toolbar toolbar;
+    /**
+     * The Tag.
+     */
     private String TAG = getClass().getSimpleName();
 
     @Override
@@ -39,6 +54,9 @@ public class SettingsActivity extends BaseActivity {
         this.configureToolbar();
     }
 
+    /**
+     * Configure on click delete button.
+     */
     @OnClick(R.id.activity_setting_delete_account)
     public void configureOnClickDeleteButton() {
 
@@ -57,6 +75,9 @@ public class SettingsActivity extends BaseActivity {
     }
 
 
+    /**
+     * Delete user from firebase.
+     */
     private void deleteUserFromFirebase() {
         if (this.getCurrentUser() != null) {
             AuthUI.getInstance()
@@ -80,6 +101,12 @@ public class SettingsActivity extends BaseActivity {
 
     }
 
+    /**
+     * Update ui after rest requests completed on success listener.
+     *
+     * @param origin the origin
+     * @return the on success listener
+     */
     private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin) {
         return new OnSuccessListener<Void>() {
             @Override
@@ -99,6 +126,9 @@ public class SettingsActivity extends BaseActivity {
         };
     }
 
+    /**
+     * Configure toolbar.
+     */
     private void configureToolbar() {
         ActionBar ab = getSupportActionBar();
         if (ab != null) {

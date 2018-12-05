@@ -12,6 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+/**
+ * The interface Place service.
+ */
 public interface PlaceService {
     /**
      * The constant apiKey.
@@ -50,12 +53,18 @@ public interface PlaceService {
 
     /**
      * Gets the nearby restaurant
+     *
+     * @param location the location
+     * @return the nearby restaurant
      */
     @GET("nearbysearch/json?radius=" + radius + "&type=restaurant&key=" + apiKey)
     Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String location);
 
     /**
      * Gets the place's détails
+     *
+     * @param placeid the placeid
+     * @return the place details
      */
     @GET("details/json?fields=name," +
             "rating," +

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -15,13 +16,24 @@ import ltd.kaizo.go4lunch.models.User;
 
 import static com.firebase.ui.auth.AuthUI.TAG;
 
+/**
+ * The type User helper.
+ */
 public class UserHelper {
+    /**
+     * The constant COLLECTION_NAME.
+     */
     private static final String COLLECTION_NAME = "users";
 
 
     // --- COLLECTION REFERENCE ---
 
 
+    /**
+     * Get users collection collection reference.
+     *
+     * @return the collection reference
+     */
     public static CollectionReference getUsersCollection(){
 
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
@@ -32,6 +44,14 @@ public class UserHelper {
     // --- CREATE ---
 
 
+    /**
+     * Create user task.
+     *
+     * @param uid        the uid
+     * @param username   the username
+     * @param urlPicture the url picture
+     * @return the task
+     */
     public static Task<Void> createUser(String uid, String username, String urlPicture) {
 
         User userToCreate = new User(uid, username, urlPicture);
@@ -44,6 +64,12 @@ public class UserHelper {
     // --- GET ---
 
 
+    /**
+     * Get user task.
+     *
+     * @param uid the uid
+     * @return the task
+     */
     public static Task<DocumentSnapshot> getUser(String uid){
 
         return UserHelper.getUsersCollection().document(uid).get();
@@ -52,6 +78,11 @@ public class UserHelper {
 
     // --- GET All USERS---
 
+    /**
+     * Gets all user.
+     *
+     * @return the all user
+     */
     public static Query getAllUser() {
 
         return UserHelper.getUsersCollection()
@@ -63,9 +94,22 @@ public class UserHelper {
     // --- UPDATE ---
 
 
+    /**
+     * Update chosen restaurant task.
+     *
+     * @param restaurantId the restaurant id
+     * @param uid          the uid
+     * @return the task
+     */
     public static Task<Void> updateChosenRestaurant(String restaurantId, String uid) {
 
         return UserHelper.getUsersCollection().document(uid).update("chosenRestaurant", restaurantId);
+
+    }
+
+ public static Task<Void> updateLikeRestaurant(String restaurantId, String uid) {
+
+        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayUnion(restaurantId));
 
     }
 
@@ -73,11 +117,29 @@ public class UserHelper {
     // --- DELETE ---
 
 
+    /**
+     * Delete user task.
+     *
+     * @param uid the uid
+     * @return the task
+     */
     public static Task<Void> deleteUser(String uid) {
 
         return UserHelper.getUsersCollection().document(uid).delete();
 
     }
+    public static Task<Void> deleteLikeRestaurant(String restaurantId, String uid) {
+
+        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayRemove(restaurantId));
+
+    }
+    /**
+     * Gets user data from id.
+     *
+     * @param userId      the user id
+     * @param allUserList the all user list
+     * @return the user data from id
+     */
     public static User getUserDataFromId(String userId, List<User> allUserList) {
         User tmpUser = null;
         for (User user : allUserList) {

@@ -21,6 +21,9 @@ import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
 
+/**
+ * The type Base activity.
+ */
 public abstract class BaseActivity extends AppCompatActivity {
 
 
@@ -34,22 +37,44 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.configureDesign();
     }
 
+    /**
+     * Gets fragment layout.
+     *
+     * @return the fragment layout
+     */
     public abstract int getFragmentLayout();
 
+    /**
+     * Configure design.
+     */
     public abstract void configureDesign();
 
 
-
+    /**
+     * Gets current user.
+     *
+     * @return the current user
+     */
     @Nullable
     protected FirebaseUser getCurrentUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    /**
+     * Is current user logged boolean.
+     *
+     * @return the boolean
+     */
     protected Boolean isCurrentUserLogged() {
         return (this.getCurrentUser() != null);
     }
 
-    // --------------------
+    /**
+     * On failure listener on failure listener.
+     *
+     * @return the on failure listener
+     */
+// --------------------
     //ERROR HANDLER
     // --------------------
     protected OnFailureListener onFailureListener() {

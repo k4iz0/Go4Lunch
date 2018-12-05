@@ -31,10 +31,25 @@ import ltd.kaizo.go4lunch.models.User;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getUserListFromSharedPreferences;
 
+/**
+ * The type Notifications service.
+ */
 public class NotificationsService extends FirebaseMessagingService {
+    /**
+     * The Notification id.
+     */
     private final int NOTIFICATION_ID = 007;
+    /**
+     * The Notification tag.
+     */
     private final String NOTIFICATION_TAG = "FIREBASE_GO4LUNCH";
+    /**
+     * The All user list.
+     */
     private List<User> allUserList = new ArrayList<>();
+    /**
+     * The Current user.
+     */
     private User currentUser;
 
     @Override
@@ -44,6 +59,12 @@ public class NotificationsService extends FirebaseMessagingService {
         }
     }
 
+    /**
+     * Send visual notification.
+     *
+     * @param messageBody   the message body
+     * @param placeFormater the place formater
+     */
     private void sendVisualNotification(String messageBody, PlaceFormater placeFormater) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("PlaceFormater", placeFormater);
@@ -74,6 +95,9 @@ public class NotificationsService extends FirebaseMessagingService {
         notificationManager.notify(NOTIFICATION_TAG, NOTIFICATION_ID, notitificationBuilder.build());
     }
 
+    /**
+     * Gets lunch info.
+     */
     private void getLunchInfo() {
         //get currentUser info
         UserHelper.getUser(FirebaseAuth.getInstance().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
