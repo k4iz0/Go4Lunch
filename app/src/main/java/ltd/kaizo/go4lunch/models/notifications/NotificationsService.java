@@ -29,7 +29,9 @@ import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.NOTIFICATION_ENABLE;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getUserListFromSharedPreferences;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 
 /**
  * The type Notifications service.
@@ -100,47 +102,51 @@ public class NotificationsService extends FirebaseMessagingService {
      */
     private void getLunchInfo() {
         //get currentUser info
-        UserHelper.getUser(FirebaseAuth.getInstance().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.getResult() != null) {
-                    currentUser = task.getResult().toObject(User.class);
-                    //get chosenRestaurantInfo
-                    if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
-                        RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.getResult() != null) {
-                                    Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                                    String placeAddress = restaurant.getPlaceFormater().getPlaceAddress();
-                                    String placeName = restaurant.getPlaceFormater().getPlaceName();
-                                    ArrayList<User> joiningUser = new ArrayList<>();
-                                    allUserList = getUserListFromSharedPreferences(ALL_USER_LIST);
-                                    for (String userId : restaurant.getUserList()) {
-                                        if (!userId.equalsIgnoreCase(currentUser.getUid())) {
-                                            joiningUser.add(UserHelper.getUserDataFromId(userId, allUserList));
-                                        }
-                                    }
-                                    //create message
-                                    String message = "you're going to lunch at " +
-                                            placeName + " \n" +
-                                            placeAddress + " \n";
+        if (read(NOTIFICATION_ENABLE, true)) {
 
-                                    if (joiningUser.size() > 0) {
-                                        message += " with ";
-                                        for (User user : joiningUser) {
-                                            message += " " + user.getUsername() + " \n";
+            UserHelper.getUser(FirebaseAuth.getInstance().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.getResult() != null) {
+                        currentUser = task.getResult().toObject(User.class);
+                        //get chosenRestaurantInfo
+                        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
+                            RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.getResult() != null) {
+                                        Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                                        String placeAddress = restaurant.getPlaceFormater().getPlaceAddress();
+                                        String placeName = restaurant.getPlaceFormater().getPlaceName();
+                                        ArrayList<User> joiningUser = new ArrayList<>();
+                                        allUserList = getUserListFromSharedPreferences(ALL_USER_LIST);
+                                        for (String userId : restaurant.getUserList()) {
+                                            if (!userId.equalsIgnoreCase(currentUser.getUid())) {
+                                                joiningUser.add(UserHelper.getUserDataFromId(userId, allUserList));
+                                            }
                                         }
+                                        //create message
+                                        String message = "you're going to lunch at " +
+                                                placeName + " \n" +
+                                                placeAddress + " \n";
+
+                                        if (joiningUser.size() > 0) {
+                                            message += " with ";
+                                            for (User user : joiningUser) {
+                                                message += " " + user.getUsername() + " \n";
+                                            }
+                                        }
+                                        sendVisualNotification(message, restaurant.getPlaceFormater());
                                     }
-                                    sendVisualNotification(message, restaurant.getPlaceFormater());
                                 }
-                            }
-                        });
+                            });
+
+                        }
 
                     }
-
                 }
-            }
-        });
+            });
+        }
     }
+
 }

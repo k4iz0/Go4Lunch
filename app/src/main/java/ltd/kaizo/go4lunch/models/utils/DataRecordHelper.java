@@ -18,6 +18,10 @@ import ltd.kaizo.go4lunch.models.User;
  */
 public class DataRecordHelper {
     /**
+     * The constant NOTIFICATION_ENABLE.
+     */
+    public static final String NOTIFICATION_ENABLE = "NOTIFICATION_ENABLE";
+    /**
      * The constant RESTAURANT_LIST_KEY.
      */
     public static final String RESTAURANT_LIST_KEY = "RESTAURANT_LIST_KEY";

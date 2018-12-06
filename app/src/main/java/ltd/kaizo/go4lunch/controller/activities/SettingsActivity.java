@@ -3,23 +3,28 @@ package ltd.kaizo.go4lunch.controller.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.widget.Switch;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.squareup.haha.perflib.Main;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.NOTIFICATION_ENABLE;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 /**
  * The type Settings activity.
@@ -30,15 +35,14 @@ public class SettingsActivity extends BaseActivity {
      * The constant DELETE_USER_TASK.
      */
     private static final int DELETE_USER_TASK = 20;
-    /**
-     * The constant UPDATE_USERNAME.
-     */
-    private static final int UPDATE_USERNAME = 30;
+
     /**
      * The Toolbar.
      */
     @BindView(R.id.setting_activity_toolbar)
     Toolbar toolbar;
+    @BindView(R.id.activity_setting_notification_switch)
+    SwitchCompat notificationSwitch;
     /**
      * The Tag.
      */
@@ -52,6 +56,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public void configureDesign() {
         this.configureToolbar();
+        this.configureNotificationSwitch();
     }
 
     /**
@@ -74,6 +79,24 @@ public class SettingsActivity extends BaseActivity {
 
     }
 
+    public void configureNotificationSwitch() {
+        if (read(NOTIFICATION_ENABLE, true)) {
+            notificationSwitch.setChecked(true);
+        }
+        notificationSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (read(NOTIFICATION_ENABLE, true)) {
+                    notificationSwitch.setChecked(false);
+                    write(NOTIFICATION_ENABLE, false);
+                } else {
+                    notificationSwitch.setChecked(true);
+                    write(NOTIFICATION_ENABLE, true);
+                }
+            }
+        });
+
+    }
 
     /**
      * Delete user from firebase.
@@ -88,12 +111,12 @@ public class SettingsActivity extends BaseActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     AuthUI.getInstance()
                             .signOut(getApplicationContext()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(mainActivity);
-                                }
-                            });
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(mainActivity);
+                        }
+                    });
                 }
             });
 
@@ -115,9 +138,6 @@ public class SettingsActivity extends BaseActivity {
                     case DELETE_USER_TASK:
                         finish();
                         startActivity(getIntent());
-                        break;
-                    case UPDATE_USERNAME:
-//                        progressBar.setVisibility(View.INVISIBLE);
                         break;
                     default:
                         break;

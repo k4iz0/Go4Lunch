@@ -110,7 +110,7 @@ public class DetailActivity extends BaseActivity {
     /**
      * The Place photo request url.
      */
-    private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photoreference=";
+    private String placePhotoRequestUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=500&maxheight=500&photoreference=";
     /**
      * The Joining mates adapter.
      */
@@ -163,7 +163,7 @@ public class DetailActivity extends BaseActivity {
     }
 
     /**
-     * Configure current user.
+     * Configure currentUser with data from Firestore
      */
     private void configureCurrentUser() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -207,7 +207,6 @@ public class DetailActivity extends BaseActivity {
 
     /**
      * Display rating stars.
-     *
      * @param rate the rate
      */
     private void displayRatingStars(int rate) {

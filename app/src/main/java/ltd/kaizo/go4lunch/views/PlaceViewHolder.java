@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
@@ -104,9 +105,9 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
         }
         placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
         glide.load(photoUrl)
-              .apply(bitmapTransform(new RoundedCorners(10)) .fitCenter())
+                .apply(bitmapTransform(new RoundedCorners(15)).error(R.drawable.resto_default))
                 .into(this.placePhoto);
-        //TODO mettre photo par défaut
+
         placeHours.setText(restaurant.getPlaceFormater().getOpenOrClose());
         if (restaurant.getUserList().size() > 0) {
             this.configureMatesIcon(restaurant.getUserList().size());

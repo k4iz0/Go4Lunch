@@ -12,7 +12,7 @@
     <string name="welcome_text">Trouvez un restaurant sympa pour manger avec vos collègues!</string>
     <string name="avatar_picture">avatar picture</string>
     <string name="your_lunch">Votre déjeuner</string>
-    <string name="settings">Paramètre</string>
+    <string name="settings">Paramètres</string>
     <string name="logout">Deconnexion</string>
     <string name="title_activity_maps">Map</string>
     <string name="search">recherche</string>
@@ -32,9 +32,10 @@
     <string name="popup_message_choice_no">non</string>
     <string name="isJoining"> rejoint ce restaurant!</string>
     <string name="decideYet"> n\'a pas encore décidé</string>
-    <string name="eatingAt"> mange chez </string>
+    <string name="eatingAt"> déjeune chez </string>
     <string name="default_notification_channel_id">firebaseNotification</string>
     <string name="notificationTitle">Rappel</string>
     <string name="incoming_message">message de Go4Lunch</string>
-
+    <string name="notification">Notification</string>
+    <string name="no_choice">Vous n\'avez pas encore choisi de restaurant</string>
 </resources>

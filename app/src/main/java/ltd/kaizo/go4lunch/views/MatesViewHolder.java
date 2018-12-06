@@ -93,7 +93,9 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                 Log.i("matesviewholder", "updateViewWithUserDataForJoiningList:  "+user.getUid());
             }
             matesTextView.setText(userList.get(position).getUsername() + " " + matesTextView.getContext().getString(R.string.isJoining));
-            glide.load(userList.get(position).getUrlPicture()).into(matesAvatar);
+            glide.load(userList.get(position).getUrlPicture())
+                    .apply(circleCropTransform())
+                    .into(matesAvatar);
         }
 
     }

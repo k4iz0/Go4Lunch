@@ -48,9 +48,6 @@ import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 
 /**
  * The type Main activity.
@@ -218,20 +215,24 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    if (task.getResult().getData() != null && !task.getResult().get("chosenRestaurant").equals("")) {
+                    if (task.getResult().getData() != null) {
                         chosenRestaurantId = task.getResult().toObject(User.class).getChosenRestaurant();
-                        RestaurantHelper.getRestaurant(chosenRestaurantId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful() && task.getResult() != null) {
-                                    Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
-                                    Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                                    Log.i(TAG, "onComplete: getChosenRestaurant "+chosenRestaurantId);
-                                    detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
-                                    startActivity(detailActivity);
+                        if (!chosenRestaurantId.equalsIgnoreCase("")) {
+                            RestaurantHelper.getRestaurant(chosenRestaurantId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful() && task.getResult() != null) {
+                                        Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
+
+                                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                                        detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
+                                        startActivity(detailActivity);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            showSnackBar(coordinatorLayout, getString(R.string.no_choice));
+                        }
                     }
                 }
             }
