@@ -126,7 +126,7 @@ public class NotificationsService extends FirebaseMessagingService {
                                             }
                                         }
                                         //create message
-                                        String message = "you're going to lunch at " +
+                                        String message = getString(R.string.going_to_lunch) +
                                                 placeName + " \n" +
                                                 placeAddress + " \n";
 

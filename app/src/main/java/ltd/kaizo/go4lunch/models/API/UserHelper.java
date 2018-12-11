@@ -113,9 +113,7 @@ public class UserHelper {
 
     }
 
-
     // --- DELETE ---
-
 
     /**
      * Delete user task.

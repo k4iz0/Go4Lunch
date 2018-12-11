@@ -120,5 +120,6 @@
     <string name="incoming_message">incoming message from Firebase</string>
     <string name="notification">Notification</string>
     <string name="no_choice">You haven\'t choose any restaurant yet !</string>
+    <string name="going_to_lunch">you\'re going to lunch at</string>
 
 </resources>

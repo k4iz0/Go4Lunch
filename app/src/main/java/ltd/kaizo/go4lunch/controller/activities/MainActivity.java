@@ -122,7 +122,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void configureDesign() {
-
+        // if user's logged in show the map, otherwise show identification page
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
         } else {
@@ -133,7 +133,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureNavigationView();
             this.updateNavHeaderDesign();
         }
-
     }
 
     /**
@@ -167,9 +166,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             } catch (GooglePlayServicesNotAvailableException e) {
                 Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
             }
-
         }
-
         return true;
     }
 
@@ -202,7 +199,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /**
-     * Gets chosen restaurant.
+     * Get chosen restaurant.
      */
     private void getChosenRestaurant() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
@@ -225,6 +222,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                         Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
 
                                         Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                                        Log.i(TAG, "onComplete: chosenrestaurant " + chosenRestaurant.getPlaceFormater().getPlaceName());
                                         detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
                                         startActivity(detailActivity);
                                     }
@@ -250,6 +248,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+
+
+    //****************************
+    //*******   DESIGN   *********
+    //****************************
+
     /**
      * Configure drawer layout.
      */
@@ -267,10 +271,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
     }
-
-    //****************************
-    //*******   DESIGN   *********
-    //****************************
 
     /**
      * Configure and show map fragment.
@@ -364,6 +364,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Show snack bar.
+     * @param coordinatorLayout the coordinator layout
+     * @param message           the message
+     */
+    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
+        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    }
+
     //****************************
     //*******   FIREBASE   *******
     //****************************
@@ -429,16 +438,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /**
-     * Show snack bar.
-     *
-     * @param coordinatorLayout the coordinator layout
-     * @param message           the message
-     */
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
-    }
-
-    /**
      * Handle response after sign in.
      *
      * @param resultCode the result code
@@ -496,7 +495,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     /**
      * Update map with place.
-     *
      * @param latLng the lat lng
      */
     private void updateMapWithPlace(LatLng latLng) {

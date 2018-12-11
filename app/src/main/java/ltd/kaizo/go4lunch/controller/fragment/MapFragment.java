@@ -153,7 +153,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         this.configureGoogleMap();
         mapView.onResume();
         return rootView;
-
     }
 
     //****************************
@@ -186,9 +185,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     }
 
     /**
-     * Ini map.
+     * Init map.
      */
-    private void iniMap() {
+    private void initMap() {
         mapView.getMapAsync(this);
     }
 
@@ -207,7 +206,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(getContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             if (ContextCompat.checkSelfPermission(getContext(), COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationPermissionsGranted = true;
-                this.iniMap();
+                this.initMap();
             } else {
                 ActivityCompat.requestPermissions(getActivity(),
                         permissions,
@@ -217,9 +216,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             ActivityCompat.requestPermissions(getActivity(),
                     permissions,
                     LOCATION_PERMISSION_REQUEST_CODE);
-
         }
-
     }
 
     @Override
@@ -252,7 +249,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
         }
         return false;
     }
-
 
     /**
      * Gets device location.
@@ -462,7 +458,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                         switchMarkerColor();
                     }
                 });
-
     }
 
     /**
@@ -521,8 +516,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                 executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
             }
         });
-
-
     }
 
     /**
@@ -553,14 +546,9 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
      */
     private String formatLocationToString() {
         if (this.currentLocation != null) {
-
             return this.currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-
         } else {
             return DEFAULT_LOCATION.latitude + "," + DEFAULT_LOCATION.longitude;
         }
-
     }
-
-
 }

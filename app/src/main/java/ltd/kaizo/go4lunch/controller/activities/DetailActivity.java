@@ -44,10 +44,10 @@ import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
-/**
- * The type Detail activity.
- */
-public class DetailActivity extends BaseActivity {
+    /**
+    *  The type Detail activity.
+    */
+    public class DetailActivity extends BaseActivity {
     /**
      * The Place photo.
      */
@@ -159,8 +159,8 @@ public class DetailActivity extends BaseActivity {
         this.getPlaceFormaterFromIntent();
         this.configureCurrentUser();
         this.configureRecycleView();
-
     }
+
 
     /**
      * Configure currentUser with data from Firestore
@@ -173,10 +173,34 @@ public class DetailActivity extends BaseActivity {
                     currentUser = task.getResult().toObject(User.class);
                     updateUiWithPlaceData();
                     firebaseListener();
+                    configureUserListener();
                 }
             }
         });
     }
+        /**
+         * listening to currentUser from Firestore to update data in realtime
+         */
+        private void configureUserListener() {
+        UserHelper.getAllUser().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (e != null) return;
+
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    DocumentSnapshot documentSnapshot = dc.getDocument();
+                            User tmp = documentSnapshot.toObject(User.class);
+                    switch (dc.getType()) {
+                        case MODIFIED:
+                            if (tmp.getUid().equalsIgnoreCase(currentUser.getUid())) {
+                                currentUser = tmp;
+                            }
+                            break;
+                    }
+                }
+            }
+        });
+        }
 
     /**
      * Configure user list from firebase.
@@ -233,7 +257,7 @@ public class DetailActivity extends BaseActivity {
         placename.setText(place.getPlaceName());
         placeAdress.setText(place.getPlaceAddress());
         Glide.with(this).load(placePhotoRequestUrl + place.getPlacePhoto() + "&key=" + BuildConfig.ApiKey)
-                .apply(RequestOptions.centerCropTransform())
+                .apply(RequestOptions.centerCropTransform().error(R.drawable.resto_default))
                 .into(this.placePhoto);
         displayRatingStars(place.getPlaceRate());
         if (currentUser.getRestaurantLikeList() != null) {

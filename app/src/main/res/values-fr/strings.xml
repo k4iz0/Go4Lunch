@@ -38,4 +38,6 @@
     <string name="incoming_message">message de Go4Lunch</string>
     <string name="notification">Notification</string>
     <string name="no_choice">Vous n\'avez pas encore choisi de restaurant</string>
+    <string name="going_to_lunch">vous allez déjeuner chez </string>
+
 </resources>
