@@ -429,6 +429,7 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             currentUser.setChosenRestaurant(restaurant.getPlaceId());
+                            UserHelper.updateChosenRestaurant(restaurant.getPlaceId(), currentUser.getUid());
                             Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
                             joiningMatesAdapter.notifyDataSetChanged();
                         }
