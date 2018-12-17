@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Go4Lunch</string>
-    <string name="map_view">Map View</string>
-    <string name="list_view">List View</string>
-    <string name="workmates">Workmates</string>
+    <string name="map_view">Carte</string>
+    <string name="list_view">Liste</string>
+    <string name="workmates">Collègues</string>
     <!--Firebase-->
     <string name="error_unknown_error">"une erreur est arrivée"</string>
     <string name="error_not_connected">Vous devez être authentifié</string>
