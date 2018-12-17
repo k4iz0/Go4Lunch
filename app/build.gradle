@@ -31,6 +31,9 @@ android {
             resValue 'string', "api_key", go4lunch_google_maps_key
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -79,6 +82,8 @@ dependencies {
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
     //JODATIME
     implementation 'joda-time:joda-time:2.10.1'
+    //Mockito
+    testImplementation "org.mockito:mockito-core:2.23.4"
 
 
 
