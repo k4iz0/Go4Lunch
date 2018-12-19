@@ -16,8 +16,17 @@ import java.util.ArrayList;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 
+/**
+ * The type Place auto complete array adapter.
+ */
 public class PlaceAutoCompleteArrayAdapter extends ArrayAdapter<PlaceFormater> {
+    /**
+     * The Place formater list full.
+     */
     private ArrayList<PlaceFormater> placeFormaterListFull;
+    /**
+     * The Place filter.
+     */
     private Filter placeFilter = new Filter() {
 
         @Override
@@ -55,6 +64,12 @@ public class PlaceAutoCompleteArrayAdapter extends ArrayAdapter<PlaceFormater> {
     };
 
 
+    /**
+     * Instantiates a new Place auto complete array adapter.
+     *
+     * @param context           the context
+     * @param placeFormaterList the place formater list
+     */
     public PlaceAutoCompleteArrayAdapter(@NonNull Context context, @NonNull ArrayList<PlaceFormater> placeFormaterList) {
         super(context, 0, placeFormaterList);
         placeFormaterListFull = new ArrayList<>(placeFormaterList);

@@ -1,37 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:id="@+id/activity_setting_coordinator_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".controller.activities.SettingsActivity">
+    android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/setting_activity_toolbar"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/activity_layout_setting"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"
-        android:theme="@style/ToolBarStyle"
-        />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".controller.activities.SettingsActivity">
 
-    <Button
-        android:id="@+id/activity_setting_delete_account"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/delete_account"
-        android:layout_gravity="center"
-        />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/setting_activity_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:theme="@style/ToolBarStyle" />
 
-    <android.support.v7.widget.SwitchCompat
-        android:id="@+id/activity_setting_notification_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/notification"
-        android:theme="@style/SwitchStyle"
-        tools:checked="true"
-        android:layout_gravity="center"/>
-</LinearLayout>
+        <Button
+            android:id="@+id/activity_setting_delete_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/delete_account" />
+
+        <EditText
+            android:id="@+id/activity_setting_username_edit_text"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:hint="@string/new_username" />
+
+        <Button
+            android:id="@+id/activity_setting_update_username_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/update_username" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/activity_setting_notification_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:text="@string/notification"
+            android:theme="@style/SwitchStyle"
+            tools:checked="true" />
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

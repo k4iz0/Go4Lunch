@@ -3,17 +3,22 @@ package ltd.kaizo.go4lunch.controller.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Switch;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
@@ -35,17 +40,22 @@ public class SettingsActivity extends BaseActivity {
      * The constant DELETE_USER_TASK.
      */
     private static final int DELETE_USER_TASK = 20;
-
+    CoordinatorLayout activitySettingLayout;
     /**
      * The Toolbar.
      */
     @BindView(R.id.setting_activity_toolbar)
     Toolbar toolbar;
+    /**
+     * The Notification switch.
+     */
     @BindView(R.id.activity_setting_notification_switch)
     SwitchCompat notificationSwitch;
     /**
      * The Tag.
      */
+    @BindView(R.id.activity_setting_username_edit_text)
+    EditText usernameEditText;
     private String TAG = getClass().getSimpleName();
 
     @Override
@@ -57,6 +67,7 @@ public class SettingsActivity extends BaseActivity {
     public void configureDesign() {
         this.configureToolbar();
         this.configureNotificationSwitch();
+        activitySettingLayout = findViewById(R.id.activity_setting_coordinator_layout);
     }
 
     /**
@@ -79,6 +90,43 @@ public class SettingsActivity extends BaseActivity {
 
     }
 
+    /**
+     * Configure on click update username button.
+     */
+    @OnClick(R.id.activity_setting_update_username_btn)
+    public void configureOnClickUpdateUsernameButton(final View view) {
+        if (isUsernameValid()) {
+            UserHelper.updateUsername(usernameEditText.getText().toString(), getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.update_usermane_success)+" "+usernameEditText.getText().toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_unknown_error), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(this, getString(R.string.updateUsernameError), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * return true if the username is bigger than 2 characters
+     * and different from previous username
+     *
+     * @return Boolean
+     */
+    private Boolean isUsernameValid() {
+        return usernameEditText.getText().length() > 2 && !usernameEditText.getText().equals(getCurrentUser().getDisplayName());
+    }
+
+    /**
+     * Configure notification switch.
+     */
     public void configureNotificationSwitch() {
         if (read(NOTIFICATION_ENABLE, true)) {
             notificationSwitch.setChecked(true);
@@ -145,6 +193,7 @@ public class SettingsActivity extends BaseActivity {
             }
         };
     }
+
 
     /**
      * Configure toolbar.

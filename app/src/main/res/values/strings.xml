@@ -121,5 +121,9 @@
     <string name="notification">Notification</string>
     <string name="no_choice">You haven\'t choose any restaurant yet !</string>
     <string name="going_to_lunch">you\'re going to lunch at</string>
+    <string name="update_username">update username</string>
+    <string name="new_username">new username</string>
+    <string name="update_usermane_success">username successfully updated to</string>
+    <string name="updateUsernameError">the new username should be different from the previous one and be bigger than 2 characters</string>
 
 </resources>

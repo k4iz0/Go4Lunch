@@ -24,7 +24,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(this.getFragmentLayout());
-        ButterKnife.bind(this);
+        ButterKnife.bind(this,this);
         DataRecordHelper.init(getApplicationContext());
 
         this.configureDesign();
@@ -67,7 +67,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      *
      * @return the on failure listener
      */
-    // --------------------
+// --------------------
     //ERROR HANDLER
     // --------------------
     protected OnFailureListener onFailureListener() {

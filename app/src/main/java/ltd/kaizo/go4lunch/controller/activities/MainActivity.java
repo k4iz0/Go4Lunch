@@ -100,8 +100,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     @BindView(R.id.activity_main_toolbar)
     Toolbar toolbar;
+    /**
+     * The Auto complete text view.
+     */
     @BindView(R.id.autocomplete_textview)
     AutoCompleteTextView autoCompleteTextView;
+    /**
+     * The Autocomplete layout.
+     */
     @BindView(R.id.autocomplete_textview_constraint_layout)
     ConstraintLayout autocompleteLayout;
     /**
@@ -302,6 +308,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         toggle.syncState();
     }
 
+    /**
+     * Configure auto complete focus.
+     */
     private void configureAutoCompleteFocus() {
         autocompleteLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -312,6 +321,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
     }
+
+    /**
+     * Update auto complete design.
+     */
     private void updateAutoCompleteDesign() {
         if (autocompleteLayout.getVisibility() == View.VISIBLE) {
             autocompleteLayout.setVisibility(View.GONE);

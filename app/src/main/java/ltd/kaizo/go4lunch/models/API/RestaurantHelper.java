@@ -41,7 +41,7 @@ public class RestaurantHelper {
      * @param placeFormater the place formater
      * @return the task
      */
-    //-- CREATE
+//-- CREATE
     public static Task<Void> createRestaurant(String placeId, PlaceFormater placeFormater) {
         Restaurant restaurantsToCreate = new Restaurant(placeId, placeFormater, false);
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToCreate);
@@ -83,7 +83,14 @@ public class RestaurantHelper {
     }
 
 
-    //UPDATE
+    /**
+     * Update user from restaurant task.
+     *
+     * @param placeId the place id
+     * @param uid     the uid
+     * @return the task
+     */
+//UPDATE
     public static Task<Void> updateUserFromRestaurant(String placeId, String uid) {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayUnion(uid));
     }
@@ -110,6 +117,13 @@ public class RestaurantHelper {
     }
 
 
+    /**
+     * Delete user from restaurant task.
+     *
+     * @param placeId the place id
+     * @param uid     the uid
+     * @return the task
+     */
     public static Task<Void> deleteUserFromRestaurant(String placeId, String uid) {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayRemove(uid));
     }

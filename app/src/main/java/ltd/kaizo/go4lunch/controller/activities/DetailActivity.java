@@ -44,10 +44,10 @@ import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
-    /**
-    *  The type Detail activity.
-    */
-    public class DetailActivity extends BaseActivity {
+/**
+ * The type Detail activity.
+ */
+public class DetailActivity extends BaseActivity {
     /**
      * The Place photo.
      */
@@ -178,10 +178,11 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
             }
         });
     }
-        /**
-         * listening to currentUser from Firestore to update data in realtime
-         */
-        private void configureUserListener() {
+
+    /**
+     * listening to currentUser from Firestore to update data in realtime
+     */
+    private void configureUserListener() {
         UserHelper.getAllUser().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
@@ -231,6 +232,7 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
     /**
      * Display rating stars.
+     *
      * @param rate the rate
      */
     private void displayRatingStars(int rate) {
@@ -477,10 +479,16 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
         });
     }
 
+    /**
+     * Like restaurant.
+     */
     private void likeRestaurant() {
         UserHelper.updateLikeRestaurant(place.getId(), currentUser.getUid());
     }
 
+    /**
+     * Unlike restaurant.
+     */
     private void unlikeRestaurant() {
         UserHelper.deleteLikeRestaurant(place.getId(), currentUser.getUid());
     }

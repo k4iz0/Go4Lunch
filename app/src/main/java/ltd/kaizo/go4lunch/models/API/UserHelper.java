@@ -107,9 +107,21 @@ public class UserHelper {
 
     }
 
- public static Task<Void> updateLikeRestaurant(String restaurantId, String uid) {
+    /**
+     * Update like restaurant task.
+     *
+     * @param restaurantId the restaurant id
+     * @param uid          the uid
+     * @return the task
+     */
+    public static Task<Void> updateLikeRestaurant(String restaurantId, String uid) {
 
         return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayUnion(restaurantId));
+
+    }
+    // --- UPDATE ---
+    public static Task<Void> updateUsername(String username, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("username", username);
 
     }
 
@@ -126,11 +138,20 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).delete();
 
     }
+
+    /**
+     * Delete like restaurant task.
+     *
+     * @param restaurantId the restaurant id
+     * @param uid          the uid
+     * @return the task
+     */
     public static Task<Void> deleteLikeRestaurant(String restaurantId, String uid) {
 
         return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayRemove(restaurantId));
 
     }
+
     /**
      * Gets user data from id.
      *
