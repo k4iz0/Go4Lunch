@@ -277,9 +277,11 @@ public class PlaceFormater implements Parcelable {
             if (this.placeHour.getWeekdayText().size() == 0) {
                 str = "Open 24/7";
             } else {
+                if (this.placeHour.getPeriods().size() > 1) {
                 String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
                 String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
                 str = "Open until " + hour + "H" + min;
+                }
             }
         }
         this.openOrClose = str;

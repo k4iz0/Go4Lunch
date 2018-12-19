@@ -2,6 +2,7 @@ package ltd.kaizo.go4lunch.controller.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -15,16 +16,19 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.TabWidget;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -34,7 +38,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.squareup.haha.perflib.Main;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.BindView;
@@ -44,10 +50,14 @@ import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.views.Adapter.PlaceAutoCompleteArrayAdapter;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
 
 /**
  * The type Main activity.
@@ -90,6 +100,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     @BindView(R.id.activity_main_toolbar)
     Toolbar toolbar;
+    @BindView(R.id.autocomplete_textview)
+    AutoCompleteTextView autoCompleteTextView;
+    @BindView(R.id.autocomplete_textview_constraint_layout)
+    ConstraintLayout autocompleteLayout;
     /**
      * The Username textview.
      */
@@ -132,6 +146,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureDrawerLayout();
             this.configureNavigationView();
             this.updateNavHeaderDesign();
+            this.configureAutoCompleteFocus();
         }
     }
 
@@ -156,15 +171,37 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-            try {
-                Intent intent =
-                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                                .build(this);
-                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-            } catch (GooglePlayServicesRepairableException e) {
-                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
-            } catch (GooglePlayServicesNotAvailableException e) {
-                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
+//            try {
+//                Intent intent =
+//                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+//                                .build(this);
+//                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+//            } catch (GooglePlayServicesRepairableException e) {
+//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
+//            } catch (GooglePlayServicesNotAvailableException e) {
+//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
+//            }
+//            autoCompleteTextView = findViewById(R.id.autocomplete_textview);
+            if (autocompleteLayout.getVisibility() == View.GONE) {
+                this.updateAutoCompleteDesign();
+                final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
+                if (getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY) != null) {
+                    placeFormaterList.addAll(getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY));
+
+                }
+                PlaceAutoCompleteArrayAdapter adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
+                autoCompleteTextView.setAdapter(adapter);
+                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
+                        startActivity(detailActivity);
+                    }
+                });
+            } else {
+                this.updateAutoCompleteDesign();
+
             }
         }
         return true;
@@ -243,11 +280,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void onBackPressed() {
         if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             this.drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
+            this.updateAutoCompleteDesign();
         } else {
             super.onBackPressed();
         }
     }
-
 
 
     //****************************
@@ -263,6 +302,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         toggle.syncState();
     }
 
+    private void configureAutoCompleteFocus() {
+        autocompleteLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                    updateAutoCompleteDesign();
+
+            }
+        });
+    }
+    private void updateAutoCompleteDesign() {
+        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
+            autocompleteLayout.setVisibility(View.GONE);
+            toolbar.setVisibility(View.VISIBLE);
+        } else {
+            autocompleteLayout.setVisibility(View.VISIBLE);
+            toolbar.setVisibility(View.INVISIBLE);
+        }
+    }
 
     /**
      * Configure navigation view.
@@ -366,6 +424,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     /**
      * Show snack bar.
+     *
      * @param coordinatorLayout the coordinator layout
      * @param message           the message
      */
@@ -495,6 +554,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     /**
      * Update map with place.
+     *
      * @param latLng the lat lng
      */
     private void updateMapWithPlace(LatLng latLng) {

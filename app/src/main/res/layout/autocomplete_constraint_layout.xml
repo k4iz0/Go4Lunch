@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/autocomplete_textview_constraint_layout"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:visibility="gone"
+    tools:visibility="visible"
+    android:background="@android:color/white"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/autocomplete_magnify_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:contentDescription="@string/logo"
+        android:padding="8dp"
+        android:src="@drawable/ic_mignify_grey"
+        tool:layout_constraintBottom_toBottomOf="parent"
+        tool:layout_constraintEnd_toStartOf="@+id/autocomplete_textview"
+        tool:layout_constraintHorizontal_bias="0.5"
+        tool:layout_constraintStart_toStartOf="parent"
+        tool:layout_constraintTop_toTopOf="parent"
+        tool:layout_constraintVertical_bias="0.0" />
+
+    <AutoCompleteTextView
+        android:id="@+id/autocomplete_textview"
+        android:layout_width="252dp"
+        android:layout_height="wrap_content"
+        android:completionThreshold="1"
+        android:hint="@string/search_restaurants"
+        tool:layout_constraintBottom_toBottomOf="parent"
+        tool:layout_constraintEnd_toStartOf="@+id/autocomplete_mic_imageview"
+        tool:layout_constraintHorizontal_bias="0.5"
+        tool:layout_constraintStart_toEndOf="@+id/autocomplete_magnify_imageview"
+        tool:layout_constraintTop_toTopOf="parent"
+        tool:layout_constraintVertical_bias="0.0"
+        android:textCursorDrawable="@null"/>
+
+    <ImageView
+        android:id="@+id/autocomplete_mic_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/logo"
+        android:padding="8dp"
+        android:src="@drawable/ic_mic"
+        tool:layout_constraintBottom_toBottomOf="parent"
+        tool:layout_constraintEnd_toEndOf="parent"
+        tool:layout_constraintHorizontal_bias="0.5"
+        tool:layout_constraintStart_toEndOf="@+id/autocomplete_textview"
+        tool:layout_constraintTop_toTopOf="parent"
+        tool:layout_constraintVertical_bias="0.0" />
+
+
+</android.support.constraint.ConstraintLayout>
