@@ -39,5 +39,9 @@
     <string name="notification">Notification</string>
     <string name="no_choice">Vous n\'avez pas encore choisi de restaurant</string>
     <string name="going_to_lunch">vous allez déjeuner chez </string>
+    <string name="update_username">mettre à jour le pseudo</string>
+    <string name="new_username">nouveau pseudo</string>
+    <string name="update_usermane_success">pseudo mis à jour avec succès à </string>
+    <string name="updateUsernameError">le nouveau pseudo doit faire plus de 2 charactères</string>
 
 </resources>

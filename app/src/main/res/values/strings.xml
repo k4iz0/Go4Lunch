@@ -124,6 +124,6 @@
     <string name="update_username">update username</string>
     <string name="new_username">new username</string>
     <string name="update_usermane_success">username successfully updated to</string>
-    <string name="updateUsernameError">the new username should be different from the previous one and be bigger than 2 characters</string>
+    <string name="updateUsernameError">the new username should be bigger than 2 characters</string>
 
 </resources>

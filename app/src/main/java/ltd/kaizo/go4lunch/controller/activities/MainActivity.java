@@ -20,9 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
-import android.widget.TabWidget;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -38,7 +36,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.squareup.haha.perflib.Main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,6 +131,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Chosen restaurant id.
      */
     private String chosenRestaurantId = "";
+    private User currentUser;
 
     @Override
     public int getFragmentLayout() {
@@ -146,15 +144,31 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
         } else {
+            this.configureCurrentUser();
             this.configureBottomNavigationView();
             this.configureAndShowMapFragment();
             this.configureToolbar();
-            this.configureDrawerLayout();
             this.configureNavigationView();
-            this.updateNavHeaderDesign();
+            this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
         }
     }
+
+    private void configureCurrentUser() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    currentUser = task.getResult().toObject(User.class);
+                    updateNavHeaderDesign();
+
+                }
+            }
+        });
+    }
+    //****************************
+    //*******   TOOLBAR   ********
+    //****************************
 
     /**
      * Configure toolbar.
@@ -216,6 +230,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
     //****  NAVIGATION DRAWER ****
     //****************************
+
+    /**
+     * Configure drawer layout.
+     */
+    private void configureDrawerLayout() {
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+        //refresh user info when open
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                configureCurrentUser();
+            }
+        });
+    }
     @Override
 
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -239,6 +270,40 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+
+    }
+    /**
+     * Update nav header design.
+     */
+    private void updateNavHeaderDesign() {
+        usernameTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
+        emailTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
+        avatarImageView = navigationView.getHeaderView(0).findViewById(R.id.nav_header_avatar);
+        String username;
+        String email;
+        String avatarUrl;
+        if (TextUtils.isEmpty(currentUser.getUsername())) {
+            username = "no username found";
+        } else {
+            username = currentUser.getUsername();
+        }
+        if (TextUtils.isEmpty(getCurrentUser().getEmail())) {
+            email = "no email found";
+        } else {
+            email = getCurrentUser().getEmail();
+        }
+        if (TextUtils.isEmpty(currentUser.getUrlPicture())) {
+            avatarUrl = "";
+        } else {
+            avatarUrl = currentUser.getUrlPicture();
+        }
+        this.usernameTextview.setText(username);
+        this.emailTextview.setText(email);
+        Glide.with(this)
+                .load(avatarUrl)
+                .apply(RequestOptions.circleCropTransform())
+                .into(avatarImageView);
+
     }
 
     /**
@@ -300,15 +365,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
 
     /**
-     * Configure drawer layout.
-     */
-    private void configureDrawerLayout() {
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-    }
-
-    /**
      * Configure auto complete focus.
      */
     private void configureAutoCompleteFocus() {
@@ -316,7 +372,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
 
-                    updateAutoCompleteDesign();
+                updateAutoCompleteDesign();
 
             }
         });
@@ -397,43 +453,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
-    /**
-     * Update nav header design.
-     */
-    private void updateNavHeaderDesign() {
-        usernameTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_username);
-        emailTextview = navigationView.getHeaderView(0).findViewById(R.id.nav_header_email);
-        avatarImageView = navigationView.getHeaderView(0).findViewById(R.id.nav_header_avatar);
-        String username;
-        String email;
-        String avatarUrl;
-        if (TextUtils.isEmpty(getCurrentUser().getDisplayName())) {
-            username = "no username found";
-        } else {
-            username = getCurrentUser().getDisplayName();
-        }
-        if (TextUtils.isEmpty(getCurrentUser().getEmail())) {
-            email = "no email found";
-        } else {
-            email = getCurrentUser().getEmail();
-        }
-        if (TextUtils.isEmpty(getCurrentUser().getDisplayName())) {
-            avatarUrl = "";
-        } else {
-            avatarUrl = getCurrentUser().getPhotoUrl().toString();
-        }
-        Log.i(TAG, "updateNavHeaderDesign: username = " + username + "\n" +
-                "email = " + email + "\n" +
-                "avatarUrl = " + avatarUrl);
-        //TODO voir pour mettre les infos lors de la 1ere connection
-        this.usernameTextview.setText(username);
-        this.emailTextview.setText(email);
-        Glide.with(this)
-                .load(avatarUrl)
-                .apply(RequestOptions.circleCropTransform())
-                .into(avatarImageView);
-
-    }
 
     /**
      * Show snack bar.
