@@ -86,7 +86,7 @@ public class UserHelper {
     public static Query getAllUser() {
 
         return UserHelper.getUsersCollection()
-                .orderBy("username");
+                .orderBy("chosenRestaurant",Query.Direction.DESCENDING);
 
     }
 
