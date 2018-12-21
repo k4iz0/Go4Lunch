@@ -48,7 +48,8 @@ public class User {
      * @param username   the username
      * @param urlPicture the url picture
      */
-    public User(String uid, String username, String urlPicture) {
+    public User(String uid, String username, String urlPicture, String email) {
+        this.email =email;
         this.uid = uid;
         this.urlPicture = urlPicture;
         this.username = username;

@@ -52,9 +52,9 @@ public class UserHelper {
      * @param urlPicture the url picture
      * @return the task
      */
-    public static Task<Void> createUser(String uid, String username, String urlPicture) {
+    public static Task<Void> createUser(String uid, String username, String urlPicture, String email) {
 
-        User userToCreate = new User(uid, username, urlPicture);
+        User userToCreate = new User(uid, username, urlPicture, email);
         Log.i(TAG, "createUser: uid = "+uid+" and username = "+username);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
 
