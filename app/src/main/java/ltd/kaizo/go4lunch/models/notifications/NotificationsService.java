@@ -78,7 +78,7 @@ public class NotificationsService extends FirebaseMessagingService {
 
         NotificationCompat.Builder notitificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.restau_icon)
+                        .setSmallIcon(R.drawable.go4lunch_notif_icon)
                         .setContentTitle(getString(R.string.app_name))
                         .setContentText(getString(R.string.notificationTitle))
                         .setAutoCancel(true)
