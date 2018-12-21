@@ -1,61 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   android:id="@+id/activity_setting_coordinator_layout"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_layout_setting"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".controller.activities.SettingsActivity"
+    tools:layout_editor_absoluteY="25dp">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/activity_layout_setting"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/setting_activity_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".controller.activities.SettingsActivity">
+        android:layout_height="?android:attr/actionBarSize"
+        android:theme="@style/ToolBarStyle" />
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/setting_activity_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:theme="@style/ToolBarStyle" />
+    <Button
+        android:id="@+id/activity_setting_delete_account"
+        style="@style/ButtonStyle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/delete_account"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_email_btn" />
 
-        <Button
-            android:id="@+id/activity_setting_delete_account"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/delete_account" />
+    <EditText
+        android:id="@+id/activity_setting_username_edit_text"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:hint="@string/new_username"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintEnd_toStartOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <EditText
-            android:id="@+id/activity_setting_username_edit_text"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="8dp"
-            android:hint="@string/new_username" />
+    <Button
+        android:id="@+id/activity_setting_update_username_btn"
+        style="@style/ButtonStyle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="28dp"
+        android:text="@string/update_username"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_update_email_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/setting_activity_toolbar" />
 
-        <Button
-            android:id="@+id/activity_setting_update_username_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="@string/update_username" />
+    <EditText
+        android:id="@+id/activity_setting_email_edittext"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:hint="@string/new_email"
+        android:inputType="textEmailAddress"
+        android:maxLines="1"
+        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_update_email_btn"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_username_edit_text"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_username_edit_text" />
 
-        <android.support.v7.widget.SwitchCompat
-            android:id="@+id/activity_setting_notification_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="8dp"
-            android:text="@string/notification"
-            android:theme="@style/SwitchStyle"
-            tools:checked="true" />
-    </LinearLayout>
-</android.support.design.widget.CoordinatorLayout>
+    <Button
+        android:id="@+id/activity_setting_update_email_btn"
+        style="@style/ButtonStyle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/update_email"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_delete_account"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_username_btn" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/activity_setting_notification_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:text="@string/notification"
+        android:textSize="15sp"
+        android:theme="@style/SwitchStyle"
+        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_delete_account"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_username_edit_text"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_username_edit_text"
+        tools:checked="true" />
+
+</android.support.constraint.ConstraintLayout>

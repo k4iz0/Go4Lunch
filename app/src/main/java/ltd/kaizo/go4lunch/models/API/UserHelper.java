@@ -124,6 +124,10 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
 
     }
+ public static Task<Void> updateEmail(String email, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("email", email);
+
+    }
 
     // --- DELETE ---
 

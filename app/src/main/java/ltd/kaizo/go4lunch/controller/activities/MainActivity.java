@@ -287,10 +287,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else {
             username = currentUser.getUsername();
         }
-        if (TextUtils.isEmpty(getCurrentUser().getEmail())) {
+        if (TextUtils.isEmpty(currentUser.getEmail())) {
             email = "no email found";
         } else {
-            email = getCurrentUser().getEmail();
+            email = currentUser.getEmail();
         }
         if (TextUtils.isEmpty(currentUser.getUrlPicture())) {
             avatarUrl = "";

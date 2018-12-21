@@ -3,7 +3,6 @@ package ltd.kaizo.go4lunch.controller.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
@@ -20,6 +19,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import ltd.kaizo.go4lunch.R;
@@ -34,11 +36,12 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
  */
 public class SettingsActivity extends BaseActivity {
 
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     /**
      * The constant DELETE_USER_TASK.
      */
     private static final int DELETE_USER_TASK = 20;
-    CoordinatorLayout activitySettingLayout;
     /**
      * The Toolbar.
      */
@@ -49,12 +52,19 @@ public class SettingsActivity extends BaseActivity {
      */
     @BindView(R.id.activity_setting_notification_switch)
     SwitchCompat notificationSwitch;
+    @BindView(R.id.activity_setting_username_edit_text)
+    EditText usernameEditText;
+    @BindView(R.id.activity_setting_email_edittext)
+    EditText emailEditText;
     /**
      * The Tag.
      */
-    @BindView(R.id.activity_setting_username_edit_text)
-    EditText usernameEditText;
     private String TAG = getClass().getSimpleName();
+
+    public static boolean validateEmail(String emailStr) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
+        return matcher.find();
+    }
 
     @Override
     public int getFragmentLayout() {
@@ -65,7 +75,6 @@ public class SettingsActivity extends BaseActivity {
     public void configureDesign() {
         this.configureToolbar();
         this.configureNotificationSwitch();
-        activitySettingLayout = findViewById(R.id.activity_setting_coordinator_layout);
     }
 
     /**
@@ -92,13 +101,13 @@ public class SettingsActivity extends BaseActivity {
      * Configure on click update username button.
      */
     @OnClick(R.id.activity_setting_update_username_btn)
-    public void configureOnClickUpdateUsernameButton(final View view) {
+    public void configureOnClickUpdateUsernameButton() {
         if (isUsernameValid()) {
             UserHelper.updateUsername(usernameEditText.getText().toString(), getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.update_usermane_success) + " " + usernameEditText.getText().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), getString(R.string.update_usermane_success) + " : " + usernameEditText.getText().toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -110,6 +119,34 @@ public class SettingsActivity extends BaseActivity {
         } else {
             Toast.makeText(this, getString(R.string.updateUsernameError), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * configure on click update email button
+     */
+    @OnClick(R.id.activity_setting_update_email_btn)
+    public void configureOnClickUpdateEmailButton() {
+        if (isEmailValid()) {
+            UserHelper.updateEmail(emailEditText.getText().toString(), getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getApplicationContext(), getString(R.string.update_email_success) + " : " + emailEditText.getText().toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_unknown_error), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(getApplicationContext(), getString(R.string.updateEmailError), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isEmailValid() {
+        return emailEditText.getText().length() > 0 && validateEmail(emailEditText.getText().toString());
     }
 
     /**
@@ -191,7 +228,6 @@ public class SettingsActivity extends BaseActivity {
             }
         };
     }
-
 
     /**
      * Configure toolbar.

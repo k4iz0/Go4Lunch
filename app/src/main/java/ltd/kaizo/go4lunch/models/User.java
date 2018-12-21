@@ -19,6 +19,10 @@ public class User {
      */
     private String username;
     /**
+     * The Email.
+     */
+    private String email;
+    /**
      * The Chosen restaurant.
      */
     private String ChosenRestaurant;
@@ -86,6 +90,14 @@ public class User {
      */
     public void setChosenRestaurant(String chosenRestaurant) {
         ChosenRestaurant = chosenRestaurant;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     /**
