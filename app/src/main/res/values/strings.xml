@@ -129,5 +129,6 @@
     <string name="update_email">update email</string>
     <string name="update_email_success">email successfully updated to</string>
     <string name="updateEmailError">please enter a valid address email</string>
+    <string name="with">with</string>
 
 </resources>

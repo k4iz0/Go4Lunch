@@ -12,10 +12,22 @@ import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
+/**
+ * The type Place formater test.
+ */
 public class PlaceFormaterTest {
+    /**
+     * The Place formater.
+     */
     private PlaceFormater placeFormater;
+    /**
+     * The Mocked location.
+     */
     private Location mockedLocation = mock(Location.class);
 
+    /**
+     * Sets .
+     */
     @Before
     public void setup() {
         String apiData = "{\n" +
@@ -252,6 +264,9 @@ public class PlaceFormaterTest {
         this.placeFormater = new PlaceFormater(placeDetailResult.getResult(), mockedLocation);
     }
 
+    /**
+     * Give api data to place formater should return place name data.
+     */
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlaceNameData() {
 
@@ -259,6 +274,9 @@ public class PlaceFormaterTest {
 
     }
 
+    /**
+     * Give api data to place formater should return place phone.
+     */
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlacePhone() {
 
@@ -266,6 +284,9 @@ public class PlaceFormaterTest {
 
     }
 
+    /**
+     * Give api data to place formater should return place id.
+     */
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlaceId() {
 
@@ -273,6 +294,9 @@ public class PlaceFormaterTest {
 
     }
 
+    /**
+     * Give api data to place formater should return place address.
+     */
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlaceAddress() {
 
@@ -280,19 +304,30 @@ public class PlaceFormaterTest {
 
     }
 
+    /**
+     * Give api data to place formater should return place rate.
+     */
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlaceRate() {
 
         assertEquals(3, placeFormater.getPlaceRate());
 
     }
- @Test
+
+    /**
+     * Give api data to place formater should return closing time.
+     */
+    @Test
     public void GiveApiDataToPlaceFormaterShouldReturnClosingTime() {
 
         assertEquals("Open until 14H00", placeFormater.getOpenOrClose());
 
     }
-@Test
+
+    /**
+     * Give api data to place formater should return website.
+     */
+    @Test
     public void GiveApiDataToPlaceFormaterShouldReturnWebsite() {
 
         assertEquals("http://www.tetedegoinfre.com/", placeFormater.getWebsiteUrl());

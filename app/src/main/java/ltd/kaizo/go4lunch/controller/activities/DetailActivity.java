@@ -190,7 +190,7 @@ public class DetailActivity extends BaseActivity {
 
                 for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
-                            User tmp = documentSnapshot.toObject(User.class);
+                    User tmp = documentSnapshot.toObject(User.class);
                     switch (dc.getType()) {
                         case MODIFIED:
                             if (tmp.getUid().equalsIgnoreCase(currentUser.getUid())) {
@@ -201,7 +201,7 @@ public class DetailActivity extends BaseActivity {
                 }
             }
         });
-        }
+    }
 
     /**
      * Configure user list from firebase.
@@ -364,9 +364,10 @@ public class DetailActivity extends BaseActivity {
      * @return the user data from id
      */
     private User getUserDataFromId(String userId) {
-        User tmpUser = null;
+        User tmpUser = new User();
         for (User user : allUserList) {
             if (user.getUid().equalsIgnoreCase(userId)) {
+                Log.i(TAG, "getUserDataFromId: adding "+user.getUsername());
                 tmpUser = user;
             }
         }
@@ -505,7 +506,6 @@ public class DetailActivity extends BaseActivity {
         this.joiningMatesAdapter = new JoiningMatesAdapter(this.userList, Glide.with(this));
         this.recyclerView.setAdapter(joiningMatesAdapter);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
     }
 
     /**

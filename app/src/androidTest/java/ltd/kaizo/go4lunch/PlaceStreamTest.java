@@ -10,8 +10,14 @@ import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * The type Place stream test.
+ */
 public class PlaceStreamTest {
 
+    /**
+     * Stream fetch nearby restaurant response should be ok.
+     */
     @Test
     public void streamFetchNearbyRestaurantResponseShouldBeOK() {
         Observable<PlaceApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurant("48.733333,-3.466667");
@@ -27,6 +33,9 @@ public class PlaceStreamTest {
 
     }
 
+    /**
+     * Stream fetch place detail response should be ok.
+     */
     @Test
     public void streamFetchPlaceDetailResponseShouldBeOK() {
         Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchPlaceDetail("ChIJ264QumksEkgRyrZAcMn-Zus");
@@ -42,6 +51,9 @@ public class PlaceStreamTest {
 
     }
 
+    /**
+     * Stream fetch nearby restaurant and get place detail response should be ok.
+     */
     @Test
     public void streamFetchNearbyRestaurantAndGetPlaceDetailResponseShouldBeOK() {
         Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail("48.733333,-3.466667");

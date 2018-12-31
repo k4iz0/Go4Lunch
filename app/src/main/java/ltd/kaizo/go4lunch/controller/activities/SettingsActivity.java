@@ -36,6 +36,9 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
  */
 public class SettingsActivity extends BaseActivity {
 
+    /**
+     * The constant VALID_EMAIL_ADDRESS_REGEX.
+     */
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     /**
@@ -52,8 +55,14 @@ public class SettingsActivity extends BaseActivity {
      */
     @BindView(R.id.activity_setting_notification_switch)
     SwitchCompat notificationSwitch;
+    /**
+     * The Username edit text.
+     */
     @BindView(R.id.activity_setting_username_edit_text)
     EditText usernameEditText;
+    /**
+     * The Email edit text.
+     */
     @BindView(R.id.activity_setting_email_edittext)
     EditText emailEditText;
     /**
@@ -61,6 +70,12 @@ public class SettingsActivity extends BaseActivity {
      */
     private String TAG = getClass().getSimpleName();
 
+    /**
+     * Validate email boolean.
+     *
+     * @param emailStr the email str
+     * @return the boolean
+     */
     public static boolean validateEmail(String emailStr) {
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailStr);
         return matcher.find();
@@ -145,6 +160,11 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Is email valid boolean.
+     *
+     * @return the boolean
+     */
     private boolean isEmailValid() {
         return emailEditText.getText().length() > 0 && validateEmail(emailEditText.getText().toString());
     }
@@ -153,7 +173,7 @@ public class SettingsActivity extends BaseActivity {
      * return true if the username is bigger than 2 characters
      * and different from previous username
      *
-     * @return Boolean
+     * @return Boolean boolean
      */
     private Boolean isUsernameValid() {
         return usernameEditText.getText().length() > 2 && !usernameEditText.getText().equals(getCurrentUser().getDisplayName());

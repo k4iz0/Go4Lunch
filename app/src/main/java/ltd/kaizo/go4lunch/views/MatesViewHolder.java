@@ -1,8 +1,6 @@
 package ltd.kaizo.go4lunch.views;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -59,7 +57,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
             matesTextView.setText(user.getUsername());
             matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.decideYet));
             matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.grey));
-            matesTextView.setTypeface(null,Typeface.ITALIC);
+            matesTextView.setTypeface(null, Typeface.ITALIC);
             itemView.setClickable(false);
         } else {
             ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);

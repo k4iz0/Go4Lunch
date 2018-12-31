@@ -131,6 +131,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Chosen restaurant id.
      */
     private String chosenRestaurantId = "";
+    /**
+     * The Current user.
+     */
     private User currentUser;
 
     @Override
@@ -154,6 +157,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * Configure current user.
+     */
     private void configureCurrentUser() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -272,6 +278,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return true;
 
     }
+
     /**
      * Update nav header design.
      */

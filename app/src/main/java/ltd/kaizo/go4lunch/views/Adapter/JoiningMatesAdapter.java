@@ -3,6 +3,7 @@ package ltd.kaizo.go4lunch.views.Adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MatesViewHolder holder, int position) {
+
         holder.updateViewWithUserDataForJoiningList(this.userList, position, glide);
     }
 
@@ -71,6 +73,7 @@ public class JoiningMatesAdapter extends RecyclerView.Adapter<MatesViewHolder> {
      */
     public void setUserList(ArrayList<User> userList) {
         this.userList = userList;
+        Log.i("joiningMatesAdapter", "setUserList: "+userList.size());
         notifyDataSetChanged();
     }
 }

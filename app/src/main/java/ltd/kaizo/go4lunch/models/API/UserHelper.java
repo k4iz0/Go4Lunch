@@ -50,6 +50,7 @@ public class UserHelper {
      * @param uid        the uid
      * @param username   the username
      * @param urlPicture the url picture
+     * @param email      the email
      * @return the task
      */
     public static Task<Void> createUser(String uid, String username, String urlPicture, String email) {
@@ -119,12 +120,28 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayUnion(restaurantId));
 
     }
-    // --- UPDATE ---
+
+    /**
+     * Update username task.
+     *
+     * @param username the username
+     * @param uid      the uid
+     * @return the task
+     */
+// --- UPDATE ---
     public static Task<Void> updateUsername(String username, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("username", username);
 
     }
- public static Task<Void> updateEmail(String email, String uid) {
+
+    /**
+     * Update email task.
+     *
+     * @param email the email
+     * @param uid   the uid
+     * @return the task
+     */
+    public static Task<Void> updateEmail(String email, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("email", email);
 
     }

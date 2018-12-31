@@ -47,5 +47,6 @@
     <string name="update_email">mise à jour de l\'email</string>
     <string name="update_email_success">email mis à jour avec succès</string>
     <string name="updateEmailError">merci de rentrer une adresse email valide</string>
+    <string name="with">avec</string>
 
 </resources>

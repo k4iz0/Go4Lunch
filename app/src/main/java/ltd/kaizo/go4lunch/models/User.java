@@ -47,6 +47,7 @@ public class User {
      * @param uid        the uid
      * @param username   the username
      * @param urlPicture the url picture
+     * @param email      the email
      */
     public User(String uid, String username, String urlPicture, String email) {
         this.email =email;
@@ -93,10 +94,20 @@ public class User {
         ChosenRestaurant = chosenRestaurant;
     }
 
+    /**
+     * Gets email.
+     *
+     * @return the email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Sets email.
+     *
+     * @param email the email
+     */
     public void setEmail(String email) {
         this.email = email;
     }

@@ -126,17 +126,18 @@ public class NotificationsService extends FirebaseMessagingService {
                                             }
                                         }
                                         //create message
-                                        String message = getString(R.string.going_to_lunch) +
+                                        StringBuilder message = new StringBuilder(getString(R.string.going_to_lunch) +
+                                                " "+
                                                 placeName + " \n" +
-                                                placeAddress + " \n";
+                                                placeAddress + " \n");
 
                                         if (joiningUser.size() > 0) {
-                                            message += " with ";
+                                            message.append(getString(R.string.with));
                                             for (User user : joiningUser) {
-                                                message += " " + user.getUsername() + " \n";
+                                                message.append(" ").append(user.getUsername()).append(" \n");
                                             }
                                         }
-                                        sendVisualNotification(message, restaurant.getPlaceFormater());
+                                        sendVisualNotification(message.toString(), restaurant.getPlaceFormater());
                                     }
                                 }
                             });
