@@ -1,21 +1,17 @@
 package ltd.kaizo.go4lunch.views;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.Restaurant;
-import ltd.kaizo.go4lunch.views.Adapter.PlaceRecycleAdapter;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
@@ -96,22 +92,29 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
      * @param glide      the glide
      */
     public void updateViewWithRestaurant(Restaurant restaurant, RequestManager glide) {
+
         placeName.setText(restaurant.getPlaceFormater().getPlaceName());
+
         placeAdress.setText(restaurant.getPlaceFormater().getPlaceAddress());
+
         this.displayRatingStars(restaurant.getPlaceFormater().getPlaceRate());
+
+        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
+
         String photoUrl = "";
+
         if (!restaurant.getPlaceFormater().getPlacePhoto().equals("")) {
             photoUrl = placePhotoRequestUrl + restaurant.getPlaceFormater().getPlacePhoto() + "&key=" + apiKey;
         }
-        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
+
         glide.load(photoUrl)
                 .apply(bitmapTransform(new RoundedCorners(15)).error(R.drawable.resto_default))
                 .into(this.placePhoto);
 
         placeHours.setText(restaurant.getPlaceFormater().getOpenOrClose());
-        if (restaurant.getUserList().size() > 0) {
+
             this.configureMatesIcon(restaurant.getUserList().size());
-        }
+
 
     }
 
@@ -143,10 +146,16 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
      * @param nb the nb
      */
     private void configureMatesIcon(int nb) {
-        personNumber.setText("(" + nb + ")");
-        personNumber.setVisibility(View.VISIBLE);
-        personIcon.setVisibility(View.VISIBLE);
-    }
+        if (nb > 0) {
+            personNumber.setText("(" + nb + ")");
+            personNumber.setVisibility(View.VISIBLE);
+            personIcon.setVisibility(View.VISIBLE);
+        } else {
+            personNumber.setText("");
+            personNumber.setVisibility(View.GONE);
+            personIcon.setVisibility(View.GONE);
+        }
+        }
 
 
 }
