@@ -50,8 +50,10 @@ import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
+import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
+import ltd.kaizo.go4lunch.models.User;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
@@ -194,7 +196,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     /**
      * Gets location permission.
      */
-//****************************
+    //****************************
     //*******  PERMISSIONS *******
     //****************************
     private void getLocationPermission() {
@@ -410,6 +412,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     protected void onStart() {
                         super.onStart();
                         resetRestaurantListFromFirestore();
+                        resetUserRestaurantChoiceFromFirestore();
                         placeDetailList = new ArrayList<>();
                     }
 
@@ -481,6 +484,30 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                 Log.i(TAG, "onFailure: an error as occurred " + e);
             }
         });
+    }
+    /**
+     * Reset user 's choice restaurant from firestore.
+     */
+    private void resetUserRestaurantChoiceFromFirestore() {
+        UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    List<User> tmpUser= task.getResult().toObjects(User.class);
+                    for (User user : tmpUser) {
+                        Log.i(TAG, "onComplete: update ChosenRestaurant for "+user.getUsername());
+                        UserHelper.updateChosenRestaurant("", user.getUid());
+                    }
+                }
+            }
+
+    }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.i(TAG, "onFailure: an error as occurred " + e);
+            }
+        });
+
     }
 
     /**
