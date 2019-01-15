@@ -42,6 +42,7 @@ import ltd.kaizo.go4lunch.models.User;
 import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getUserListFromSharedPreferences;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 /**
@@ -169,7 +170,7 @@ public class DetailActivity extends BaseActivity {
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.getResult() != null) {
+                if (task.isSuccessful()) {
                     currentUser = task.getResult().toObject(User.class);
                     updateUiWithPlaceData();
                     firebaseListener();
@@ -369,13 +370,18 @@ public class DetailActivity extends BaseActivity {
      * @return the user data from id
      */
     private User getUserDataFromId(String userId) {
-        User tmpUser = new User();
+        User tmpUser = new User("1", "test", "", "test@test.fr");
+        Log.i(TAG, "getUserDataFromId: alluserList " + allUserList.size());
+        if (allUserList.size() == 0) {
+            allUserList = getUserListFromSharedPreferences(ALL_USER_LIST);
+        }
         for (User user : allUserList) {
             if (user.getUid().equalsIgnoreCase(userId)) {
-                Log.i(TAG, "getUserDataFromId: adding "+user.getUsername());
+                Log.i(TAG, "getUserDataFromId: adding " + user.getUsername());
                 tmpUser = user;
             }
         }
+        Log.i(TAG, "getUserDataFromId: return " + tmpUser.getUsername());
         return tmpUser;
     }
     //****************************
@@ -458,6 +464,7 @@ public class DetailActivity extends BaseActivity {
                     RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+
                             Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
                             //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
@@ -468,23 +475,26 @@ public class DetailActivity extends BaseActivity {
         });
 
     }
+
     /**
      * Remove user from restaurant and add a new one
      */
- private void removePreviousChoiceAndAddUserToRestaurant() {
+    private void removePreviousChoiceAndAddUserToRestaurant() {
 
         RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    RestaurantHelper.deleteUserFromRestaurant(restaurant.getPlaceFormater().getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+
                             Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
+                            addUserToRestaurant();
                             //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
-                            addUserToRestaurant();
+
                         }
                     });
                 }

@@ -197,17 +197,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-//            try {
-//                Intent intent =
-//                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-//                                .build(this);
-//                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-//            } catch (GooglePlayServicesRepairableException e) {
-//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesRepairableException " + e);
-//            } catch (GooglePlayServicesNotAvailableException e) {
-//                Log.e(TAG, "onOptionsItemSelected: GooglePlayServicesNotAvailableException " + e);
-//            }
-//            autoCompleteTextView = findViewById(R.id.autocomplete_textview);
             if (autocompleteLayout.getVisibility() == View.GONE) {
                 this.updateAutoCompleteDesign();
                 final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
