@@ -54,7 +54,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
      */
     public void updateViewWithUserData(User user, RequestManager glide) {
         if (user.getChosenRestaurant().equalsIgnoreCase("")) {
-            matesTextView.setText(user.getUsername());
+
             matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.decideYet));
             matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.grey));
             matesTextView.setTypeface(null, Typeface.ITALIC);
@@ -67,9 +67,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                     if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
                         restaurantName = place.getPlaceName();
                     }
-                    matesTextView.setText(user.getUsername() + " " + restaurantName);
-
-                    matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + " " + restaurantName);
+                   matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + " " + restaurantName);
                 }
             }
 

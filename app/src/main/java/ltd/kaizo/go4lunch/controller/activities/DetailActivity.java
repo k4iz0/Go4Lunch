@@ -338,7 +338,12 @@ public class DetailActivity extends BaseActivity {
                     floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_plus_one));
                     isFabPressed = false;
                 } else {
-                    addUserToRestaurant();
+                    if (currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
+                        addUserToRestaurant();
+                    } else {
+                        removePreviousChoiceAndAddUserToRestaurant();
+                    }
+
                     addRestaurantToUser();
                     floatingActionButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_check));
                     isFabPressed = true;
@@ -413,9 +418,6 @@ public class DetailActivity extends BaseActivity {
      * Add user to restaurant.
      */
     private void addUserToRestaurant() {
-        if (!currentUser.getChosenRestaurant().equalsIgnoreCase("")) {
-            this.removeUserFromRestaurant();
-        }
 
         Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
         RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
@@ -459,6 +461,30 @@ public class DetailActivity extends BaseActivity {
                             Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
                             //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+    /**
+     * Remove user from restaurant and add a new one
+     */
+ private void removePreviousChoiceAndAddUserToRestaurant() {
+
+        RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                    RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
+                            //remove chosen restaurant from user
+                            UserHelper.updateChosenRestaurant("", currentUser.getUid());
+                            addUserToRestaurant();
                         }
                     });
                 }
