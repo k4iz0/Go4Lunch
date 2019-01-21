@@ -16,6 +16,7 @@
 
 
     <application
+        android:name=".models.utils.LeakCanaryApplication"
         android:allowBackup="true"
         android:icon="@drawable/go4lunch_icon"
         android:label="@string/app_name"

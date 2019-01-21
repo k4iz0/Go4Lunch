@@ -80,6 +80,8 @@ dependencies {
     //LEAKCANARY
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.1'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.1'
+    //JODATIME
+    implementation 'joda-time:joda-time:2.10.1'
     //ANDROID JOB
     implementation 'com.evernote:android-job:1.2.6'
     //Mockito

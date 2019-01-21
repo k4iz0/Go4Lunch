@@ -13,6 +13,6 @@ public class AndroidJobCreator implements JobCreator {
     @Nullable
     @Override
     public Job create(@NonNull String tag) {
-        return null;
+        return new ResetUserChoiceJob();
     }
 }

@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.evernote.android.job.JobManager;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -50,6 +51,8 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.models.utils.androidJob.AndroidJobCreator;
+import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
 import ltd.kaizo.go4lunch.views.Adapter.PlaceAutoCompleteArrayAdapter;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
@@ -72,6 +75,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The constant SIGN_OUT_TASK.
      */
     private static final int SIGN_OUT_TASK = 10;
+    /**
+     * The Job id.
+     */
+    private int jobID;
+
     /**
      * The Coordinator layout.
      */
@@ -154,7 +162,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureNavigationView();
             this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
+            this.configureAndroidJob();
         }
+    }
+
+    private void configureAndroidJob() {
+        JobManager.create(getApplicationContext()).addJobCreator(new AndroidJobCreator());
+        jobID = ResetUserChoiceJob.schedulePeriodic();
     }
 
     /**
