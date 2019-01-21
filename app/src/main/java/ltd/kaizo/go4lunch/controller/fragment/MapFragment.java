@@ -210,14 +210,10 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                 locationPermissionsGranted = true;
                 this.initMap();
             } else {
-                ActivityCompat.requestPermissions(getActivity(),
-                        permissions,
-                        LOCATION_PERMISSION_REQUEST_CODE);
+                requestPermissions(permissions, LOCATION_PERMISSION_REQUEST_CODE);
             }
         } else {
-            ActivityCompat.requestPermissions(getActivity(),
-                    permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
+            requestPermissions(permissions, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
 
@@ -228,8 +224,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             case LOCATION_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionsGranted = true;
-                    //TODO tester si ça fonctionne
-                    this.getDeviceLocation();
+                    this.initMap();
                 }
         }
 

@@ -113,7 +113,7 @@ public class PlaceFormater implements Parcelable {
     public PlaceFormater(PlaceDetailResult placeDetailResult, Location currentLocation) {
         this.result = placeDetailResult;
         this.id = (this.result.getName() + this.result.getVicinity().toLowerCase());
-        //TODO changer ID
+        this.id = this.id.replaceAll("[^\\x20-\\x7e]", "").replaceAll("/", "");
         this.lat = result.getGeometry().getLocation().getLat();
         this.lng = result.getGeometry().getLocation().getLng();
         this.placeAddress = result.getVicinity();
