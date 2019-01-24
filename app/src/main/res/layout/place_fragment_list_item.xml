@@ -7,8 +7,8 @@
 
     <TextView
         android:id="@+id/item_list_name_textview"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
         android:layout_marginStart="8dp"
         android:ellipsize="end"
         android:maxLines="1"
@@ -16,33 +16,29 @@
         android:textSize="14sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/item_list_place_distance_textview"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="Chez Mario" />
 
     <TextView
         android:id="@+id/item_list_place_adress_textview"
-        android:layout_width="240dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/item_list_place_opening_hour_textview"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_list_name_textview"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintBaseline_toBaselineOf="@+id/item_list_person_number_textview"
+        app:layout_constraintStart_toStartOf="@+id/item_list_name_textview"
+        app:layout_constraintVertical_chainStyle="spread_inside"
         tools:text="Rue d'italie" />
 
     <TextView
         android:id="@+id/item_list_place_opening_hour_textview"
-        android:layout_width="240dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/item_list_name_textview"
         app:layout_constraintTop_toBottomOf="@+id/item_list_place_adress_textview"
         tools:text="Open until 7pm" />
 
@@ -52,9 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintEnd_toStartOf="@id/barrier"
+        app:layout_constraintHorizontal_bias="0.9"
         app:layout_constraintStart_toEndOf="@+id/item_list_name_textview"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="200m" />
@@ -69,74 +64,64 @@
         android:contentDescription="@string/logo"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/item_list_star1_imageview"
+        app:layout_constraintStart_toStartOf="@id/barrier"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@mipmap/ic_launcher" />
 
     <ImageView
         android:id="@+id/item_list_place_person_icon"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/person"
         android:src="@drawable/ic_person"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/item_list_place_adress_textview"
-        app:layout_constraintTop_toBottomOf="@+id/item_list_place_distance_textview"
-        app:layout_constraintVertical_bias="0.268"
         android:visibility="invisible"
-        tools:visibility="visible"/>
+        app:layout_constraintBottom_toBottomOf="@+id/item_list_place_photo_imageview"
+        app:layout_constraintEnd_toStartOf="@+id/item_list_person_number_textview"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_list_place_photo_imageview"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/item_list_person_number_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/item_list_place_adress_textview"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/item_list_place_adress_textview"
-        tools:text="(2)"
         android:visibility="invisible"
-        tools:visibility="visible"/>
+        app:layout_constraintBottom_toBottomOf="@+id/item_list_place_person_icon"
+        app:layout_constraintEnd_toStartOf="@id/barrier"
+        app:layout_constraintTop_toTopOf="@+id/item_list_place_person_icon"
+        tools:text="(2)"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/item_list_star1_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintStart_toEndOf="@+id/item_list_star2_imageview"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.917"
+        app:layout_constraintBottom_toBottomOf="@+id/item_list_place_photo_imageview"
+        app:layout_constraintEnd_toEndOf="@+id/item_list_place_distance_textview"
         tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/item_list_star2_imageview"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="276dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/item_list_star1_imageview"
         app:layout_constraintEnd_toStartOf="@+id/item_list_star1_imageview"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/item_list_star3_imageview"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.917"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_list_star1_imageview"
+        app:layout_constraintVertical_bias="0.0"
         tools:visibility="visible" />
 
     <ImageView
@@ -144,27 +129,24 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginStart="248dp"
-        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:contentDescription="@string/star"
         android:src="@drawable/ic_star"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/item_list_star1_imageview"
         app:layout_constraintEnd_toStartOf="@+id/item_list_star2_imageview"
-        app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toEndOf="@+id/item_list_place_opening_hour_textview"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912"
+        app:layout_constraintTop_toTopOf="@+id/item_list_star1_imageview"
+        app:layout_constraintVertical_bias="0.0"
         tools:visibility="visible" />
 
     <android.support.constraint.Barrier
         android:id="@+id/barrier"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:barrierDirection="left"
         app:constraint_referenced_ids="item_list_place_photo_imageview"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:layout_editor_absoluteX="411dp" />
 
 </android.support.constraint.ConstraintLayout>

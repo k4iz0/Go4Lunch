@@ -7,20 +7,23 @@ import com.evernote.android.job.DailyJob;
 import com.evernote.android.job.JobRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
 public class ResetUserChoiceJob extends DailyJob {
     static final String TAG = "resetUserChoiceJob_job_tag";
 
     public static int schedulePeriodic() {
-         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
+        return new JobRequest.Builder(ResetUserChoiceJob.TAG)
                 .setPeriodic(TimeUnit.HOURS.toMillis(18))
                 .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .setUpdateCurrent(true)
@@ -57,5 +60,18 @@ public class ResetUserChoiceJob extends DailyJob {
             }
         });
 
+        RestaurantHelper.getAllRestaurantsFromFirestore().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+
+                    for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
+                        RestaurantHelper.updateUserFromRestaurant(restaurant.getPlaceId(), "");
+                    }
+                }
+            }
+        });
+
     }
+
 }

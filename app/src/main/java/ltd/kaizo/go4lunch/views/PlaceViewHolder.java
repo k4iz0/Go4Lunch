@@ -14,6 +14,7 @@ import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.Restaurant;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
 /**
@@ -108,7 +109,7 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
         }
 
         glide.load(photoUrl)
-                .apply(bitmapTransform(new RoundedCorners(15)).error(R.drawable.resto_default))
+                .apply(centerCropTransform().error(R.drawable.resto_default))
                 .into(this.placePhoto);
 
         placeHours.setText(restaurant.getPlaceFormater().getOpenOrClose());
@@ -152,8 +153,8 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
             personIcon.setVisibility(View.VISIBLE);
         } else {
             personNumber.setText("");
-            personNumber.setVisibility(View.GONE);
-            personIcon.setVisibility(View.GONE);
+            personNumber.setVisibility(View.INVISIBLE);
+            personIcon.setVisibility(View.INVISIBLE);
         }
         }
 

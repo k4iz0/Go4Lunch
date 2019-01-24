@@ -16,10 +16,10 @@ public class LeakCanaryApplication extends Application {
         super.onCreate();
 
 //        uncomment for debug purpose
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
-        LeakCanary.install(this);
+//        if (LeakCanary.isInAnalyzerProcess(this)) {
+//            return;
+//        }
+//        LeakCanary.install(this);
     }
 
 }

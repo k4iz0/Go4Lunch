@@ -441,7 +441,7 @@ public class DetailActivity extends BaseActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             currentUser.setChosenRestaurant(restaurant.getPlaceId());
                             UserHelper.updateChosenRestaurant(restaurant.getPlaceId(), currentUser.getUid());
-                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " has choose " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
+
                             joiningMatesAdapter.notifyDataSetChanged();
                         }
                     });
@@ -460,13 +460,9 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
                     RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-
-                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
-                            //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
                         }
                     });
@@ -489,8 +485,6 @@ public class DetailActivity extends BaseActivity {
                     RestaurantHelper.deleteUserFromRestaurant(restaurant.getPlaceFormater().getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-
-                            Toast.makeText(getApplicationContext(), getCurrentUser().getDisplayName() + " remove from " + restaurant.getPlaceFormater().getPlaceName(), Toast.LENGTH_SHORT).show();
                             addUserToRestaurant();
                             //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
