@@ -68,6 +68,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                         restaurantName = place.getPlaceName();
                     }
                    matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + " " + restaurantName);
+                    matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.black));
                 }
             }
 

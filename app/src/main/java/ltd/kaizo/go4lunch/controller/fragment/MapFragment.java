@@ -50,6 +50,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
+import ltd.kaizo.go4lunch.controller.activities.MainActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
@@ -489,7 +490,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
             // sort and save the list
             Collections.sort(placeDetailList, PlaceFormater.compareToByDistance());
             write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
-
             //add marker on map
             for (PlaceFormater place : placeDetailList) {
                 Timber.i("place for marker = " + place.getPlaceName());
@@ -515,7 +515,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                     Restaurant tmp = documentSnapshot.toObject(Restaurant.class);
 
                     for (PlaceFormater place : placeDetailList) {
-                        Timber.i(" modified ");
                         if (place.getId().equalsIgnoreCase(tmp.getPlaceFormater().getId())) {
 
                             place.addMarkerFromList(googleMap, place, !tmp.getUserList().isEmpty());

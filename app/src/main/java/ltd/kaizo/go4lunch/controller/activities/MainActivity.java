@@ -13,7 +13,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,11 +76,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private static final int SIGN_OUT_TASK = 10;
     /**
-     * The Job id.
-     */
-    private int jobID;
-
-    /**
      * The Coordinator layout.
      */
     @BindView(R.id.activity_main_coordinator_layout)
@@ -129,6 +123,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     ImageView avatarImageView;
     /**
+     * The Job id.
+     */
+    private int jobID;
+    /**
      * The Tag.
      */
     private String TAG = "MainActivity";
@@ -163,7 +161,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureNavigationView();
             this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
-//            this.configureAndroidJob();
+            this.configureAndroidJob();
         }
     }
 
@@ -216,10 +214,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 this.updateAutoCompleteDesign();
                 final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
                 if (getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY) != null) {
+                    placeFormaterList.clear();
                     placeFormaterList.addAll(getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY));
-
                 }
-                PlaceAutoCompleteArrayAdapter adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
+                PlaceAutoCompleteArrayAdapter adapter;
+                adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
                 autoCompleteTextView.setAdapter(adapter);
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -257,6 +256,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             }
         });
     }
+
     @Override
 
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -341,7 +341,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                         Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
 
                                         Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                                        Log.i(TAG, "onComplete: chosenrestaurant " + chosenRestaurant.getPlaceFormater().getPlaceName());
+                                        Timber.i("onComplete: chosenrestaurant " + chosenRestaurant.getPlaceFormater().getPlaceName());
                                         detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
                                         startActivity(detailActivity);
                                     }
@@ -579,15 +579,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (resultCode == RESULT_OK) {
             Place place = PlaceAutocomplete.getPlace(this, data);
-            Log.i(TAG, "PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
+            Timber.i("PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
             this.updateMapWithPlace(place.getLatLng());
         } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
             Status status = PlaceAutocomplete.getStatus(this, data);
             showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
-            Log.i(TAG, status.getStatusMessage());
+            Timber.i(status.getStatusMessage());
 
         } else if (resultCode == RESULT_CANCELED) {
-            Log.i(TAG, "handlePlaceAutoCompleteResponse: cancel");
+            Timber.i("handlePlaceAutoCompleteResponse: cancel");
             finish();
             startActivity(getIntent());
         }

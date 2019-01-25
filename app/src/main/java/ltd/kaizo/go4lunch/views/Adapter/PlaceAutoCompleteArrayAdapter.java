@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
+import timber.log.Timber;
 
 /**
  * The type Place auto complete array adapter.
@@ -41,7 +42,7 @@ public class PlaceAutoCompleteArrayAdapter extends ArrayAdapter<PlaceFormater> {
                 for (PlaceFormater place : placeFormaterListFull) {
                     if (place.getPlaceName().toLowerCase().contains(filterPattern)) {
                         suggestions.add(place);
-                        Toast.makeText(getContext(), "place filter = " + place.getPlaceName(), Toast.LENGTH_SHORT).show();
+                        Timber.i("place filter = " + place.getPlaceName());
                     }
                 }
             }
@@ -72,7 +73,8 @@ public class PlaceAutoCompleteArrayAdapter extends ArrayAdapter<PlaceFormater> {
      */
     public PlaceAutoCompleteArrayAdapter(@NonNull Context context, @NonNull ArrayList<PlaceFormater> placeFormaterList) {
         super(context, 0, placeFormaterList);
-        placeFormaterListFull = new ArrayList<>(placeFormaterList);
+        placeFormaterListFull = new ArrayList<>();
+        placeFormaterListFull.addAll(placeFormaterList);
     }
 
     @NonNull

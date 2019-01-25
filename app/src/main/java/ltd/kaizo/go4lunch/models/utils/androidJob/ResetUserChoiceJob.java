@@ -1,7 +1,6 @@
 package ltd.kaizo.go4lunch.models.utils.androidJob;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.evernote.android.job.DailyJob;
 import com.evernote.android.job.JobRequest;
@@ -9,22 +8,22 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import timber.log.Timber;
 
 public class ResetUserChoiceJob extends DailyJob {
     static final String TAG = "resetUserChoiceJob_job_tag";
 
     public static int schedulePeriodic() {
         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(16)+TimeUnit.MINUTES.toMillis(32)+TimeUnit.SECONDS.toMillis(5),TimeUnit.MINUTES.toMillis(5))
+                .setPeriodic(TimeUnit.HOURS.toMillis(18) + TimeUnit.MINUTES.toMillis(33), TimeUnit.MINUTES.toMillis(20))
                 .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .setUpdateCurrent(true)
                 .build()
@@ -42,14 +41,18 @@ public class ResetUserChoiceJob extends DailyJob {
      * Reset user 's choice restaurant from firestore.
      */
     private void resetUserRestaurantChoiceFromFirestore() {
-        Log.i("resetUserRestaur", "resetUserRestaurantChoiceFromFirestore: entree dans la fonction");
+        Timber.i("resetUserRestaurantChoiceFromFirestore: entree dans la fonction");
         UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     List<User> tmpUser = task.getResult().toObjects(User.class);
+                    String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     for (User user : tmpUser) {
-                        UserHelper.updateChosenRestaurant("", user.getUid());
+                        if (user.getUid().equalsIgnoreCase(currentUserId)) {
+                            UserHelper.updateChosenRestaurant("", user.getUid());
+                            Timber.i("deleting user's choice");
+                        }
                     }
                 }
             }
@@ -57,7 +60,7 @@ public class ResetUserChoiceJob extends DailyJob {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.i("ResetJob", "onFailure: an error as occurred " + e);
+                Timber.i("onFailure: an error as occurred " + e);
             }
         });
 
@@ -67,7 +70,7 @@ public class ResetUserChoiceJob extends DailyJob {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
 
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
-                        Log.i("resetUserRestaur", "resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
+                        Timber.i("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
 
                         RestaurantHelper.updateUserFromRestaurant(restaurant.getPlaceId(), "");
                     }
