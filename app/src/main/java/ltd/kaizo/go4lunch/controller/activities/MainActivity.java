@@ -54,6 +54,7 @@ import ltd.kaizo.go4lunch.models.User;
 import ltd.kaizo.go4lunch.models.utils.androidJob.AndroidJobCreator;
 import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
 import ltd.kaizo.go4lunch.views.Adapter.PlaceAutoCompleteArrayAdapter;
+import timber.log.Timber;
 
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
@@ -162,7 +163,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureNavigationView();
             this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
-            this.configureAndroidJob();
+//            this.configureAndroidJob();
         }
     }
 

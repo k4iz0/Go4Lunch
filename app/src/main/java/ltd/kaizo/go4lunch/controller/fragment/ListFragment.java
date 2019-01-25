@@ -2,15 +2,21 @@ package ltd.kaizo.go4lunch.controller.fragment;
 
 
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,7 +48,6 @@ public class ListFragment extends BaseFragment {
      * The Restaurantlist.
      */
     private List<PlaceFormater> restaurantlist;
-
     /**
      * Instantiates a new List fragment.
      */
@@ -72,10 +77,9 @@ public class ListFragment extends BaseFragment {
      * Configure recycle view.
      */
     public void configureRecycleView() {
-        this.adapter = new PlaceRecycleAdapter(generateOptionsForAdapter(RestaurantHelper.getAllRestaurants()), Glide.with(this));
+        this.adapter = new PlaceRecycleAdapter(restaurantlist, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
     }
 
     /**
@@ -94,40 +98,16 @@ public class ListFragment extends BaseFragment {
     }
 
     /**
-     * Gets restaurant list from firestore.
+     * Gets restaurant list from sharedPreference.
      */
     private void getRestaurantListFromFirestore() {
         this.restaurantlist = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
     }
 
-    /**
-     * Generate options for adapter firestore recycler options.
-     *
-     * @param query the query
-     * @return the firestore recycler options
-     */
-    private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {
-        return new FirestoreRecyclerOptions.Builder<Restaurant>()
-                .setQuery(query, Restaurant.class)
-                .setLifecycleOwner(this)
-                .build();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
-        adapter.startListening();
+        adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
 }

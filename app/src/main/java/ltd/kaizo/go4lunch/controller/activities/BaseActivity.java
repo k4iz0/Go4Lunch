@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.utils.DataRecordHelper;
+import timber.log.Timber;
 
 /**
  * The type Base activity.
@@ -28,7 +29,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         this.setContentView(this.getFragmentLayout());
         ButterKnife.bind(this);
         DataRecordHelper.init(getApplicationContext());
-
+        Timber.plant(new Timber.DebugTree());
         this.configureDesign();
     }
 

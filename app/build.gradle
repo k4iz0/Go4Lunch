@@ -86,6 +86,8 @@ dependencies {
     implementation 'com.evernote:android-job:1.2.6'
     //Mockito
     testImplementation "org.mockito:mockito-core:2.23.4"
+    //TIMBER
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 
 }
 GoogleServicesPlugin.config.disableVersionCheck = true

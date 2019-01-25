@@ -24,7 +24,7 @@ public class ResetUserChoiceJob extends DailyJob {
 
     public static int schedulePeriodic() {
         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(18))
+                .setPeriodic(TimeUnit.HOURS.toMillis(16)+TimeUnit.MINUTES.toMillis(32)+TimeUnit.SECONDS.toMillis(5),TimeUnit.MINUTES.toMillis(5))
                 .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .setUpdateCurrent(true)
                 .build()
@@ -42,6 +42,7 @@ public class ResetUserChoiceJob extends DailyJob {
      * Reset user 's choice restaurant from firestore.
      */
     private void resetUserRestaurantChoiceFromFirestore() {
+        Log.i("resetUserRestaur", "resetUserRestaurantChoiceFromFirestore: entree dans la fonction");
         UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -66,6 +67,8 @@ public class ResetUserChoiceJob extends DailyJob {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
 
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
+                        Log.i("resetUserRestaur", "resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
+
                         RestaurantHelper.updateUserFromRestaurant(restaurant.getPlaceId(), "");
                     }
                 }

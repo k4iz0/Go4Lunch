@@ -128,16 +128,4 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayRemove(uid));
     }
 
-    /**
-     * Delete restaurant from list task.
-     *
-     * @param placeId the place id
-     * @return the task
-     */
-    public static Task<Void> deleteRestaurantFromList(String placeId) {
-
-        return RestaurantHelper.getRestaurantsCollection().document(placeId).delete();
-
-    }
-
 }

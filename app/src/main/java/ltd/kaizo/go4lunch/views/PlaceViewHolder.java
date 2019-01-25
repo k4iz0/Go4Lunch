@@ -1,19 +1,23 @@
 package ltd.kaizo.go4lunch.views;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 
-import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
 import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
 
@@ -89,34 +93,39 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
     /**
      * Update view with restaurant.
      *
-     * @param restaurant the restaurant
-     * @param glide      the glide
+     * @param place the placeformater
+     * @param glide the glide
      */
-    public void updateViewWithRestaurant(Restaurant restaurant, RequestManager glide) {
+    public void updateViewWithRestaurant(PlaceFormater place, RequestManager glide) {
 
-        placeName.setText(restaurant.getPlaceFormater().getPlaceName());
+        placeName.setText(place.getPlaceName());
 
-        placeAdress.setText(restaurant.getPlaceFormater().getPlaceAddress());
+        placeAdress.setText(place.getPlaceAddress());
 
-        this.displayRatingStars(restaurant.getPlaceFormater().getPlaceRate());
+        this.displayRatingStars(place.getPlaceRate());
 
-        placeDistance.setText(String.valueOf(restaurant.getPlaceFormater().getPlaceDistance() + "m"));
+        placeDistance.setText(String.valueOf(place.getPlaceDistance() + "m"));
 
         String photoUrl = "";
 
-        if (!restaurant.getPlaceFormater().getPlacePhoto().equals("")) {
-            photoUrl = placePhotoRequestUrl + restaurant.getPlaceFormater().getPlacePhoto() + "&key=" + apiKey;
+        if (!place.getPlacePhoto().equals("")) {
+            photoUrl = placePhotoRequestUrl + place.getPlacePhoto() + "&key=" + apiKey;
         }
 
         glide.load(photoUrl)
                 .apply(centerCropTransform().error(R.drawable.resto_default))
                 .into(this.placePhoto);
 
-        placeHours.setText(restaurant.getPlaceFormater().getOpenOrClose());
-
-            this.configureMatesIcon(restaurant.getUserList().size());
-
-
+        placeHours.setText(place.getOpenOrClose());
+        RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                    configureMatesIcon(restaurant.getUserList().size());
+                }
+            }
+        });
     }
 
     /**
@@ -156,7 +165,8 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
             personNumber.setVisibility(View.INVISIBLE);
             personIcon.setVisibility(View.INVISIBLE);
         }
-        }
+
+    }
 
 
 }

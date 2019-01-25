@@ -130,5 +130,10 @@
     <string name="update_email_success">email successfully updated to</string>
     <string name="updateEmailError">please enter a valid address email</string>
     <string name="with">with</string>
+    <string name="closes">closed</string>
+    <string name="open">Open 24/7</string>
+    <string name="open_until">Open until</string>
+    <string name="eraseData">Erase data</string>
+    <string name="data_erase_succes">data successfully erased</string>
 
 </resources>
