@@ -460,7 +460,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    RestaurantHelper.deleteUserFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    RestaurantHelper.deleteAllUsersFromRestaurant(place.getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
@@ -482,7 +482,7 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                    RestaurantHelper.deleteUserFromRestaurant(restaurant.getPlaceFormater().getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    RestaurantHelper.deleteAllUsersFromRestaurant(restaurant.getPlaceFormater().getId(), currentUser.getUid()).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             addUserToRestaurant();

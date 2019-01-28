@@ -10,6 +10,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.PlaceFormater;
@@ -95,6 +96,12 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayUnion(uid));
     }
 
+    public static Task<Void> deleteAllUsersFromRestaurant(Restaurant restaurant) {
+        ArrayList emptyArray = new ArrayList();
+        restaurant.setUserList(emptyArray);
+        return RestaurantHelper.getRestaurantsCollection().document(restaurant.getPlaceId()).set(restaurant);
+    }
+
     //--- DELETE ---
 
     /**
@@ -116,7 +123,6 @@ public class RestaurantHelper {
         return batch.commit();
     }
 
-
     /**
      * Delete user from restaurant task.
      *
@@ -124,7 +130,7 @@ public class RestaurantHelper {
      * @param uid     the uid
      * @return the task
      */
-    public static Task<Void> deleteUserFromRestaurant(String placeId, String uid) {
+    public static Task<Void> deleteAllUsersFromRestaurant(String placeId, String uid) {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayRemove(uid));
     }
 

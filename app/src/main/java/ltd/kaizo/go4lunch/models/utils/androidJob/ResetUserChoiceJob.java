@@ -3,6 +3,7 @@ package ltd.kaizo.go4lunch.models.utils.androidJob;
 import android.support.annotation.NonNull;
 
 import com.evernote.android.job.DailyJob;
+import com.evernote.android.job.Job;
 import com.evernote.android.job.JobRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -18,12 +19,12 @@ import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 import timber.log.Timber;
 
-public class ResetUserChoiceJob extends DailyJob {
+public class ResetUserChoiceJob extends Job {
     static final String TAG = "resetUserChoiceJob_job_tag";
 
     public static int schedulePeriodic() {
         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(18) + TimeUnit.MINUTES.toMillis(33), TimeUnit.MINUTES.toMillis(20))
+                .setPeriodic(TimeUnit.HOURS.toMillis(11) , TimeUnit.MINUTES.toMillis(20))
                 .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .setUpdateCurrent(true)
                 .build()
@@ -32,9 +33,10 @@ public class ResetUserChoiceJob extends DailyJob {
 
     @NonNull
     @Override
-    protected DailyJobResult onRunDailyJob(@NonNull Params params) {
+    protected Result onRunJob(@NonNull Params params) {
+        Timber.i("launching task job");
         this.resetUserRestaurantChoiceFromFirestore();
-        return DailyJobResult.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -71,8 +73,7 @@ public class ResetUserChoiceJob extends DailyJob {
 
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
                         Timber.i("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
-
-                        RestaurantHelper.updateUserFromRestaurant(restaurant.getPlaceId(), "");
+                        RestaurantHelper.deleteAllUsersFromRestaurant(restaurant);
                     }
                 }
             }
