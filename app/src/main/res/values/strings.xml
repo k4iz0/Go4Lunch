@@ -136,5 +136,6 @@
     <string name="eraseData">Erase data</string>
     <string name="data_erase_succes">data successfully erased</string>
     <string name="not_eating_nearby">is not eating nearby you</string>
+    <string name="unable_get_location">Unable to get current location  have you enable localisation on your device ?</string>
 
 </resources>

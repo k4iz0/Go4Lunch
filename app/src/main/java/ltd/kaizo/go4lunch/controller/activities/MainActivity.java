@@ -169,6 +169,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     private void configureAndroidJob() {
+        Timber.i("create task job");
         JobManager.create(getApplicationContext()).addJobCreator(new AndroidJobCreator());
         jobID = ResetUserChoiceJob.schedulePeriodic();
     }

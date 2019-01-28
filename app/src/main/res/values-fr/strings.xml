@@ -54,5 +54,7 @@
     <string name="eraseData">Effacer les données</string>
     <string name="data_erase_succes">données supprimées avec succès</string>
     <string name="not_eating_nearby">ne mange pas près de chez vous</string>
+    <string name="unable_get_location">Impossible d\'établir votre position, avez-vous activé la localisation sur votre appreil?</string>
+
 
 </resources>

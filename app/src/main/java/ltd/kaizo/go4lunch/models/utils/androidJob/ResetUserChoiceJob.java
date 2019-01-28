@@ -2,7 +2,7 @@ package ltd.kaizo.go4lunch.models.utils.androidJob;
 
 import android.support.annotation.NonNull;
 
-import com.evernote.android.job.DailyJob;
+import com.evernote.android.job.Job;
 import com.evernote.android.job.JobRequest;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,13 +15,12 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import timber.log.Timber;
 
-public class ResetUserChoiceJob extends DailyJob {
+public class ResetUserChoiceJob extends Job {
     static final String TAG = "resetUserChoiceJob_job_tag";
 
     public static int schedulePeriodic() {
         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(15) + TimeUnit.MINUTES.toMillis(47))
-                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
+                .setPeriodic(TimeUnit.HOURS.toMillis(16) + TimeUnit.MINUTES.toMillis(27), TimeUnit.MINUTES.toMillis(15))
                 .setUpdateCurrent(true)
                 .build()
                 .schedule();
@@ -29,10 +28,10 @@ public class ResetUserChoiceJob extends DailyJob {
 
     @NonNull
     @Override
-    protected DailyJobResult onRunDailyJob(@NonNull Params params) {
-        Timber.i("launching task job");
+    protected Result onRunJob(@NonNull Params params) {
+        Timber.d("launching task job");
         this.resetUserRestaurantChoiceFromFirestore();
-        return DailyJobResult.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -42,7 +41,7 @@ public class ResetUserChoiceJob extends DailyJob {
 
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         UserHelper.updateChosenRestaurant("", currentUserId);
-        Timber.i("deleting user's choice");
+        Timber.d("deleting user's choice");
 
 
         RestaurantHelper.getAllRestaurantsFromFirestore().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -51,7 +50,7 @@ public class ResetUserChoiceJob extends DailyJob {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
 
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
-                        Timber.i("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
+                        Timber.d("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
                         RestaurantHelper.deleteAllUsersFromRestaurant(restaurant);
                     }
                 }

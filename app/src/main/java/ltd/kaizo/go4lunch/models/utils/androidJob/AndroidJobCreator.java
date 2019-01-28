@@ -13,7 +13,7 @@ import com.evernote.android.job.JobCreator;
 public class AndroidJobCreator implements JobCreator {
     @Nullable
     @Override
-    public DailyJob create(@NonNull String tag) {
+    public Job create(@NonNull String tag) {
         return new ResetUserChoiceJob();
     }
 }

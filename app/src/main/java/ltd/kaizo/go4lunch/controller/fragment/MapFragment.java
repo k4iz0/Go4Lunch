@@ -275,7 +275,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                             Timber.d("onComplete: current location is null");
                             moveCamera(DEFAULT_LOCATION, DEFAULT_ZOOM);
                             if (getContext() != null) {
-                                Toast.makeText(getContext(), "Unable to get current location \nhave you enable localisation on your device ?", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), R.string.unable_get_location, Toast.LENGTH_LONG).show();
 
                             }
                         }
@@ -298,8 +298,7 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
     private void configureCurrentLocation(Location currentLocation) {
         Double previousLocationLat = read(CURRENT_LATITUDE_KEY, 0.0);
         Double previousLocationLng = read(CURRENT_LONGITUDE_KEY, 0.0);
-        Timber.i("isCurrentLocationChange: current location lat = " + currentLocation.getLatitude() + " lng = " + currentLocation.getLongitude() + "\n" +
-                "previous location lat = " + previousLocationLat + " and lng " + previousLocationLng);
+
         if (previousLocationLat == 0.0 || previousLocationLat != (currentLocation.getLatitude())) {
             write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
         }
@@ -434,7 +433,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                                     if (documentSnapshot.exists()) {
                                         //add place from Firestore to list
-                                        Timber.i("add place from Firestore to list");
                                         RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -448,7 +446,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                                         });
                                     } else {
                                         //add to firestore
-                                        Timber.i("add to Firestore");
                                         RestaurantHelper.createRestaurant(place.getId(), place).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -464,7 +461,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
                                             }
                                         });
                                     }
-                                    Timber.i("placedetaillist out size = " + placeDetailList.size());
 
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
@@ -516,7 +512,6 @@ public class MapFragment extends BaseFragment implements OnMapReadyCallback {
 
                     for (PlaceFormater place : placeDetailList) {
                         if (place.getId().equalsIgnoreCase(tmp.getPlaceFormater().getId())) {
-
                             place.addMarkerFromList(googleMap, place, !tmp.getUserList().isEmpty());
                         }
 
