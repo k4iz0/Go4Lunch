@@ -2,7 +2,6 @@ package ltd.kaizo.go4lunch.views;
 
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,13 +52,13 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
      * @param glide the glide
      */
     public void updateViewWithUserData(User user, RequestManager glide) {
-        if (user.getChosenRestaurant().equalsIgnoreCase("")) {
 
-            matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.decideYet));
-            matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.grey));
-            matesTextView.setTypeface(null, Typeface.ITALIC);
-            itemView.setClickable(false);
-        } else {
+
+        matesTextView.setText(String.format("%s %s", user.getUsername(), matesTextView.getContext().getString(R.string.decideYet)));
+        matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.grey));
+        matesTextView.setTypeface(null, Typeface.ITALIC);
+        itemView.setClickable(false);
+        if (!user.getChosenRestaurant().equalsIgnoreCase("")) {
             ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
             String restaurantName = "";
             if (restaurantList != null) {
@@ -67,8 +66,13 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
                     if (place.getId().equalsIgnoreCase(user.getChosenRestaurant())) {
                         restaurantName = place.getPlaceName();
                     }
-                   matesTextView.setText(user.getUsername() + " " + matesTextView.getContext().getString(R.string.eatingAt) + " " + restaurantName);
+                    if (restaurantName.isEmpty()) {
+                        matesTextView.setText(String.format("%s %s.", user.getUsername(), matesTextView.getContext().getString(R.string.not_eating_nearby)));
+                    } else {
+                        matesTextView.setText(String.format("%s %s %s", user.getUsername(), matesTextView.getContext().getString(R.string.eatingAt), restaurantName));
+                    }
                     matesTextView.setTextColor(itemView.getContext().getResources().getColor(R.color.black));
+                    matesTextView.setTypeface(null, Typeface.NORMAL);
                 }
             }
 
@@ -89,10 +93,8 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
      */
     public void updateViewWithUserDataForJoiningList(ArrayList<User> userList, int position, RequestManager glide) {
         if (userList.size() > 0) {
-            for (User user : userList) {
-                Log.i("matesviewholder", "updateViewWithUserDataForJoiningList:  " + user.getUid());
-            }
-            matesTextView.setText(userList.get(position).getUsername() + " " + matesTextView.getContext().getString(R.string.isJoining));
+
+            matesTextView.setText(String.format("%s %s", userList.get(position).getUsername(), matesTextView.getContext().getString(R.string.isJoining)));
             glide.load(userList.get(position).getUrlPicture())
                     .apply(circleCropTransform())
                     .into(matesAvatar);

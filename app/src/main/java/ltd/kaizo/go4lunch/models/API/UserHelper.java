@@ -1,22 +1,15 @@
 package ltd.kaizo.go4lunch.models.API;
 
-import android.util.Log;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.WriteBatch;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.models.User;
-
-import static com.firebase.ui.auth.AuthUI.TAG;
 
 /**
  * The type User helper.
@@ -36,7 +29,7 @@ public class UserHelper {
      *
      * @return the collection reference
      */
-    public static CollectionReference getUsersCollection(){
+    public static CollectionReference getUsersCollection() {
 
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
 
@@ -58,7 +51,6 @@ public class UserHelper {
     public static Task<Void> createUser(String uid, String username, String urlPicture, String email) {
 
         User userToCreate = new User(uid, username, urlPicture, email);
-        Log.i(TAG, "createUser: uid = "+uid+" and username = "+username);
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
 
     }
@@ -73,7 +65,7 @@ public class UserHelper {
      * @param uid the uid
      * @return the task
      */
-    public static Task<DocumentSnapshot> getUser(String uid){
+    public static Task<DocumentSnapshot> getUser(String uid) {
 
         return UserHelper.getUsersCollection().document(uid).get();
 
@@ -89,7 +81,7 @@ public class UserHelper {
     public static Query getAllUser() {
 
         return UserHelper.getUsersCollection()
-                .orderBy("chosenRestaurant",Query.Direction.DESCENDING);
+                .orderBy("chosenRestaurant", Query.Direction.DESCENDING);
 
     }
 
@@ -119,7 +111,7 @@ public class UserHelper {
      */
     public static Task<Void> updateLikeRestaurant(String restaurantId, String uid) {
 
-        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayUnion(restaurantId));
+        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList", FieldValue.arrayUnion(restaurantId));
 
     }
 
@@ -171,7 +163,7 @@ public class UserHelper {
      */
     public static Task<Void> deleteLikeRestaurant(String restaurantId, String uid) {
 
-        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList",FieldValue.arrayRemove(restaurantId));
+        return UserHelper.getUsersCollection().document(uid).update("restaurantLikeList", FieldValue.arrayRemove(restaurantId));
 
     }
 

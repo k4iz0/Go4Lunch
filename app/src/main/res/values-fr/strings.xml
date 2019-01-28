@@ -53,5 +53,6 @@
     <string name="open_until">Ouvert jusqu\'à</string>
     <string name="eraseData">Effacer les données</string>
     <string name="data_erase_succes">données supprimées avec succès</string>
+    <string name="not_eating_nearby">ne mange pas près de chez vous</string>
 
 </resources>

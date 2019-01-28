@@ -135,5 +135,6 @@
     <string name="open_until">Open until</string>
     <string name="eraseData">Erase data</string>
     <string name="data_erase_succes">data successfully erased</string>
+    <string name="not_eating_nearby">is not eating nearby you</string>
 
 </resources>
