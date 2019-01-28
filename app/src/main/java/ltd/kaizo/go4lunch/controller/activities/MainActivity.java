@@ -35,13 +35,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import butterknife.BindView;
 import ltd.kaizo.go4lunch.R;
@@ -74,6 +71,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The constant RC_SIGN_IN.
      */
     private static final int RC_SIGN_IN = 123;
+    /**
+     * The Job id.
+     */
+    private int jobID;
     /**
      * The constant SIGN_OUT_TASK.
      */
@@ -125,14 +126,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Avatar image view.
      */
     ImageView avatarImageView;
-    /**
-     * The Job id.
-     */
-    private int jobID;
-    /**
-     * The Tag.
-     */
-    private String TAG = "MainActivity";
     /**
      * The Map fragment.
      */

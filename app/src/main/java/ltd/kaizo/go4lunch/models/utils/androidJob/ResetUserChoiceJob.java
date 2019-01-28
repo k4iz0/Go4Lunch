@@ -20,7 +20,8 @@ public class ResetUserChoiceJob extends Job {
 
     public static int schedulePeriodic() {
         return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(16) + TimeUnit.MINUTES.toMillis(27), TimeUnit.MINUTES.toMillis(15))
+                .setPeriodic(TimeUnit.HOURS.toMillis(16) + TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(20))
+                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
                 .setUpdateCurrent(true)
                 .build()
                 .schedule();
@@ -29,7 +30,7 @@ public class ResetUserChoiceJob extends Job {
     @NonNull
     @Override
     protected Result onRunJob(@NonNull Params params) {
-        Timber.d("launching task job");
+        Timber.i("launching task job");
         this.resetUserRestaurantChoiceFromFirestore();
         return Result.SUCCESS;
     }
@@ -41,7 +42,7 @@ public class ResetUserChoiceJob extends Job {
 
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         UserHelper.updateChosenRestaurant("", currentUserId);
-        Timber.d("deleting user's choice");
+        Timber.i("deleting user's choice");
 
 
         RestaurantHelper.getAllRestaurantsFromFirestore().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -50,7 +51,7 @@ public class ResetUserChoiceJob extends Job {
                 if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
 
                     for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
-                        Timber.d("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
+                        Timber.i("resetUserRestaurantChoiceFromFirestore: RestaurantHelper.updateUserFromRestaurant");
                         RestaurantHelper.deleteAllUsersFromRestaurant(restaurant);
                     }
                 }
