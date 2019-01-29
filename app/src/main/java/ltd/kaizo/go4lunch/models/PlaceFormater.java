@@ -1,5 +1,6 @@
 package ltd.kaizo.go4lunch.models;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Parcel;
@@ -126,7 +127,6 @@ public class PlaceFormater implements Parcelable {
         setPlaceHour();
         setPlaceRate();
         setPlacePhoto();
-        setOpenOrClose();
     }
 
 
@@ -192,8 +192,20 @@ public class PlaceFormater implements Parcelable {
      *
      * @return the open or close
      */
-    public String getOpenOrClose() {
-        return openOrClose;
+    public String getOpenOrClose(Context context) {
+        String str = context.getString(R.string.closes);
+        if (this.placeHour != null) {
+            if (this.placeHour.getWeekdayText().size() == 0) {
+                str = context.getString(R.string.open);
+            } else {
+                if (this.placeHour.getPeriods().size() > 1) {
+                    String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
+                    String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
+                    str = context.getString(R.string.open_until) + hour + "H" + min;
+                }
+            }
+        }
+       return this.openOrClose = str;
     }
 
     /**
@@ -286,10 +298,6 @@ public class PlaceFormater implements Parcelable {
      * determine place distance.
      */
     public void setPlaceDistance() {
-
-        Log.i("PlaceFormater", "setPlaceDistance: lat = " + this.currentLocation.getLatitude() + " longitude = " + this.currentLocation.getLongitude() + "\n" +
-                " place lat = " + this.lat + "\n" +
-                "place lng = " + this.lng);
         Long tmp = Math.round(SphericalUtil.computeDistanceBetween(
                 new LatLng(this.currentLocation.getLatitude(), this.currentLocation.getLongitude()), //from
                 new LatLng(this.lat, this.lng)));//to
@@ -302,28 +310,6 @@ public class PlaceFormater implements Parcelable {
     private void setPlaceHour() {
         this.placeHour = this.result.getOpeningHours();
     }
-
-    /**
-     * Format string weekday list string.
-     *
-     * @return the string
-     */
-    public void setOpenOrClose() {
-        String str = "close";
-        if (this.placeHour != null) {
-            if (this.placeHour.getWeekdayText().size() == 0) {
-                str = "Open 24/7";
-            } else {
-                if (this.placeHour.getPeriods().size() > 1) {
-                    String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
-                    String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
-                    str = "Open until " + hour + "H" + min;
-                }
-            }
-        }
-        this.openOrClose = str;
-    }
-
 
     /**
      * convert google rating to int 0,1,2,3

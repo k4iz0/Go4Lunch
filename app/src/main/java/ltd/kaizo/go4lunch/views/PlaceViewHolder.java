@@ -116,13 +116,15 @@ public class PlaceViewHolder extends RecyclerView.ViewHolder {
                 .apply(centerCropTransform().error(R.drawable.resto_default))
                 .into(this.placePhoto);
 
-        placeHours.setText(place.getOpenOrClose());
+        placeHours.setText(place.getOpenOrClose(this.itemView.getContext()));
         RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                    if (restaurant.getUserList() != null) {
                     configureMatesIcon(restaurant.getUserList().size());
+                    }
                 }
             }
         });
