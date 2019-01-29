@@ -2,6 +2,7 @@ package ltd.kaizo.go4lunch.models.utils.androidJob;
 
 import android.support.annotation.NonNull;
 
+import com.evernote.android.job.DailyJob;
 import com.evernote.android.job.Job;
 import com.evernote.android.job.JobRequest;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -15,24 +16,22 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import timber.log.Timber;
 
-public class ResetUserChoiceJob extends Job {
+public class ResetUserChoiceJob extends DailyJob {
     static final String TAG = "resetUserChoiceJob_job_tag";
 
-    public static int schedulePeriodic() {
-        return new JobRequest.Builder(ResetUserChoiceJob.TAG)
-                .setPeriodic(TimeUnit.HOURS.toMillis(16) + TimeUnit.MINUTES.toMillis(2), TimeUnit.MINUTES.toMillis(20))
+    public static void schedulePeriodic() {
+        DailyJob.schedule(new JobRequest.Builder(TAG)
                 .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
-                .setUpdateCurrent(true)
-                .build()
-                .schedule();
+                .setUpdateCurrent(true),
+                TimeUnit.HOURS.toMillis(16), TimeUnit.HOURS.toMillis(17));
     }
 
     @NonNull
     @Override
-    protected Result onRunJob(@NonNull Params params) {
+    protected DailyJobResult onRunDailyJob(@NonNull Params params) {
         Timber.i("launching task job");
         this.resetUserRestaurantChoiceFromFirestore();
-        return Result.SUCCESS;
+        return DailyJobResult.SUCCESS;
     }
 
     /**

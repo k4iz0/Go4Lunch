@@ -72,10 +72,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private static final int RC_SIGN_IN = 123;
     /**
-     * The Job id.
-     */
-    private int jobID;
-    /**
      * The constant SIGN_OUT_TASK.
      */
     private static final int SIGN_OUT_TASK = 10;
@@ -164,7 +160,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void configureAndroidJob() {
         Timber.i("create task job");
         JobManager.create(getApplicationContext()).addJobCreator(new AndroidJobCreator());
-        jobID = ResetUserChoiceJob.schedulePeriodic();
+       ResetUserChoiceJob.schedulePeriodic();
     }
 
     /**

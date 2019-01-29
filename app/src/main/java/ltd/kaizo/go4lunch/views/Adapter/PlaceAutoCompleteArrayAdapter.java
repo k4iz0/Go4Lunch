@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -90,11 +89,11 @@ public class PlaceAutoCompleteArrayAdapter extends ArrayAdapter<PlaceFormater> {
             convertView = LayoutInflater.from(getContext()).inflate(
                     R.layout.place_autocomplete_row, parent, false
             );
-            TextView placeTextView = convertView.findViewById(R.id.autocomplete_textview);
-            PlaceFormater placeItem = getItem(position);
-            if (placeItem != null) {
-                placeTextView.setText(placeItem.getPlaceName()+", "+placeItem.getPlaceAddress());
-            }
+        }
+        TextView placeTextView = convertView.findViewById(R.id.autocomplete_textview);
+        PlaceFormater placeItem = getItem(position);
+        if (placeItem != null) {
+            placeTextView.setText(placeItem.getPlaceName() + ", " + placeItem.getPlaceAddress());
         }
         return convertView;
     }
