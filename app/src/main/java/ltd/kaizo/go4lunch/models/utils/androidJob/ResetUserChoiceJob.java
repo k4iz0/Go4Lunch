@@ -3,7 +3,6 @@ package ltd.kaizo.go4lunch.models.utils.androidJob;
 import android.support.annotation.NonNull;
 
 import com.evernote.android.job.DailyJob;
-import com.evernote.android.job.Job;
 import com.evernote.android.job.JobRequest;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,8 +20,8 @@ public class ResetUserChoiceJob extends DailyJob {
 
     public static void schedulePeriodic() {
         DailyJob.schedule(new JobRequest.Builder(TAG)
-                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
-                .setUpdateCurrent(true),
+                        .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
+                        .setUpdateCurrent(true),
                 TimeUnit.HOURS.toMillis(16), TimeUnit.HOURS.toMillis(17));
     }
 

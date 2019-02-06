@@ -498,7 +498,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         .setAvailableProviders(
                                 Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build(),
                                         new AuthUI.IdpConfig.FacebookBuilder().build(),
-                                        new AuthUI.IdpConfig.TwitterBuilder().build()))
+                                        new AuthUI.IdpConfig.TwitterBuilder().build(),
+                                        new AuthUI.IdpConfig.EmailBuilder().build()))
                         .setIsSmartLockEnabled(false, true)
                         .build(),
                 RC_SIGN_IN);
@@ -543,7 +544,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         if (resultCode == RESULT_OK) {//SUCCESS
             if (this.getCurrentUser() != null) {
-                UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString(), this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
+                if (this.getCurrentUser().getPhotoUrl() == null) {
+                    //email & password account no picture
+                    UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), "", this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
+                } else {
+                    UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString(), this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
+                }
             }
             showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             this.configureDesign();

@@ -42,7 +42,7 @@
         <item name="colorControlActivated">@android:color/white</item>
         <item name="colorControlHighlight">@android:color/white</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/primary_text_dark</item>
         <item name="android:textColorSecondary">@android:color/white</item>
         <item name="android:windowBackground">@drawable/home</item>
         <item name="windowActionBar">false</item>
@@ -63,7 +63,7 @@
         <item name="android:background">@android:color/white</item>
     </style>
 
-   <!--ALERT DIALOG-->
+    <!--ALERT DIALOG-->
     <style name="AlertDialogCustom" >
         <item name="android:textColor">@color/colorPrimary</item>
         <item name="android:textSize">14sp</item>
