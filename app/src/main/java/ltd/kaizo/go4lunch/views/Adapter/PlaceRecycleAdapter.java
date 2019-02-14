@@ -43,17 +43,6 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
         this.glide = glide;
         this.restaurantList = restaurantList;
     }
-//    /**
-//     * Instantiates a new Place recycle adapter.
-//     *
-//     * @param options the options
-//     * @param glide   the glide
-//     */
-//    public PlaceRecycleAdapter(FirestoreRecyclerOptions<Restaurant> options, RequestManager glide) {
-//        super(options);
-//        this.glide = glide;
-//
-//    }
 
     @NonNull
     @Override
@@ -72,7 +61,12 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
 
     @Override
     public int getItemCount() {
-        return restaurantList.size();
+        if (restaurantList != null) {
+            return restaurantList.size();
+        } else {
+            return 0;
+        }
+
     }
 
 
