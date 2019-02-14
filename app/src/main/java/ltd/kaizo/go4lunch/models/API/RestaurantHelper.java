@@ -44,7 +44,7 @@ public class RestaurantHelper {
      */
 //-- CREATE
     public static Task<Void> createRestaurant(String placeId, PlaceFormater placeFormater) {
-        Restaurant restaurantsToCreate = new Restaurant(placeId, placeFormater, false);
+        Restaurant restaurantsToCreate = new Restaurant(placeId, placeFormater);
         return RestaurantHelper.getRestaurantsCollection().document(placeId).set(restaurantsToCreate);
     }
 

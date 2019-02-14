@@ -334,7 +334,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                         Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
 
                                         Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                                        Timber.i("onComplete: chosenrestaurant " + chosenRestaurant.getPlaceFormater().getPlaceName());
                                         detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
                                         startActivity(detailActivity);
                                     }

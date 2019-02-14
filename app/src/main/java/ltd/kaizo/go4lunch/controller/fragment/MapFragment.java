@@ -50,7 +50,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.activities.DetailActivity;
-import ltd.kaizo.go4lunch.controller.activities.MainActivity;
 import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;

@@ -14,10 +14,7 @@ public class Restaurant {
      * The Place formater.
      */
     private PlaceFormater placeFormater;
-    /**
-     * The Is chosen.
-     */
-    private Boolean isChosen;
+
     /**
      * The User list.
      */
@@ -34,12 +31,11 @@ public class Restaurant {
      *
      * @param placeId       the place id
      * @param placeFormater the place formater
-     * @param isChosen      the is chosen
+
      */
-    public Restaurant(String placeId, PlaceFormater placeFormater, Boolean isChosen) {
+    public Restaurant(String placeId, PlaceFormater placeFormater) {
         PlaceId = placeId;
         this.placeFormater = placeFormater;
-        this.isChosen = isChosen;
         this.userList = new ArrayList<>();
     }
 
@@ -77,24 +73,6 @@ public class Restaurant {
      */
     public void setPlaceFormater(PlaceFormater placeFormater) {
         this.placeFormater = placeFormater;
-    }
-
-    /**
-     * Gets choosen.
-     *
-     * @return the choosen
-     */
-    public Boolean getChoosen() {
-        return isChosen;
-    }
-
-    /**
-     * Sets choosen.
-     *
-     * @param choosen the choosen
-     */
-    public void setChoosen(Boolean choosen) {
-        isChosen = choosen;
     }
 
     /**
