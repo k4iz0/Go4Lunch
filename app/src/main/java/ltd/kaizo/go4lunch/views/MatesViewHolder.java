@@ -17,8 +17,6 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.User;
 
 import static com.bumptech.glide.request.RequestOptions.circleCropTransform;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
 
 /**
  * The type Mates view holder.
@@ -48,10 +46,11 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
     /**
      * Update view with user data.
      *
-     * @param user  the user
-     * @param glide the glide
+     * @param user           the user
+     * @param glide          the glide
+     * @param restaurantList
      */
-    public void updateViewWithUserData(User user, RequestManager glide) {
+    public void updateViewWithUserData(User user, RequestManager glide, ArrayList<PlaceFormater> restaurantList) {
 
 
         matesTextView.setText(String.format("%s %s", user.getUsername(), matesTextView.getContext().getString(R.string.decideYet)));
@@ -59,7 +58,6 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
         matesTextView.setTypeface(null, Typeface.ITALIC);
         itemView.setClickable(false);
         if (!user.getChosenRestaurant().equalsIgnoreCase("")) {
-            ArrayList<PlaceFormater> restaurantList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
             String restaurantName = "";
             if (restaurantList != null) {
                 for (PlaceFormater place : restaurantList) {

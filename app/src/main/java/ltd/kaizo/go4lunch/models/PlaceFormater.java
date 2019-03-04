@@ -1,11 +1,9 @@
 package ltd.kaizo.go4lunch.models;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -19,8 +17,8 @@ import org.joda.time.DateTime;
 import java.util.Comparator;
 
 import ltd.kaizo.go4lunch.R;
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.OpeningHours;
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailResult;
+import ltd.kaizo.go4lunch.models.API.placeDetail.OpeningHours;
+import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailResult;
 
 /**
  * The type Place formater.

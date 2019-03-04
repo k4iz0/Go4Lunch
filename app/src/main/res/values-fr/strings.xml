@@ -54,7 +54,9 @@
     <string name="eraseData">Effacer les données</string>
     <string name="data_erase_succes">données supprimées avec succès</string>
     <string name="not_eating_nearby">ne mange pas près de chez vous</string>
-    <string name="unable_get_location">Impossible d\'établir votre position, avez-vous activé la localisation sur votre appreil?</string>
+    <string name="unable_get_location">Impossible d\'établir votre position, avez-vous activé la localisation sur votre appareil?</string>
+    <string name="no_place_found">aucun restaurant trouvé !</string>
+    <string name="error_occurred">une erreur est survenue</string>
 
 
 </resources>

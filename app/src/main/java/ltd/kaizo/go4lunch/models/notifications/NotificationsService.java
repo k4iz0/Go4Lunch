@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -28,9 +29,7 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
 
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.NOTIFICATION_ENABLE;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getUserListFromSharedPreferences;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 
 /**
@@ -115,29 +114,37 @@ public class NotificationsService extends FirebaseMessagingService {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.getResult() != null) {
-                                        Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                                        String placeAddress = restaurant.getPlaceFormater().getPlaceAddress();
-                                        String placeName = restaurant.getPlaceFormater().getPlaceName();
-                                        ArrayList<User> joiningUser = new ArrayList<>();
-                                        allUserList = getUserListFromSharedPreferences(ALL_USER_LIST);
-                                        for (String userId : restaurant.getUserList()) {
-                                            if (!userId.equalsIgnoreCase(currentUser.getUid())) {
-                                                joiningUser.add(UserHelper.getUserDataFromId(userId, allUserList));
-                                            }
-                                        }
-                                        //create message
-                                        StringBuilder message = new StringBuilder(getString(R.string.going_to_lunch) +
-                                                " "+
-                                                placeName + " \n" +
-                                                placeAddress + " \n");
+                                        final Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                                        final String placeAddress = restaurant.getPlaceFormater().getPlaceAddress();
+                                        final String placeName = restaurant.getPlaceFormater().getPlaceName();
+                                        final ArrayList<User> joiningUser = new ArrayList<>();
+                                        UserHelper.getAllUser().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful() && task.getResult() != null) {
+                                                    allUserList = task.getResult().toObjects(User.class);
+                                                    for (String userId : restaurant.getUserList()) {
+                                                        if (!userId.equalsIgnoreCase(currentUser.getUid())) {
+                                                            joiningUser.add(UserHelper.getUserDataFromId(userId, allUserList));
 
-                                        if (joiningUser.size() > 0) {
-                                            message.append(getString(R.string.with));
-                                            for (User user : joiningUser) {
-                                                message.append(" ").append(user.getUsername()).append(" \n");
+                                                        }
+                                                    }
+                                                    //create message
+                                                    StringBuilder message = new StringBuilder(getString(R.string.going_to_lunch) +
+                                                            " " +
+                                                            placeName + " \n" +
+                                                            placeAddress + " \n");
+
+                                                    if (joiningUser.size() > 0) {
+                                                        message.append(getString(R.string.with));
+                                                        for (User user : joiningUser) {
+                                                            message.append(" ").append(user.getUsername()).append(" \n");
+                                                        }
+                                                    }
+                                                    sendVisualNotification(message.toString(), restaurant.getPlaceFormater());
+                                                }
                                             }
-                                        }
-                                        sendVisualNotification(message.toString(), restaurant.getPlaceFormater());
+                                        });
                                     }
                                 }
                             });

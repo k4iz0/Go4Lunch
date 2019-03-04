@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import org.junit.Before;
 import org.junit.Test;
 
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
+import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailApiData;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -314,15 +314,6 @@ public class PlaceFormaterTest {
 
     }
 
-    /**
-     * Give api data to place formater should return closing time.
-     */
-    @Test
-    public void GiveApiDataToPlaceFormaterShouldReturnClosingTime() {
-
-        assertEquals("Open until 14H00", placeFormater.getOpenOrClose());
-
-    }
 
     /**
      * Give api data to place formater should return website.

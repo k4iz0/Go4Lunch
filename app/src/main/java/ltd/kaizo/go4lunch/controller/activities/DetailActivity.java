@@ -26,7 +26,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +38,8 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
-import ltd.kaizo.go4lunch.views.Adapter.JoiningMatesAdapter;
-
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.ALL_USER_LIST;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getUserListFromSharedPreferences;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+import ltd.kaizo.go4lunch.views.adapter.JoiningMatesAdapter;
+import timber.log.Timber;
 
 /**
  * The type Detail activity.
@@ -144,10 +140,6 @@ public class DetailActivity extends BaseActivity {
      * Boolean like button pressed
      */
     private Boolean isLikePressed = false;
-    /**
-     * The Gson.
-     */
-    private Gson gson = new Gson();
 
     @Override
     public int getFragmentLayout() {
@@ -159,7 +151,6 @@ public class DetailActivity extends BaseActivity {
         this.configureUserListFromFirebase();
         this.getPlaceFormaterFromIntent();
         this.configureCurrentUser();
-        this.configureRecycleView();
     }
 
 
@@ -213,7 +204,7 @@ public class DetailActivity extends BaseActivity {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
                     allUserList = task.getResult().toObjects(User.class);
-                    write(ALL_USER_LIST, gson.toJson(allUserList));
+                    configureRecycleView();
                 }
             }
         });
@@ -371,17 +362,11 @@ public class DetailActivity extends BaseActivity {
      */
     private User getUserDataFromId(String userId) {
         User tmpUser = new User("1", "test", "", "test@test.fr");
-        Log.i(TAG, "getUserDataFromId: alluserList " + allUserList.size());
-        if (allUserList.size() == 0) {
-            allUserList = getUserListFromSharedPreferences(ALL_USER_LIST);
-        }
         for (User user : allUserList) {
             if (user.getUid().equalsIgnoreCase(userId)) {
-                Log.i(TAG, "getUserDataFromId: adding " + user.getUsername());
                 tmpUser = user;
             }
         }
-        Log.i(TAG, "getUserDataFromId: return " + tmpUser.getUsername());
         return tmpUser;
     }
     //****************************
@@ -402,9 +387,6 @@ public class DetailActivity extends BaseActivity {
                     Restaurant tmp = documentSnapshot.toObject(Restaurant.class);
                     switch (dc.getType()) {
                         case MODIFIED:
-                            Log.i(TAG, "onEvent: modified");
-                            Log.i(TAG, "onEvent: size = " + tmp.getUserList().size());
-
                             if (tmp.getPlaceId().equalsIgnoreCase(place.getId())) {
                                 userList.clear();
                                 for (String userId : tmp.getUserList()) {
@@ -425,13 +407,8 @@ public class DetailActivity extends BaseActivity {
      */
     private void addUserToRestaurant() {
 
-        Log.i("detailActivity", "addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
-        RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        Timber.i("addUserToRestaurant: user = " + getCurrentUser().getUid() + " and placeId = " + place.getId());
+        RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
@@ -454,7 +431,7 @@ public class DetailActivity extends BaseActivity {
      * Remove user from restaurant.
      */
     private void removeUserFromRestaurant() {
-        Log.i(TAG, "removeUserFromRestaurant: " + currentUser.getUsername());
+        Timber.i("removeUserFromRestaurant: " + currentUser.getUsername());
 
         RestaurantHelper.getRestaurant(currentUser.getChosenRestaurant()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -488,13 +465,11 @@ public class DetailActivity extends BaseActivity {
                             addUserToRestaurant();
                             //remove chosen restaurant from user
                             UserHelper.updateChosenRestaurant("", currentUser.getUid());
-
                         }
                     });
                 }
             }
         });
-
     }
 
     /**
@@ -504,8 +479,7 @@ public class DetailActivity extends BaseActivity {
         UserHelper.updateChosenRestaurant(place.getId(), getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(getApplicationContext(), getString(R.string.error_occurred) + e, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -543,12 +517,7 @@ public class DetailActivity extends BaseActivity {
      */
     private void provideRecycleViewWithData() {
 
-        RestaurantHelper.getRestaurant(place.getId()).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.i(TAG, "onFailure: fail to retrieve restaurant info");
-            }
-        }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful() && task.getResult() != null) {

@@ -4,9 +4,9 @@ import org.junit.Test;
 
 import io.reactivex.Observable;
 import io.reactivex.observers.TestObserver;
-import ltd.kaizo.go4lunch.models.API.NearbySearch.PlaceApiData;
-import ltd.kaizo.go4lunch.models.API.PlaceDetail.PlaceDetailApiData;
-import ltd.kaizo.go4lunch.models.API.Stream.PlaceStream;
+import ltd.kaizo.go4lunch.models.API.nearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailApiData;
+import ltd.kaizo.go4lunch.models.API.stream.PlaceStream;
 
 import static org.junit.Assert.assertEquals;
 

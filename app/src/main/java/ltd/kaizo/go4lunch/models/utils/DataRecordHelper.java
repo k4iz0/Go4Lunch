@@ -10,6 +10,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import ltd.kaizo.go4lunch.models.API.nearbySearch.Location;
+import ltd.kaizo.go4lunch.models.API.nearbySearch.Result;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.User;
 
@@ -24,7 +26,11 @@ public class DataRecordHelper {
     /**
      * The constant RESTAURANT_LIST_KEY.
      */
-    public static final String RESTAURANT_LIST_KEY = "RESTAURANT_LIST_KEY";
+    public static final String RESTAURANT_LIST_AROUND_KEY = "RESTAURANT_LIST_KEY";
+    /**
+     * The constant RESTAURANT_LIST_KEY.
+     */
+    public static final String RESTAURANT_LIST_DETAIL_KEY = "RESTAURANT_LIST_KEY";
     /**
      * The constant CURRENT_LATITUDE_KEY.
      */
@@ -34,10 +40,9 @@ public class DataRecordHelper {
      */
     public static final String CURRENT_LONGITUDE_KEY = "CURRENT_LONGITUDE_KEY";
     /**
-     * The constant ALL_USER_LIST.
+     * The constant CURRENT_LONGITUDE_KEY.
      */
-    public static final String ALL_USER_LIST = "ALL_USER_LIST";
-
+    public static final String CURRENT_LOCATION_KEY = "CURRENT_LOCATION_KEY";
     /**
      * The constant sharedPreferences.
      */
@@ -153,12 +158,12 @@ public class DataRecordHelper {
 
 
     /**
-     * Gets list of result from sharedPreferences.
+     * Gets restaurant list .
      *
      * @param KEY the key
-     * @return the searchQuery object from sharedPreferences
+     * @return the restaurant
      */
-    public static ArrayList<PlaceFormater> getRestaurantListFromSharedPreferences(String KEY) {
+    public static ArrayList<PlaceFormater> getRestaurantList(String KEY) {
         Gson gson = new Gson();
         String gsonStr = "";
         Type type = new TypeToken<ArrayList<PlaceFormater>>() {
@@ -167,15 +172,15 @@ public class DataRecordHelper {
     }
 
     /**
-     * Gets user list from shared preferences.
+     * Gets location from bundle.
      *
      * @param KEY the key
      * @return the user list from shared preferences
      */
-    public static ArrayList<User> getUserListFromSharedPreferences(String KEY) {
+    public static android.location.Location getLocationFromBundle(String KEY) {
         Gson gson = new Gson();
         String gsonStr = "";
-        Type type = new TypeToken<ArrayList<User>>() {
+        Type type = new TypeToken<Location>() {
         }.getType();
         return gson.fromJson(read(KEY, gsonStr), type);
     }

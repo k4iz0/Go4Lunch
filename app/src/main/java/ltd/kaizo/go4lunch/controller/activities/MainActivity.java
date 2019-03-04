@@ -1,12 +1,19 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
+import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -16,7 +23,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,37 +33,49 @@ import com.evernote.android.job.JobManager;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import butterknife.BindView;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.controller.fragment.ListFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailApiData;
+import ltd.kaizo.go4lunch.models.API.stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
+import ltd.kaizo.go4lunch.models.utils.Utils;
 import ltd.kaizo.go4lunch.models.utils.androidJob.AndroidJobCreator;
 import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
-import ltd.kaizo.go4lunch.views.Adapter.PlaceAutoCompleteArrayAdapter;
 import timber.log.Timber;
 
+import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
 import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LOCATION_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_AROUND_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_DETAIL_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
 /**
  * The type Main activity.
@@ -68,6 +86,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     /**
+     * The Default location.
+     */
+    static final LatLng DEFAULT_LOCATION = new LatLng(48.858093, 2.294694); //PARIS
+    /**
      * The constant RC_SIGN_IN.
      */
     private static final int RC_SIGN_IN = 123;
@@ -75,6 +97,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The constant SIGN_OUT_TASK.
      */
     private static final int SIGN_OUT_TASK = 10;
+    /**
+     * The constant FINE_LOCATION.
+     */
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    /**
+     * The constant COARSE_LOCATION.
+     */
+    private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    /**
+     * The constant LOCATION_PERMISSION_REQUEST_CODE.
+     */
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    /**
+     * The constant ERROR_DIALOG_REQUEST.
+     */
+    private static final int ERROR_DIALOG_REQUEST = 9001;
     /**
      * The Coordinator layout.
      */
@@ -134,6 +172,34 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Current user.
      */
     private User currentUser;
+    /**
+     * The Place temp list.
+     */
+    private ArrayList<PlaceFormater> placeAroundList = new ArrayList<>();
+    /**
+     * The Place detail list.
+     */
+    private ArrayList<PlaceFormater> placeDetailList = new ArrayList<>();
+    /**
+     * The Disposable.
+     */
+    private Disposable disposable;
+    /**
+     * The Location permissions granted.
+     */
+    private Boolean locationPermissionsGranted = false;
+    /**
+     * The Current location.
+     */
+    private Location currentLocation;
+    /**
+     * The Fused location provider client.
+     */
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    /**
+     * The Utils.
+     */
+    Utils utils = new Utils();
 
     @Override
     public int getFragmentLayout() {
@@ -146,38 +212,25 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (!isCurrentUserLogged()) {
             this.startSignInActivity();
         } else {
+            this.configurePermission();
             this.configureCurrentUser();
-            this.configureBottomNavigationView();
-            this.configureAndShowMapFragment();
             this.configureToolbar();
             this.configureNavigationView();
             this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
-            this.configureAndroidJob();
+//            this.configureAndroidJob();
         }
     }
 
+    /**
+     * Configure android job.
+     */
     private void configureAndroidJob() {
         Timber.i("create task job");
         JobManager.create(getApplicationContext()).addJobCreator(new AndroidJobCreator());
-       ResetUserChoiceJob.schedulePeriodic();
+        ResetUserChoiceJob.schedulePeriodic();
     }
 
-    /**
-     * Configure current user.
-     */
-    private void configureCurrentUser() {
-        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful() && task.getResult() != null) {
-                    currentUser = task.getResult().toObject(User.class);
-                    updateNavHeaderDesign();
-
-                }
-            }
-        });
-    }
     //****************************
     //*******   TOOLBAR   ********
     //****************************
@@ -203,28 +256,28 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-            if (autocompleteLayout.getVisibility() == View.GONE) {
-                this.updateAutoCompleteDesign();
-                final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
-                if (getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY) != null) {
-                    placeFormaterList.clear();
-                    placeFormaterList.addAll(getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY));
-                }
-                PlaceAutoCompleteArrayAdapter adapter;
-                adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
-                autoCompleteTextView.setAdapter(adapter);
-                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
-                        startActivity(detailActivity);
-                    }
-                });
-            } else {
-                this.updateAutoCompleteDesign();
-
-            }
+//            if (autocompleteLayout.getVisibility() == View.GONE) {
+//                this.updateAutoCompleteDesign();
+//                final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
+//                if (getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY) != null) {
+//                    placeFormaterList.clear();
+//                    placeFormaterList.addAll(getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY));
+//                }
+//                PlaceAutoCompleteArrayAdapter adapter;
+//                adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
+//                autoCompleteTextView.setAdapter(adapter);
+//                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+//                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
+//                        startActivity(detailActivity);
+//                    }
+//                });
+//            } else {
+//                this.updateAutoCompleteDesign();
+//
+//            }
         }
         return true;
     }
@@ -251,7 +304,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     @Override
-
     public boolean onNavigationItemSelected(MenuItem item) {
 
         int id = item.getItemId();
@@ -262,18 +314,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case R.id.activity_main_drawer_settings:
                 Intent settingActivity = new Intent(this, SettingsActivity.class);
                 startActivity(settingActivity);
-
                 break;
             case R.id.activity_main_drawer_logout:
                 this.signOutUserFromFirebase();
-                showSnackBar(coordinatorLayout, getString(R.string.user_logout));
+                utils.showSnackBar(coordinatorLayout, getString(R.string.user_logout));
                 break;
             default:
                 break;
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-
     }
 
     /**
@@ -311,13 +361,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     }
 
     /**
+     * Configure current user.
+     */
+    private void configureCurrentUser() {
+        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    currentUser = task.getResult().toObject(User.class);
+                    updateNavHeaderDesign();
+
+                }
+            }
+        });
+    }
+
+    /**
      * Get chosen restaurant.
      */
     private void getChosenRestaurant() {
         UserHelper.getUser(getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
+                utils.showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
                 chosenRestaurantId = "";
             }
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -332,7 +398,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     if (task.isSuccessful() && task.getResult() != null) {
                                         Restaurant chosenRestaurant = task.getResult().toObject(Restaurant.class);
-
                                         Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
                                         detailActivity.putExtra("PlaceFormater", chosenRestaurant.getPlaceFormater());
                                         startActivity(detailActivity);
@@ -340,17 +405,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                 }
                             });
                         } else {
-                            showSnackBar(coordinatorLayout, getString(R.string.no_choice));
+                            utils.showSnackBar(coordinatorLayout, getString(R.string.no_choice));
                         }
                     }
                 }
             }
         });
-
     }
 
     @Override
-
     public void onBackPressed() {
         if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             this.drawerLayout.closeDrawer(GravityCompat.START);
@@ -362,6 +425,190 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+    /**
+     * Configure permission.
+     */
+//****************************
+    //*******  PERMISSIONS *******
+    //****************************
+    private void configurePermission() {
+        if (isServiceOK()) {
+            this.getLocationPermission();
+            // Construct a FusedLocationProviderClient.
+            this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+            this.getDeviceLocation();
+        }
+    }
+
+    /**
+     * Gets location permission.
+     */
+    private void getLocationPermission() {
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (ContextCompat.checkSelfPermission(this, FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationPermissionsGranted = true;
+            } else {
+                ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        locationPermissionsGranted = false;
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    locationPermissionsGranted = true;
+                }
+        }
+    }
+
+    /**
+     * check if the Google Play services are available to make map request
+     *
+     * @return Boolean boolean
+     */
+    private boolean isServiceOK() {
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+        if (available == ConnectionResult.SUCCESS) {
+            return true;
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(this, available, ERROR_DIALOG_REQUEST);
+        } else {
+            this.utils.showSnackBar(coordinatorLayout, "You can't make map request");
+        }
+        return false;
+    }
+
+    /****************************
+     ********   LOCATION  ********
+     *****************************/
+    /**
+     * Gets device location.
+     */
+    private void getDeviceLocation() {
+        try {
+            if (locationPermissionsGranted) {
+                final Task location = this.fusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            currentLocation = (Location) task.getResult();
+                            configureCurrentLocation(currentLocation);
+                            executeStreamFetchNearbyRestaurant();
+                        } else {
+                            utils.showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
+                        }
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Timber.e("security exception : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Is current location change boolean.
+     *
+     * @param currentLocation the current location
+     * @return the boolean
+     */
+    private void configureCurrentLocation(Location currentLocation) {
+        Double previousLocationLat = read(CURRENT_LATITUDE_KEY, 0.0);
+        Double previousLocationLng = read(CURRENT_LONGITUDE_KEY, 0.0);
+        if (previousLocationLat == 0.0 || previousLocationLat != (currentLocation.getLatitude())) {
+            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
+        }
+        if (previousLocationLng == 0.0 || previousLocationLng != (currentLocation.getLongitude())) {
+            write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
+        }
+
+    }
+    //****************************
+    //******  DATA STREAMS *******
+    //****************************
+
+    /**
+     * Execute stream fetch nearby restaurant and get place detail.
+     */
+    private void executeStreamFetchNearbyRestaurant() {
+
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(utils.formatLocationToString(currentLocation))
+                .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
+
+                    @Override
+                    public void onNext(PlaceDetailApiData placeDetailApiData) {
+                        if (placeDetailApiData != null) {
+                            PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
+                            placeAroundList.add(place);
+                        } else {
+                            utils.showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Timber.i(getString(error_unknown_error) + " " + e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        //add to firestore if not already in
+                        for (final PlaceFormater place : placeAroundList) {
+                            RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        //add place from Firestore to list
+                                        RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful() && task.getResult() != null) {
+                                                    Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                                                    placeDetailList.add(restaurant.getPlaceFormater());
+                                                    Timber.i("taille new = " + placeDetailList.size());
+                                                    if (placeAroundList.size() == placeDetailList.size()) {
+                                                        configureBottomNavigationView();
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        //add to firestore
+                                        RestaurantHelper.createRestaurant(place.getId(), place).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    placeDetailList.add(place);
+                                                    Timber.i("taille new = " + placeDetailList.size());
+                                                    if (placeAroundList.size() == placeDetailList.size()) {
+                                                        configureBottomNavigationView();
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    utils.showSnackBar(coordinatorLayout, getString(error_unknown_error));
+                                    Timber.i(getString(error_unknown_error) + " " + e);
+                                }
+                            });
+
+                        }
+
+                    }
+                });
+    }
 
     //****************************
     //*******   DESIGN   *********
@@ -374,9 +621,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         autocompleteLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-
                 updateAutoCompleteDesign();
-
             }
         });
     }
@@ -402,39 +647,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         navigationView.setItemIconTintList(null);
     }
 
-    /**
-     * Configure and show map fragment.
-     */
-    private void configureAndShowMapFragment() {
-        this.mapFragment = new MapFragment();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, this.mapFragment)
-                .commit();
-    }
-
-    /**
-     * Configure and show list fragment.
-     */
-    private void configureAndShowListFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new ListFragment())
-                .commit();
-    }
-
-    /**
-     * Configure and show workmates fragment.
-     */
-    private void configureAndShowWorkmatesFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, new MatesFragment())
-                .commit();
-
-    }
 
     /**
      * Configure bottom navigation view.
      */
     private void configureBottomNavigationView() {
+        configureAndShowMapFragment();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -456,17 +674,54 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /****************************
+     ********   FRAGMENT  ********
+     *****************************/
 
     /**
-     * Show snack bar.
-     *
-     * @param coordinatorLayout the coordinator layout
-     * @param message           the message
+     * Configure and show map fragment.
      */
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
-        Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
+    private void configureAndShowMapFragment() {
+        this.mapFragment = new MapFragment();
+        mapFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, this.mapFragment)
+                .commit();
     }
 
+    /**
+     * Configure and show list fragment.
+     */
+    private void configureAndShowListFragment() {
+        ListFragment listFragment = new ListFragment();
+        listFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, listFragment)
+                .commit();
+    }
+
+    /**
+     * Configure and show workmates fragment.
+     */
+    private void configureAndShowWorkmatesFragment() {
+        MatesFragment matesFragment = new MatesFragment();
+        matesFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, matesFragment)
+                .commit();
+    }
+
+    /**
+     * Save data to bundle bundle.
+     *
+     * @return the bundle
+     */
+    private Bundle saveDataToBundle() {
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(RESTAURANT_LIST_DETAIL_KEY, placeDetailList);
+        args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
+        return args;
+    }
     //****************************
     //*******   FIREBASE   *******
     //****************************
@@ -550,21 +805,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString(), this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
                 }
             }
-            showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+            utils.showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             this.configureDesign();
 
         } else {//ERROR
             if (response == null) {
-                showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
             } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
             } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                utils.showSnackBar(this.coordinatorLayout, getString(error_unknown_error));
 
             }
         }
-
-
     }
 
     /**
@@ -575,30 +828,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private void handlePlaceAutoCompleteResponse(int resultCode, Intent data) {
 
-        if (resultCode == RESULT_OK) {
-            Place place = PlaceAutocomplete.getPlace(this, data);
-            Timber.i("PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
-            this.updateMapWithPlace(place.getLatLng());
-        } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-            Status status = PlaceAutocomplete.getStatus(this, data);
-            showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
-            Timber.i(status.getStatusMessage());
-
-        } else if (resultCode == RESULT_CANCELED) {
-            Timber.i("handlePlaceAutoCompleteResponse: cancel");
-            finish();
-            startActivity(getIntent());
-        }
-
-
-    }
-
-    /**
-     * Update map with place.
-     *
-     * @param latLng the lat lng
-     */
-    private void updateMapWithPlace(LatLng latLng) {
-        this.mapFragment.moveCamera(latLng, DEFAULT_ZOOM);
+//        if (resultCode == RESULT_OK) {
+//            Place place = PlaceAutocomplete.getPlace(this, data);
+//            Timber.i("PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
+//            this.updateMapWithPlace(place.getLatLng());
+//        } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+//            Status status = PlaceAutocomplete.getStatus(this, data);
+//            utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+//            Timber.i(status.getStatusMessage());
+//
+//        } else if (resultCode == RESULT_CANCELED) {
+//            Timber.i("handlePlaceAutoCompleteResponse: cancel");
+//            finish();
+//            startActivity(getIntent());
+//        }
     }
 }

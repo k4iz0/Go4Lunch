@@ -19,7 +19,7 @@ import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 
 import static com.bumptech.glide.request.RequestOptions.centerCropTransform;
-import static ltd.kaizo.go4lunch.models.API.Stream.PlaceService.apiKey;
+import static ltd.kaizo.go4lunch.models.API.stream.PlaceService.apiKey;
 
 /**
  * The type Place view holder.
