@@ -12,7 +12,7 @@ public class Utils {
      *
      * @return the string
      */
-    public String formatLocationToString(Location currentLocation) {
+    public static String formatLocationToString(Location currentLocation) {
         if (currentLocation != null) {
             return currentLocation.getLatitude() + "," + currentLocation.getLongitude();
         } else {
@@ -26,7 +26,7 @@ public class Utils {
      * @param coordinatorLayout the coordinator layout
      * @param message           the message
      */
-    public void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
+    public static void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 

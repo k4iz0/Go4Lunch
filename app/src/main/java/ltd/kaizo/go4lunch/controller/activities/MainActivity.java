@@ -11,7 +11,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +22,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -35,15 +35,20 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.gson.Gson;
+import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,25 +67,25 @@ import ltd.kaizo.go4lunch.models.API.stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import ltd.kaizo.go4lunch.models.User;
-import ltd.kaizo.go4lunch.models.utils.Utils;
 import ltd.kaizo.go4lunch.models.utils.androidJob.AndroidJobCreator;
 import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
+import ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter;
 import timber.log.Timber;
 
 import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
-import static ltd.kaizo.go4lunch.controller.fragment.MapFragment.DEFAULT_ZOOM;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LOCATION_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_AROUND_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_DETAIL_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+import static ltd.kaizo.go4lunch.models.utils.Utils.formatLocationToString;
+import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
 
 /**
  * The type Main activity.
  */
-public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
     /**
      * The constant PLACE_AUTOCOMPLETE_REQUEST_CODE.
      */
@@ -196,10 +201,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Fused location provider client.
      */
     private FusedLocationProviderClient fusedLocationProviderClient;
-    /**
-     * The Utils.
-     */
-    Utils utils = new Utils();
+    private GoogleApiClient geoDataClient;
+    private LatLngBounds bounds;
+    private PlaceAutocompleteAdapter adapter;
 
     @Override
     public int getFragmentLayout() {
@@ -222,6 +226,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+
     /**
      * Configure android job.
      */
@@ -234,7 +239,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
     //*******   TOOLBAR   ********
     //****************************
-
     /**
      * Configure toolbar.
      */
@@ -247,6 +251,26 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    private void configureAutocomplete() {
+
+        this.geoDataClient = new GoogleApiClient.Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this,this)
+                .build();
+        LatLng center = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        bounds =   new LatLngBounds.Builder().
+                include(SphericalUtil.computeOffset(center, 5000, 0)).
+                include(SphericalUtil.computeOffset(center, 5000, 90)).
+                include(SphericalUtil.computeOffset(center, 5000, 180)).
+                include(SphericalUtil.computeOffset(center, 5000, 270)).build();
+
+        AutocompleteFilter filter = new AutocompleteFilter.Builder()
+                .setTypeFilter(Place.TYPE_RESTAURANT)
+                .build();
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient,bounds,filter);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
@@ -256,28 +280,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-//            if (autocompleteLayout.getVisibility() == View.GONE) {
-//                this.updateAutoCompleteDesign();
-//                final ArrayList<PlaceFormater> placeFormaterList = new ArrayList<>();
-//                if (getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY) != null) {
-//                    placeFormaterList.clear();
-//                    placeFormaterList.addAll(getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY));
-//                }
-//                PlaceAutoCompleteArrayAdapter adapter;
-//                adapter = new PlaceAutoCompleteArrayAdapter(this, placeFormaterList);
-//                autoCompleteTextView.setAdapter(adapter);
-//                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+            if (autocompleteLayout.getVisibility() == View.GONE) {
+                this.updateAutoCompleteDesign();
+                autoCompleteTextView.setAdapter(adapter);
+                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
 //                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
-//                        startActivity(detailActivity);
-//                    }
-//                });
-//            } else {
-//                this.updateAutoCompleteDesign();
-//
-//            }
+                        startActivity(detailActivity);
+                    }
+                });
+            } else {
+                this.updateAutoCompleteDesign();
+
+            }
         }
         return true;
     }
@@ -317,7 +334,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 break;
             case R.id.activity_main_drawer_logout:
                 this.signOutUserFromFirebase();
-                utils.showSnackBar(coordinatorLayout, getString(R.string.user_logout));
+                showSnackBar(coordinatorLayout, getString(R.string.user_logout));
                 break;
             default:
                 break;
@@ -383,7 +400,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         UserHelper.getUser(getCurrentUser().getUid()).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                utils.showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
+                showSnackBar(coordinatorLayout, "Favorite restaurant not found !");
                 chosenRestaurantId = "";
             }
         }).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -405,7 +422,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                 }
                             });
                         } else {
-                            utils.showSnackBar(coordinatorLayout, getString(R.string.no_choice));
+                            showSnackBar(coordinatorLayout, getString(R.string.no_choice));
                         }
                     }
                 }
@@ -480,7 +497,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(this, available, ERROR_DIALOG_REQUEST);
         } else {
-            this.utils.showSnackBar(coordinatorLayout, "You can't make map request");
+            showSnackBar(coordinatorLayout, "You can't make map request");
         }
         return false;
     }
@@ -501,9 +518,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
+                            configureAutocomplete();
                             executeStreamFetchNearbyRestaurant();
                         } else {
-                            utils.showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
+                            showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                         }
                     }
                 });
@@ -528,7 +546,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (previousLocationLng == 0.0 || previousLocationLng != (currentLocation.getLongitude())) {
             write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
         }
-
     }
     //****************************
     //******  DATA STREAMS *******
@@ -539,7 +556,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private void executeStreamFetchNearbyRestaurant() {
 
-        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(utils.formatLocationToString(currentLocation))
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString(currentLocation))
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
 
                     @Override
@@ -548,7 +565,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
                             placeAroundList.add(place);
                         } else {
-                            utils.showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
+                            showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
                         }
                     }
 
@@ -599,7 +616,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    utils.showSnackBar(coordinatorLayout, getString(error_unknown_error));
+                                    showSnackBar(coordinatorLayout, getString(error_unknown_error));
                                     Timber.i(getString(error_unknown_error) + " " + e);
                                 }
                             });
@@ -733,10 +750,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case RC_SIGN_IN:
                 this.handleResponseAfterSignIn(resultCode, data);
                 break;
-            case PLACE_AUTOCOMPLETE_REQUEST_CODE:
-                this.handlePlaceAutoCompleteResponse(resultCode, data);
-                break;
-
         }
     }
 
@@ -805,42 +818,23 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString(), this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
                 }
             }
-            utils.showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+            showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
             this.configureDesign();
 
         } else {//ERROR
             if (response == null) {
-                utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
+                showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
             } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
+                showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
             } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                utils.showSnackBar(this.coordinatorLayout, getString(error_unknown_error));
+                showSnackBar(this.coordinatorLayout, getString(error_unknown_error));
 
             }
         }
     }
 
-    /**
-     * Handle place auto complete response.
-     *
-     * @param resultCode the result code
-     * @param data       the data
-     */
-    private void handlePlaceAutoCompleteResponse(int resultCode, Intent data) {
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-//        if (resultCode == RESULT_OK) {
-//            Place place = PlaceAutocomplete.getPlace(this, data);
-//            Timber.i("PlaceApiData: " + place.getName() + " lat/long = " + place.getLatLng());
-//            this.updateMapWithPlace(place.getLatLng());
-//        } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-//            Status status = PlaceAutocomplete.getStatus(this, data);
-//            utils.showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
-//            Timber.i(status.getStatusMessage());
-//
-//        } else if (resultCode == RESULT_CANCELED) {
-//            Timber.i("handlePlaceAutoCompleteResponse: cancel");
-//            finish();
-//            startActivity(getIntent());
-//        }
     }
 }
