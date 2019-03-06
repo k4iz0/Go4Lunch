@@ -92,7 +92,9 @@ public class ListFragment extends BaseFragment {
                 });
     }
 
-
+    public void updateUI(){
+        adapter.notifyDataSetChanged();
+    }
     @Override
     public void onResume() {
         super.onResume();

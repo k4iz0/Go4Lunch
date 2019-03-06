@@ -1,22 +1,5 @@
 package ltd.kaizo.go4lunch.views.adapter;
 
-/*
- * Copyright (C) 2015 Google Inc. All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
-
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
@@ -24,7 +7,6 @@ import com.google.android.gms.common.data.DataBufferUtils;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -34,6 +16,7 @@ import android.graphics.Typeface;
 import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -43,11 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
+import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.models.PlaceFormater;
 import timber.log.Timber;
 
 /**
@@ -63,11 +45,15 @@ public class PlaceAutocompleteAdapter
         extends ArrayAdapter<AutocompletePrediction> implements Filterable {
 
     private static final String TAG = "PlaceAutoCompleteAd";
-    private static final CharacterStyle STYLE_BOLD = new StyleSpan(Typeface.BOLD);
+    public static final CharacterStyle STYLE_BOLD = new StyleSpan(Typeface.BOLD);
     /**
      * Current results returned by this adapter.
      */
-    private ArrayList<AutocompletePrediction> mResultList;
+    private ArrayList<AutocompletePrediction> resultList;
+/**
+     * nearby results returned by the API.
+     */
+    private ArrayList<PlaceFormater> nearbyRestaurantList;
 
     /**
      * Handles autocomplete requests.
@@ -90,13 +76,13 @@ public class PlaceAutocompleteAdapter
      * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
      */
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
-                                    LatLngBounds bounds, AutocompleteFilter filter) {
+                                    LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> restaurantIdList) {
         super(context, android.R.layout.simple_expandable_list_item_2, android.R.id.text1);
         mGoogleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
+        nearbyRestaurantList = restaurantIdList;
     }
-
     /**
      * Sets the bounds for all subsequent queries.
      */
@@ -109,7 +95,7 @@ public class PlaceAutocompleteAdapter
      */
     @Override
     public int getCount() {
-        return mResultList.size();
+        return resultList.size();
     }
 
     /**
@@ -117,25 +103,22 @@ public class PlaceAutocompleteAdapter
      */
     @Override
     public AutocompletePrediction getItem(int position) {
-        return mResultList.get(position);
+        return resultList.get(position);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View row = super.getView(position, convertView, parent);
-
-        // Sets the primary and secondary text for a row.
-        // Note that getPrimaryText() and getSecondaryText() return a CharSequence that may contain
-        // styling based on the given CharacterStyle.
-
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(
+                    R.layout.place_autocomplete_row, parent, false
+            );
+        }
         AutocompletePrediction item = getItem(position);
-
-        TextView textView1 = (TextView) row.findViewById(android.R.id.text1);
-        TextView textView2 = (TextView) row.findViewById(android.R.id.text2);
-        textView1.setText(item.getPrimaryText(STYLE_BOLD));
-        textView2.setText(item.getSecondaryText(STYLE_BOLD));
-
-        return row;
+        TextView placeTextView = convertView.findViewById(R.id.autocomplete_textview);
+        if (item != null) {
+            placeTextView.setText(String.format("%s, %s", item.getPrimaryText(STYLE_BOLD), item.getSecondaryText(STYLE_BOLD)));
+        }
+        return convertView;
     }
 
     /**
@@ -173,7 +156,7 @@ public class PlaceAutocompleteAdapter
 
                 if (results != null && results.count > 0) {
                     // The API returned at least one result, update the data.
-                    mResultList = (ArrayList<AutocompletePrediction>) results.values;
+                    resultList = (ArrayList<AutocompletePrediction>) results.values;
                     notifyDataSetChanged();
                 } else {
                     // The API did not return any results, invalidate the data set.
@@ -217,14 +200,16 @@ public class PlaceAutocompleteAdapter
             // contain the results when the query completes.
             PendingResult<AutocompletePredictionBuffer> results =
                     Places.GeoDataApi
-                            .getAutocompletePredictions(mGoogleApiClient, constraint.toString(),
-                                    mBounds, mPlaceFilter);
+                            .getAutocompletePredictions(mGoogleApiClient,
+                                    constraint.toString(),
+                                    mBounds,
+                                    mPlaceFilter);
 
             // This method should have been called off the main UI thread. Block and wait for at most 60s
             // for a result from the API.
+
             AutocompletePredictionBuffer autocompletePredictions = results
                     .await(60, TimeUnit.SECONDS);
-
             // Confirm that the query completed successfully, otherwise return null
             final Status status = autocompletePredictions.getStatus();
             if (!status.isSuccess()) {
@@ -238,13 +223,15 @@ public class PlaceAutocompleteAdapter
             Timber.i("Query completed. Received " + autocompletePredictions.getCount()
                     + " predictions.");
 
-
             // Freeze the results immutable representation that can be stored safely.
             ArrayList<AutocompletePrediction> autocompletePredictionArrayList = DataBufferUtils.freezeAndClose(autocompletePredictions);
+            //filter the result to the restaurant found nearby
             ArrayList<AutocompletePrediction> filteredList = new ArrayList<>();
             for (AutocompletePrediction p: autocompletePredictionArrayList) {
-                if (p.getPlaceTypes().contains(Place.TYPE_RESTAURANT)) {
-                    filteredList.add(p);
+                for (PlaceFormater place : nearbyRestaurantList) {
+                    if (p.getPrimaryText(STYLE_BOLD).toString().equalsIgnoreCase(place.getPlaceName())) {
+                        filteredList.add(p);
+                    }
                 }
             }
             return filteredList;
@@ -252,4 +239,6 @@ public class PlaceAutocompleteAdapter
         Log.e(TAG, "Google API client is not connected for autocomplete query.");
         return null;
     }
+
+
 }

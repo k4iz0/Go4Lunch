@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,15 +19,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -38,14 +38,10 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -80,13 +76,13 @@ import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
 import ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter;
 import timber.log.Timber;
 
-import static com.google.android.libraries.places.compat.AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT;
 import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_AROUND_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_DETAIL_KEY;
 import static ltd.kaizo.go4lunch.models.utils.Utils.configureCurrentLocation;
 import static ltd.kaizo.go4lunch.models.utils.Utils.formatLocationToString;
 import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
+import static ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter.STYLE_BOLD;
 
 /**
  * The type Main activity.
@@ -131,6 +127,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     @BindView(R.id.activity_main_drawer_layout)
     DrawerLayout drawerLayout;
+    /**
+     * The progress bar
+     */
+    @BindView(R.id.activity_main_progress_bar)
+    ProgressBar progressBar;
     /**
      * The Navigation view.
      */
@@ -251,7 +252,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             ab.setDisplayHomeAsUpEnabled(true);
         }
         setSupportActionBar(toolbar);
-
+    //progressBar color
+        progressBar.getIndeterminateDrawable().setColorFilter(
+                Color.parseColor("#008577"), android.graphics.PorterDuff.Mode.SRC_IN);
     }
 
     private void configureAutocomplete() {
@@ -271,9 +274,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         AutocompleteFilter filter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                 .build();
-        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter);
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, placeDetailList);
     }
-
 
 
     @Override
@@ -287,23 +289,28 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (item.getItemId() == R.id.activity_main_searchview) {
             if (autocompleteLayout.getVisibility() == View.GONE) {
                 this.updateAutoCompleteDesign();
+                autoCompleteTextView.setThreshold(1);
                 autoCompleteTextView.setAdapter(adapter);
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                        final AutocompletePrediction item = adapter.getItem(position);
-//                        final String placeId = item.getPlaceId();
-////                        Log.i(LOG_TAG, "Selected: " + item.description);
+
+                        final AutocompletePrediction item = adapter.getItem(position);
+                        final String placeName = item.getPrimaryText(STYLE_BOLD).toString();
+//                        Log.i(LOG_TAG, "Selected: " + item.description);
 //                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
 //                                .getPlaceById(geoDataClient, placeId);
 //                        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
 //                        Timber.i("Fetching details for ID: " + placeId);
-//
-//
-//                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-////                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
-//                        startActivity(detailActivity);
+                        for (PlaceFormater place : placeDetailList) {
+                            if (placeName.equalsIgnoreCase(place.getPlaceName())) {
+                                Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+                                detailActivity.putExtra("PlaceFormater", place);
+                                startActivity(detailActivity);
+                            }
+                        }
+
+
                     }
                 });
             } else {
@@ -535,8 +542,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
                             streamFetchNearbyRestaurantAndGetPlaceDetail();
-                            configureAutocomplete();
-//                            streamFetchNearbyRestaurant();
+//                            configureAutocomplete();
+                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                         }
@@ -573,7 +580,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                     @Override
                     public void onComplete() {
-                        configureAutocomplete();
+//                        configureAutocomplete();
                     }
                 });
 
@@ -584,7 +591,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
 
     private void streamFetchNearbyRestaurantAndGetPlaceDetail() {
-
+        progressBar.setVisibility(View.VISIBLE);
         this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString(currentLocation))
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
 
@@ -632,7 +639,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
                                                     placeDetailList.add(place);
-                                                    Timber.i("taille new = " + placeDetailList.size());
+                                                    Timber.i("taille deja = " + placeDetailList.size());
                                                     if (placeAroundList.size() == placeDetailList.size()) {
                                                         configureBottomNavigationView();
                                                     }
@@ -640,7 +647,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                             }
                                         });
                                     }
-
+                                    Timber.i("taille end = " + placeDetailList.size());
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -698,6 +705,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * Configure bottom navigation view.
      */
     private void configureBottomNavigationView() {
+        progressBar.setVisibility(View.INVISIBLE);
+        this.configureAutocomplete();
         configureAndShowMapFragment();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
