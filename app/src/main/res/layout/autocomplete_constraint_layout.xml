@@ -38,10 +38,6 @@
         tool:layout_constraintTop_toTopOf="parent"
         tool:layout_constraintVertical_bias="0.0"
         android:textCursorDrawable="@null"/>
-        <TextView
-            android:id="@+id/textview_test"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
     <ImageView
         android:id="@+id/autocomplete_mic_imageview"
         android:layout_width="wrap_content"

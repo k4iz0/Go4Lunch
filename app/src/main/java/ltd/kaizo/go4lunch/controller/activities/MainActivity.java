@@ -18,7 +18,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,10 +38,14 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -62,6 +68,8 @@ import ltd.kaizo.go4lunch.controller.fragment.MapFragment;
 import ltd.kaizo.go4lunch.controller.fragment.MatesFragment;
 import ltd.kaizo.go4lunch.models.API.RestaurantHelper;
 import ltd.kaizo.go4lunch.models.API.UserHelper;
+import ltd.kaizo.go4lunch.models.API.nearbySearch.PlaceApiData;
+import ltd.kaizo.go4lunch.models.API.nearbySearch.Result;
 import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailApiData;
 import ltd.kaizo.go4lunch.models.API.stream.PlaceStream;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
@@ -72,13 +80,11 @@ import ltd.kaizo.go4lunch.models.utils.androidJob.ResetUserChoiceJob;
 import ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter;
 import timber.log.Timber;
 
+import static com.google.android.libraries.places.compat.AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT;
 import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_AROUND_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_DETAIL_KEY;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
-import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+import static ltd.kaizo.go4lunch.models.utils.Utils.configureCurrentLocation;
 import static ltd.kaizo.go4lunch.models.utils.Utils.formatLocationToString;
 import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
 
@@ -86,14 +92,6 @@ import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
  * The type Main activity.
  */
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
-    /**
-     * The constant PLACE_AUTOCOMPLETE_REQUEST_CODE.
-     */
-    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-    /**
-     * The Default location.
-     */
-    static final LatLng DEFAULT_LOCATION = new LatLng(48.858093, 2.294694); //PARIS
     /**
      * The constant RC_SIGN_IN.
      */
@@ -186,6 +184,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private ArrayList<PlaceFormater> placeDetailList = new ArrayList<>();
     /**
+     * The Place detail list.
+     */
+    private ArrayList<String> restauranIdList = new ArrayList<>();
+    /**
      * The Disposable.
      */
     private Disposable disposable;
@@ -239,6 +241,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
     //*******   TOOLBAR   ********
     //****************************
+
     /**
      * Configure toolbar.
      */
@@ -256,20 +259,44 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.geoDataClient = new GoogleApiClient.Builder(this)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this,this)
+                .enableAutoManage(this, this)
                 .build();
         LatLng center = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        bounds =   new LatLngBounds.Builder().
+        bounds = new LatLngBounds.Builder().
                 include(SphericalUtil.computeOffset(center, 5000, 0)).
                 include(SphericalUtil.computeOffset(center, 5000, 90)).
                 include(SphericalUtil.computeOffset(center, 5000, 180)).
                 include(SphericalUtil.computeOffset(center, 5000, 270)).build();
 
         AutocompleteFilter filter = new AutocompleteFilter.Builder()
-                .setTypeFilter(Place.TYPE_RESTAURANT)
+                .setTypeFilter(TYPE_FILTER_ESTABLISHMENT)
                 .build();
-        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient,bounds,filter);
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, this.restauranIdList);
     }
+
+    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
+            = new ResultCallback<PlaceBuffer>() {
+        @Override
+        public void onResult(PlaceBuffer places) {
+            if (!places.getStatus().isSuccess()) {
+                Timber.e("Place query did not complete. Error: " +
+                        places.getStatus().toString());
+                return;
+            }
+            // Selecting the first object buffer.
+            final Place place = places.get(0);
+            CharSequence attributions = places.getAttributions();
+            Timber.i("call back place name = " + place.getName());
+//            mNameTextView.setText(Html.fromHtml(place.getName() + ""));
+//            mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
+//            mIdTextView.setText(Html.fromHtml(place.getId() + ""));
+//            mPhoneTextView.setText(Html.fromHtml(place.getPhoneNumber() + ""));
+//            mWebTextView.setText(place.getWebsiteUri() + "");
+//            if (attributions != null) {
+//                mAttTextView.setText(Html.fromHtml(attributions.toString()));
+//            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -286,9 +313,19 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-//                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
-                        startActivity(detailActivity);
+
+                        final AutocompletePrediction item = adapter.getItem(position);
+                        final String placeId = item.getPlaceId();
+//                        Log.i(LOG_TAG, "Selected: " + item.description);
+                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+                                .getPlaceById(geoDataClient, placeId);
+                        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+                        Timber.i("Fetching details for ID: " + placeId);
+//
+//
+//                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
+////                        detailActivity.putExtra("PlaceFormater", placeFormaterList.get(position));
+//                        startActivity(detailActivity);
                     }
                 });
             } else {
@@ -387,7 +424,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 if (task.isSuccessful() && task.getResult() != null) {
                     currentUser = task.getResult().toObject(User.class);
                     updateNavHeaderDesign();
-
                 }
             }
         });
@@ -442,12 +478,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
+
+    //****************************
+    //*******  PERMISSIONS *******
+    //****************************
+
     /**
      * Configure permission.
      */
-//****************************
-    //*******  PERMISSIONS *******
-    //****************************
     private void configurePermission() {
         if (isServiceOK()) {
             this.getLocationPermission();
@@ -518,8 +556,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
-                            configureAutocomplete();
-                            executeStreamFetchNearbyRestaurant();
+                            streamFetchNearbyRestaurantAndGetPlaceDetail();
+                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                         }
@@ -531,30 +569,42 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
     }
 
-    /**
-     * Is current location change boolean.
-     *
-     * @param currentLocation the current location
-     * @return the boolean
-     */
-    private void configureCurrentLocation(Location currentLocation) {
-        Double previousLocationLat = read(CURRENT_LATITUDE_KEY, 0.0);
-        Double previousLocationLng = read(CURRENT_LONGITUDE_KEY, 0.0);
-        if (previousLocationLat == 0.0 || previousLocationLat != (currentLocation.getLatitude())) {
-            write(CURRENT_LATITUDE_KEY, currentLocation.getLatitude());
-        }
-        if (previousLocationLng == 0.0 || previousLocationLng != (currentLocation.getLongitude())) {
-            write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
-        }
-    }
     //****************************
     //******  DATA STREAMS *******
     //****************************
 
     /**
+     * Execute stream fetch nearby restaurant
+     */
+    private void streamFetchNearbyRestaurant() {
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurant(formatLocationToString(currentLocation))
+                .subscribeWith(new DisposableObserver<PlaceApiData>() {
+                    @Override
+                    public void onNext(PlaceApiData placeApiData) {
+                        if (placeApiData != null) {
+                            for (Result result : placeApiData.getResults())
+                                restauranIdList.add(result.getId());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showSnackBar(coordinatorLayout, getString(R.string.error_occurred));
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        configureAutocomplete();
+                    }
+                });
+
+    }
+
+    /**
      * Execute stream fetch nearby restaurant and get place detail.
      */
-    private void executeStreamFetchNearbyRestaurant() {
+
+    private void streamFetchNearbyRestaurantAndGetPlaceDetail() {
 
         this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString(currentLocation))
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
