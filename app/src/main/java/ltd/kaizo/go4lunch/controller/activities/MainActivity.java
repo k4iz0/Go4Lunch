@@ -269,34 +269,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 include(SphericalUtil.computeOffset(center, 5000, 270)).build();
 
         AutocompleteFilter filter = new AutocompleteFilter.Builder()
-                .setTypeFilter(TYPE_FILTER_ESTABLISHMENT)
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                 .build();
-        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, this.restauranIdList);
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter);
     }
 
-    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback
-            = new ResultCallback<PlaceBuffer>() {
-        @Override
-        public void onResult(PlaceBuffer places) {
-            if (!places.getStatus().isSuccess()) {
-                Timber.e("Place query did not complete. Error: " +
-                        places.getStatus().toString());
-                return;
-            }
-            // Selecting the first object buffer.
-            final Place place = places.get(0);
-            CharSequence attributions = places.getAttributions();
-            Timber.i("call back place name = " + place.getName());
-//            mNameTextView.setText(Html.fromHtml(place.getName() + ""));
-//            mAddressTextView.setText(Html.fromHtml(place.getAddress() + ""));
-//            mIdTextView.setText(Html.fromHtml(place.getId() + ""));
-//            mPhoneTextView.setText(Html.fromHtml(place.getPhoneNumber() + ""));
-//            mWebTextView.setText(place.getWebsiteUri() + "");
-//            if (attributions != null) {
-//                mAttTextView.setText(Html.fromHtml(attributions.toString()));
-//            }
-        }
-    };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -313,14 +291,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                        final AutocompletePrediction item = adapter.getItem(position);
-                        final String placeId = item.getPlaceId();
-//                        Log.i(LOG_TAG, "Selected: " + item.description);
-                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-                                .getPlaceById(geoDataClient, placeId);
-                        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-                        Timber.i("Fetching details for ID: " + placeId);
+//
+//                        final AutocompletePrediction item = adapter.getItem(position);
+//                        final String placeId = item.getPlaceId();
+////                        Log.i(LOG_TAG, "Selected: " + item.description);
+//                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
+//                                .getPlaceById(geoDataClient, placeId);
+//                        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+//                        Timber.i("Fetching details for ID: " + placeId);
 //
 //
 //                        Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
@@ -557,7 +535,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
                             streamFetchNearbyRestaurantAndGetPlaceDetail();
-                            streamFetchNearbyRestaurant();
+                            configureAutocomplete();
+//                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                         }
