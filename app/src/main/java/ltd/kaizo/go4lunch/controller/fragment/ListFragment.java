@@ -10,6 +10,8 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -72,6 +74,7 @@ public class ListFragment extends BaseFragment {
      * Configure recycle view.
      */
     public void configureRecycleView() {
+        Collections.sort(restaurantList, PlaceFormater.compareToByDistance());
         this.adapter = new PlaceRecycleAdapter(restaurantList, Glide.with(this));
         this.recyclerView.setAdapter(adapter);
         this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -92,13 +95,9 @@ public class ListFragment extends BaseFragment {
                 });
     }
 
-    public void updateUI(){
-        adapter.notifyDataSetChanged();
+    public void updateUI(ArrayList<PlaceFormater> restaurantList){
+        this.restaurantList = restaurantList;
+        Collections.sort(restaurantList, PlaceFormater.compareToByDistance());
+        this.adapter.updateData(restaurantList);
     }
-    @Override
-    public void onResume() {
-        super.onResume();
-        adapter.notifyDataSetChanged();
-    }
-
 }

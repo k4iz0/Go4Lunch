@@ -27,7 +27,7 @@ public interface PlaceService {
     /**
      * The radius
      */
-    String radius = "400";
+    String radius = "3000";
     /**
      * The constant interceptor.
      */

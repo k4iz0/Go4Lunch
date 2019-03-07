@@ -15,20 +15,17 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import ltd.kaizo.go4lunch.R;
+import ltd.kaizo.go4lunch.controller.activities.MainActivity;
 import ltd.kaizo.go4lunch.models.PlaceFormater;
 import timber.log.Timber;
 
@@ -46,6 +43,7 @@ public class PlaceAutocompleteAdapter
 
     private static final String TAG = "PlaceAutoCompleteAd";
     public static final CharacterStyle STYLE_BOLD = new StyleSpan(Typeface.BOLD);
+    private Context context;
     /**
      * Current results returned by this adapter.
      */
@@ -79,6 +77,7 @@ public class PlaceAutocompleteAdapter
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
                                     LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> nearbyRestaurantList, ArrayList<String> restauranIdList) {
         super(context, android.R.layout.simple_expandable_list_item_2, android.R.id.text1);
+        this.context = context;
         mGoogleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
@@ -158,6 +157,7 @@ public class PlaceAutocompleteAdapter
                 if (results != null && results.count > 0) {
                     // The API returned at least one result, update the data.
                     resultList = (ArrayList<AutocompletePrediction>) results.values;
+                    ((MainActivity) context).updateListFromAutocomplete(resultList);
                     notifyDataSetChanged();
                 } else {
                     // The API did not return any results, invalidate the data set.
@@ -214,9 +214,7 @@ public class PlaceAutocompleteAdapter
             // Confirm that the query completed successfully, otherwise return null
             final Status status = autocompletePredictions.getStatus();
             if (!status.isSuccess()) {
-                Toast.makeText(getContext(), "Error contacting API: " + status.toString(),
-                        Toast.LENGTH_SHORT).show();
-                Timber.e("Error getting autocomplete prediction API call: " + status.toString());
+                Timber.e("Error getting autocomplete prediction API call: %s", status.toString());
                 autocompletePredictions.release();
                 return null;
             }
@@ -230,7 +228,6 @@ public class PlaceAutocompleteAdapter
             ArrayList<AutocompletePrediction> filteredList = new ArrayList<>();
             for (AutocompletePrediction p: autocompletePredictionArrayList) {
                 for (String id : restauranIdList) {
-                    Timber.i("autocomplete id = "+p.getPlaceId()+" restaurantId = "+id);
                     if (p.getPlaceId().equalsIgnoreCase(id)) {
                         filteredList.add(p);
                     }
@@ -238,7 +235,7 @@ public class PlaceAutocompleteAdapter
             }
             return filteredList;
         }
-        Log.e(TAG, "Google API client is not connected for autocomplete query.");
+        Timber.e("Google API client is not connected for autocomplete query.");
         return null;
     }
 

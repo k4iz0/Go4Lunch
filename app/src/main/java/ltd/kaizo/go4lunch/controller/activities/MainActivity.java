@@ -161,6 +161,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Map fragment.
      */
     private MapFragment mapFragment;
+     /**
+     * The List fragment.
+     */
+    private  ListFragment listFragment;
     /**
      * The Chosen restaurant id.
      */
@@ -213,7 +217,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.configureToolbar();
         this.configureNavigationView();
         this.configureDrawerLayout();
-        this.configureAutoCompleteFocus();
 //            this.configureAndroidJob();
 
     }
@@ -286,21 +289,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                         final AutocompletePrediction item = adapter.getItem(position);
                         final String placeName = item.getPrimaryText(STYLE_BOLD).toString();
-//                        Log.i(LOG_TAG, "Selected: " + item.description);
-//                        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi
-//                                .getPlaceById(geoDataClient, placeId);
-//                        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
-//                        Timber.i("Fetching details for ID: " + placeId);
                         for (PlaceFormater place : placeDetailList) {
                             if (placeName.equalsIgnoreCase(place.getPlaceName())) {
                                 Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
                                 detailActivity.putExtra("PlaceFormater", place);
-                                autoCompleteTextView.clearComposingText();
-                                autoCompleteTextView.clearFocus();
-                                updateAutoCompleteDesign();
                                 startActivity(detailActivity);
                             }
                         }
+                        autoCompleteTextView.clearComposingText();
+                        autoCompleteTextView.clearFocus();
+                        updateAutoCompleteDesign();
 
 
                     }
@@ -535,9 +533,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             configureCurrentLocation(currentLocation);
                             streamFetchNearbyRestaurantAndGetPlaceDetail();
 //                            configureAutocomplete();
-//                            streamFetchNearbyRestaurant();
+                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -592,7 +591,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData != null) {
                             PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
-                            Timber.i("streamFetchNearbyRestaurantAndGetPlaceDetail onNext adding place %s", place.getPlaceName());
                             placeAroundList.add(place);
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
@@ -607,7 +605,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     @Override
                     public void onComplete() {
                         //add to firestore if not already in
-                        Timber.i("streamFetchNearbyRestaurantAndGetPlaceDetail onComplete placearoundlist size = %s", placeAroundList.size());
                         for (final PlaceFormater place : placeAroundList) {
                             RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -615,10 +612,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                     if (task.getResult() != null) {
                                         if (task.getResult().exists()) {
                                             //add place from Firestore to list
-                                            Timber.i("task result " + task.getResult().exists());
                                             Restaurant restaurant = task.getResult().toObject(Restaurant.class);
                                             if (restaurant != null) {
-                                                Timber.i("onComplete fromFirestore adding place %s", restaurant.getPlaceFormater().getPlaceName());
                                                 placeDetailList.add(restaurant.getPlaceFormater());
                                             }
                                             if (placeAroundList.size() == placeDetailList.size()) {
@@ -630,7 +625,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                                 @Override
                                                 public void onComplete(@NonNull Task<Void> task) {
                                                     if (task.isSuccessful()) {
-                                                        Timber.i("onComplete create adding place %s", place.getPlaceName());
                                                         placeDetailList.add(place);
                                                         if (placeAroundList.size() == placeDetailList.size()) {
                                                             configureBottomNavigationView();
@@ -652,30 +646,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
     //*******   DESIGN   *********
     //****************************
-
-    /**
-     * Configure auto complete focus.
-     */
-    private void configureAutoCompleteFocus() {
-        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Timber.i("focus = " + hasFocus);
-//                if (!hasFocus) {
-//                    updateAutoCompleteDesign();
-//                }
-            }
-        });
-    }
-
     /**
      * Update auto complete design.
      */
     private void updateAutoCompleteDesign() {
         if (autocompleteLayout.getVisibility() == View.VISIBLE) {
             autocompleteLayout.setVisibility(View.GONE);
-            autoCompleteTextView.clearComposingText();
+            autoCompleteTextView.setText("");
             toolbar.setVisibility(View.VISIBLE);
+            this.updateListAndMarker(placeDetailList);
         } else {
             autocompleteLayout.setVisibility(View.VISIBLE);
             toolbar.setVisibility(View.INVISIBLE);
@@ -737,7 +716,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * Configure and show list fragment.
      */
     private void configureAndShowListFragment() {
-        ListFragment listFragment = new ListFragment();
+        listFragment = new ListFragment();
         listFragment.setArguments(saveDataToBundle());
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_main_fragment_container, listFragment)
@@ -765,6 +744,28 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         args.putParcelableArrayList(RESTAURANT_LIST_DETAIL_KEY, placeDetailList);
         args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
         return args;
+    }
+
+    public void updateListFromAutocomplete(ArrayList<AutocompletePrediction> restaurantPrediction) {
+        ArrayList<PlaceFormater> filteredList = new ArrayList<>();
+        for (AutocompletePrediction data : restaurantPrediction) {
+            for (PlaceFormater place : placeDetailList) {
+                if (data.getPrimaryText(STYLE_BOLD).toString().equalsIgnoreCase(place.getPlaceName())) {
+                    filteredList.add(place);
+                }
+            }
+        }
+        this.updateListAndMarker(filteredList);
+
+    }
+
+    private void updateListAndMarker(ArrayList<PlaceFormater> restaurantList) {
+        if (listFragment != null) {
+            listFragment.updateUI(restaurantList);
+        }
+        if (mapFragment != null) {
+            mapFragment.configureListAndMarker(restaurantList);
+        }
     }
 
 

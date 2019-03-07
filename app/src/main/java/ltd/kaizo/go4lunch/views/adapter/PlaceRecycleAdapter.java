@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.RequestManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ltd.kaizo.go4lunch.R;
@@ -57,6 +58,8 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
     }
 
 
-
-
+    public void updateData(ArrayList<PlaceFormater> restaurantList) {
+        this.restaurantList = restaurantList;
+        notifyDataSetChanged();
+    }
 }

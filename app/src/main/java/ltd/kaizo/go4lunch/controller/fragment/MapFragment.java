@@ -118,7 +118,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void configureGoogleMap() {
         this.getCurrentLocation();
-        this.configureListAndMarker();
+        this.configureListAndMarker(placeDetailList);
+        this.setCorrectDistance();
         this.configureFloatingButton();
         this.moveCameraToCurrentLocation(currentLocation);
     }
@@ -227,19 +228,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void configureListAndMarker() {
-        if (placeDetailList.size() == placeAroundList.size()) {
-            this.setCorrectDistance();
-            // sort and save the list
-            //add marker on map
-            for (PlaceFormater place : placeDetailList) {
-                Timber.i("place for marker = " + place.getPlaceName());
-                place.addMarkerFromList(this.googleMap, place, false);
-            }
-            //configure click event
-            configureOnMarkerClick(placeDetailList);
-            switchMarkerColor();
+    public void configureListAndMarker(ArrayList<PlaceFormater> restaurantList) {
+
+        //add marker on map
+        for (PlaceFormater place : restaurantList) {
+            place.addMarkerFromList(this.googleMap, place, false);
         }
+        //configure click event
+        configureOnMarkerClick(restaurantList);
+        switchMarkerColor();
     }
 
     /**
