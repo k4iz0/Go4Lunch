@@ -6,14 +6,13 @@
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
-         location permissions for the 'MyLocation' functionality. 
+         location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-
 
     <application
         android:name=".models.utils.LeakCanaryApplication"
@@ -23,23 +22,23 @@
         android:roundIcon="@drawable/go4lunch_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".controller.activities.LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <uses-library
             android:name="org.apache.http.legacy"
-            android:required="false" />
-
-        <!-- NOTIFICATION SERVICE -->
-
-        <service
-
-            android:name=".models.notifications.NotificationsService">
-
+            android:required="false" /> <!-- NOTIFICATION SERVICE -->
+        <service android:name=".models.notifications.NotificationsService">
             <intent-filter>
-
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
-
             </intent-filter>
-
         </service>
+
         <activity
             android:name=".controller.activities.MainActivity"
             android:screenOrientation="portrait">
@@ -55,7 +54,7 @@
              Note that the API key is linked to the encryption key used to sign the APK.
              You need a different API key for each encryption key, including the release key that is used to
              sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
         <meta-data
             android:name="com.google.android.gms.version"
@@ -73,8 +72,7 @@
             android:name=".controller.activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".controller.activities.MainActivity"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

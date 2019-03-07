@@ -19,6 +19,7 @@ import java.util.Comparator;
 import ltd.kaizo.go4lunch.R;
 import ltd.kaizo.go4lunch.models.API.placeDetail.OpeningHours;
 import ltd.kaizo.go4lunch.models.API.placeDetail.PlaceDetailResult;
+import timber.log.Timber;
 
 /**
  * The type Place formater.
@@ -197,9 +198,15 @@ public class PlaceFormater implements Parcelable {
                 str = context.getString(R.string.open);
             } else {
                 if (this.placeHour.getPeriods().size() > 1) {
-                    String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
-                    String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
-                    str = context.getString(R.string.open_until) + hour + "H" + min;
+                    Timber.i(placeName+" horaire "+placeHour.getPeriods().toString());
+
+                    try {
+                        String hour = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(0, 2);
+                        String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
+                        str = context.getString(R.string.open_until) + hour + "H" + min;
+                    } catch (Exception e) {
+                        str = context.getString(R.string.unknow);
+                    }
                 }
             }
         }

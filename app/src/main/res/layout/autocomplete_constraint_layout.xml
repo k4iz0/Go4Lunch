@@ -29,7 +29,7 @@
         android:id="@+id/autocomplete_textview"
         android:layout_width="252dp"
         android:layout_height="wrap_content"
-        android:completionThreshold="1"
+        android:completionThreshold="2"
         android:hint="@string/search_restaurants"
         tool:layout_constraintBottom_toBottomOf="parent"
         tool:layout_constraintEnd_toStartOf="@+id/autocomplete_mic_imageview"

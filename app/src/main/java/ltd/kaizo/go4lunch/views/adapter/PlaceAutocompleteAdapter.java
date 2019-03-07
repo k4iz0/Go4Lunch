@@ -54,6 +54,7 @@ public class PlaceAutocompleteAdapter
      * nearby results returned by the API.
      */
     private ArrayList<PlaceFormater> nearbyRestaurantList;
+    private ArrayList<String> restauranIdList;
 
     /**
      * Handles autocomplete requests.
@@ -76,12 +77,13 @@ public class PlaceAutocompleteAdapter
      * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
      */
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
-                                    LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> restaurantIdList) {
+                                    LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> nearbyRestaurantList, ArrayList<String> restauranIdList) {
         super(context, android.R.layout.simple_expandable_list_item_2, android.R.id.text1);
         mGoogleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
-        nearbyRestaurantList = restaurantIdList;
+        this.nearbyRestaurantList = nearbyRestaurantList;
+        this.restauranIdList = restauranIdList;
     }
     /**
      * Sets the bounds for all subsequent queries.
@@ -108,17 +110,16 @@ public class PlaceAutocompleteAdapter
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(
-                    R.layout.place_autocomplete_row, parent, false
-            );
-        }
+        View row = super.getView(position, convertView, parent);
+        // Sets the primary and secondary text for a row.
+        // Note that getPrimaryText() and getSecondaryText() return a CharSequence that may contain
+        // styling based on the given CharacterStyle.
         AutocompletePrediction item = getItem(position);
-        TextView placeTextView = convertView.findViewById(R.id.autocomplete_textview);
-        if (item != null) {
-            placeTextView.setText(String.format("%s, %s", item.getPrimaryText(STYLE_BOLD), item.getSecondaryText(STYLE_BOLD)));
-        }
-        return convertView;
+        TextView textView1 = (TextView) row.findViewById(android.R.id.text1);
+        TextView textView2 = (TextView) row.findViewById(android.R.id.text2);
+        textView1.setText(item.getPrimaryText(STYLE_BOLD));
+        textView2.setText(item.getSecondaryText(STYLE_BOLD));
+        return row;
     }
 
     /**
@@ -228,8 +229,9 @@ public class PlaceAutocompleteAdapter
             //filter the result to the restaurant found nearby
             ArrayList<AutocompletePrediction> filteredList = new ArrayList<>();
             for (AutocompletePrediction p: autocompletePredictionArrayList) {
-                for (PlaceFormater place : nearbyRestaurantList) {
-                    if (p.getPrimaryText(STYLE_BOLD).toString().equalsIgnoreCase(place.getPlaceName())) {
+                for (String id : restauranIdList) {
+                    Timber.i("autocomplete id = "+p.getPlaceId()+" restaurantId = "+id);
+                    if (p.getPlaceId().equalsIgnoreCase(id)) {
                         filteredList.add(p);
                     }
                 }

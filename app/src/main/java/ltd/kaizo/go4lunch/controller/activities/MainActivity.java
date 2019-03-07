@@ -89,10 +89,6 @@ import static ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter.STYLE_BO
  */
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener {
     /**
-     * The constant RC_SIGN_IN.
-     */
-    private static final int RC_SIGN_IN = 123;
-    /**
      * The constant SIGN_OUT_TASK.
      */
     private static final int SIGN_OUT_TASK = 10;
@@ -215,10 +211,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void configureDesign() {
-        // if user's logged in show the map, otherwise show identification page
-        if (!isCurrentUserLogged()) {
-            this.startSignInActivity();
-        } else {
             this.configurePermission();
             this.configureCurrentUser();
             this.configureToolbar();
@@ -226,7 +218,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             this.configureDrawerLayout();
             this.configureAutoCompleteFocus();
 //            this.configureAndroidJob();
-        }
+
     }
 
 
@@ -274,7 +266,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         AutocompleteFilter filter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
                 .build();
-        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, placeDetailList);
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, placeDetailList, restauranIdList);
     }
 
 
@@ -289,8 +281,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (item.getItemId() == R.id.activity_main_searchview) {
             if (autocompleteLayout.getVisibility() == View.GONE) {
                 this.updateAutoCompleteDesign();
-                autoCompleteTextView.setThreshold(1);
                 autoCompleteTextView.setAdapter(adapter);
+                autoCompleteTextView.setThreshold(1);
                 autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -306,6 +298,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             if (placeName.equalsIgnoreCase(place.getPlaceName())) {
                                 Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
                                 detailActivity.putExtra("PlaceFormater", place);
+                                autoCompleteTextView.clearComposingText();
+                                autoCompleteTextView.clearFocus();
+                                updateAutoCompleteDesign();
                                 startActivity(detailActivity);
                             }
                         }
@@ -541,7 +536,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
-                            streamFetchNearbyRestaurantAndGetPlaceDetail();
+//                            streamFetchNearbyRestaurantAndGetPlaceDetail();
 //                            configureAutocomplete();
                             streamFetchNearbyRestaurant();
                         } else {
@@ -569,7 +564,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     public void onNext(PlaceApiData placeApiData) {
                         if (placeApiData != null) {
                             for (Result result : placeApiData.getResults())
-                                restauranIdList.add(result.getId());
+                                restauranIdList.add(result.getPlaceId());
                         }
                     }
 
@@ -580,7 +575,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
                     @Override
                     public void onComplete() {
-//                        configureAutocomplete();
+                        configureAutocomplete();
                     }
                 });
 
@@ -617,15 +612,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
+                                    if (task.isSuccessful() && task.getResult() != null) {
                                         //add place from Firestore to list
                                         RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful() && task.getResult() != null) {
                                                     Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                                                    placeDetailList.add(restaurant.getPlaceFormater());
-                                                    Timber.i("taille new = " + placeDetailList.size());
+                                                    if (restaurant != null) {
+                                                        placeDetailList.add(restaurant.getPlaceFormater());
+                                                    }
                                                     if (placeAroundList.size() == placeDetailList.size()) {
                                                         configureBottomNavigationView();
                                                     }
@@ -639,7 +635,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
                                                     placeDetailList.add(place);
-                                                    Timber.i("taille deja = " + placeDetailList.size());
                                                     if (placeAroundList.size() == placeDetailList.size()) {
                                                         configureBottomNavigationView();
                                                     }
@@ -647,7 +642,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                             }
                                         });
                                     }
-                                    Timber.i("taille end = " + placeDetailList.size());
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -674,7 +668,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         autocompleteLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                updateAutoCompleteDesign();
+                if (!hasFocus) {
+                    updateAutoCompleteDesign();
+                }
             }
         });
     }
@@ -706,7 +702,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private void configureBottomNavigationView() {
         progressBar.setVisibility(View.INVISIBLE);
-        this.configureAutocomplete();
         configureAndShowMapFragment();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -777,38 +772,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
         return args;
     }
-    //****************************
-    //*******   FIREBASE   *******
-    //****************************
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case RC_SIGN_IN:
-                this.handleResponseAfterSignIn(resultCode, data);
-                break;
-        }
-    }
 
-    /**
-     * Start sign in activity.
-     */
-    private void startSignInActivity() {
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setLogo(R.drawable.ic_home)
-                        .setTheme(R.style.LoginTheme)
-                        .setAvailableProviders(
-                                Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build(),
-                                        new AuthUI.IdpConfig.FacebookBuilder().build(),
-                                        new AuthUI.IdpConfig.TwitterBuilder().build(),
-                                        new AuthUI.IdpConfig.EmailBuilder().build()))
-                        .setIsSmartLockEnabled(false, true)
-                        .build(),
-                RC_SIGN_IN);
-    }
 
     /**
      * Sign out user from firebase.
@@ -831,44 +796,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             @Override
             public void onSuccess(Void aVoid) {
                 if (origin == SIGN_OUT_TASK) {
-                    finish();
-                    startActivity(getIntent());
+                    Intent loginActivity = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(loginActivity);
                 }
             }
         };
-    }
-
-    /**
-     * Handle response after sign in.
-     *
-     * @param resultCode the result code
-     * @param data       the data
-     */
-    private void handleResponseAfterSignIn(int resultCode, Intent data) {
-        IdpResponse response = IdpResponse.fromResultIntent(data);
-
-        if (resultCode == RESULT_OK) {//SUCCESS
-            if (this.getCurrentUser() != null) {
-                if (this.getCurrentUser().getPhotoUrl() == null) {
-                    //email & password account no picture
-                    UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), "", this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
-                } else {
-                    UserHelper.createUser(this.getCurrentUser().getUid(), this.getCurrentUser().getDisplayName(), this.getCurrentUser().getPhotoUrl().toString(), this.getCurrentUser().getEmail()).addOnFailureListener(this.onFailureListener());
-                }
-            }
-            showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
-            this.configureDesign();
-
-        } else {//ERROR
-            if (response == null) {
-                showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-            } else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-            } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                showSnackBar(this.coordinatorLayout, getString(error_unknown_error));
-
-            }
-        }
     }
 
     @Override
