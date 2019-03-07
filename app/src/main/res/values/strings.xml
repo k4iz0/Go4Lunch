@@ -140,5 +140,7 @@
     <string name="no_place_found">No place found !</string>
     <string name="error_occurred">an error has occurred</string>
     <string name="unknow">unknown</string>
+    <string name="no_email">no email found</string>
+    <string name="no_username">no username found</string>
 
 </resources>

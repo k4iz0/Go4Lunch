@@ -33,8 +33,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.evernote.android.job.JobManager;
 import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -53,7 +51,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import butterknife.BindView;
 import io.reactivex.disposables.Disposable;
@@ -211,12 +208,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     public void configureDesign() {
-            this.configurePermission();
-            this.configureCurrentUser();
-            this.configureToolbar();
-            this.configureNavigationView();
-            this.configureDrawerLayout();
-            this.configureAutoCompleteFocus();
+        this.configurePermission();
+        this.configureCurrentUser();
+        this.configureToolbar();
+        this.configureNavigationView();
+        this.configureDrawerLayout();
+        this.configureAutoCompleteFocus();
 //            this.configureAndroidJob();
 
     }
@@ -244,7 +241,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             ab.setDisplayHomeAsUpEnabled(true);
         }
         setSupportActionBar(toolbar);
-    //progressBar color
+        //progressBar color
         progressBar.getIndeterminateDrawable().setColorFilter(
                 Color.parseColor("#008577"), android.graphics.PorterDuff.Mode.SRC_IN);
     }
@@ -371,12 +368,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         String email;
         String avatarUrl;
         if (TextUtils.isEmpty(currentUser.getUsername())) {
-            username = "no username found";
+            username = getString(R.string.no_username);
         } else {
             username = currentUser.getUsername();
         }
         if (TextUtils.isEmpty(currentUser.getEmail())) {
-            email = "no email found";
+            email = getString(R.string.no_email);
         } else {
             email = currentUser.getEmail();
         }
@@ -536,9 +533,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                         if (task.isSuccessful() && task.getResult() != null) {
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
-//                            streamFetchNearbyRestaurantAndGetPlaceDetail();
+                            streamFetchNearbyRestaurantAndGetPlaceDetail();
 //                            configureAutocomplete();
-                            streamFetchNearbyRestaurant();
+//                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                         }
@@ -546,7 +543,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 });
             }
         } catch (SecurityException e) {
-            Timber.e("security exception : " + e.getMessage());
+            Timber.e("security exception : %s", e.getMessage());
         }
     }
 
@@ -563,8 +560,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     @Override
                     public void onNext(PlaceApiData placeApiData) {
                         if (placeApiData != null) {
-                            for (Result result : placeApiData.getResults())
+                            for (Result result : placeApiData.getResults()) {
                                 restauranIdList.add(result.getPlaceId());
+                            }
                         }
                     }
 
@@ -594,6 +592,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData != null) {
                             PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
+                            Timber.i("streamFetchNearbyRestaurantAndGetPlaceDetail onNext adding place %s", place.getPlaceName());
                             placeAroundList.add(place);
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
@@ -608,46 +607,39 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     @Override
                     public void onComplete() {
                         //add to firestore if not already in
+                        Timber.i("streamFetchNearbyRestaurantAndGetPlaceDetail onComplete placearoundlist size = %s", placeAroundList.size());
                         for (final PlaceFormater place : placeAroundList) {
                             RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful() && task.getResult() != null) {
-                                        //add place from Firestore to list
-                                        RestaurantHelper.getRestaurant(place.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if (task.isSuccessful() && task.getResult() != null) {
-                                                    Restaurant restaurant = task.getResult().toObject(Restaurant.class);
-                                                    if (restaurant != null) {
-                                                        placeDetailList.add(restaurant.getPlaceFormater());
-                                                    }
-                                                    if (placeAroundList.size() == placeDetailList.size()) {
-                                                        configureBottomNavigationView();
+                                    if (task.getResult() != null) {
+                                        if (task.getResult().exists()) {
+                                            //add place from Firestore to list
+                                            Timber.i("task result " + task.getResult().exists());
+                                            Restaurant restaurant = task.getResult().toObject(Restaurant.class);
+                                            if (restaurant != null) {
+                                                Timber.i("onComplete fromFirestore adding place %s", restaurant.getPlaceFormater().getPlaceName());
+                                                placeDetailList.add(restaurant.getPlaceFormater());
+                                            }
+                                            if (placeAroundList.size() == placeDetailList.size()) {
+                                                configureBottomNavigationView();
+                                            }
+                                        } else {
+                                            //add to firestore
+                                            RestaurantHelper.createRestaurant(place.getId(), place).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Timber.i("onComplete create adding place %s", place.getPlaceName());
+                                                        placeDetailList.add(place);
+                                                        if (placeAroundList.size() == placeDetailList.size()) {
+                                                            configureBottomNavigationView();
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        });
-                                    } else {
-                                        //add to firestore
-                                        RestaurantHelper.createRestaurant(place.getId(), place).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    placeDetailList.add(place);
-                                                    if (placeAroundList.size() == placeDetailList.size()) {
-                                                        configureBottomNavigationView();
-                                                    }
-                                                }
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    showSnackBar(coordinatorLayout, getString(error_unknown_error));
-                                    Timber.i(getString(error_unknown_error) + " " + e);
                                 }
                             });
 
@@ -665,12 +657,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * Configure auto complete focus.
      */
     private void configureAutoCompleteFocus() {
-        autocompleteLayout.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        autoCompleteTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    updateAutoCompleteDesign();
-                }
+                Timber.i("focus = " + hasFocus);
+//                if (!hasFocus) {
+//                    updateAutoCompleteDesign();
+//                }
             }
         });
     }
@@ -681,6 +674,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private void updateAutoCompleteDesign() {
         if (autocompleteLayout.getVisibility() == View.VISIBLE) {
             autocompleteLayout.setVisibility(View.GONE);
+            autoCompleteTextView.clearComposingText();
             toolbar.setVisibility(View.VISIBLE);
         } else {
             autocompleteLayout.setVisibility(View.VISIBLE);
@@ -772,7 +766,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
         return args;
     }
-
 
 
     /**

@@ -58,7 +58,8 @@
     <string name="no_place_found">aucun restaurant trouvé !</string>
     <string name="error_occurred">une erreur est survenue</string>
     <string name="unknow">inconnu</string>
-
+    <string name="no_email">email introuvable</string>
+    <string name="no_username">pseudo introuvable</string>
 
 
 </resources>
