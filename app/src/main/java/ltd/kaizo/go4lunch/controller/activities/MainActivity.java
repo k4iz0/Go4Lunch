@@ -1,11 +1,15 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -20,10 +24,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,7 +43,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -81,7 +85,6 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.Utils.configureCurrentLocation;
 import static ltd.kaizo.go4lunch.models.utils.Utils.formatLocationToString;
 import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
-import static ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter.STYLE_BOLD;
 
 /**
  * The type Main activity.
@@ -166,7 +169,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     /**
      * The List fragment.
      */
-    private  ListFragment listFragment;
+    private ListFragment listFragment;
     /**
      * The Chosen restaurant id.
      */
@@ -203,10 +206,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Fused location provider client.
      */
     private FusedLocationProviderClient fusedLocationProviderClient;
-    /**
-     * The Geo data client.
-     */
-    private GoogleApiClient geoDataClient;
     /**
      * The Bounds.
      */
@@ -267,29 +266,100 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         radius = read(RADIUS_KEY, "1000");
     }
 
+    /****************************
+     ********   FRAGMENT  ********
+     *****************************/
+
     /**
-     * Configure autocomplete.
+     * Configure and show map fragment.
      */
-    private void configureAutocomplete() {
-
-        this.geoDataClient = new GoogleApiClient.Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage(this, this)
-                .build();
-        LatLng center = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        bounds = new LatLngBounds.Builder().
-                include(SphericalUtil.computeOffset(center, 5000, 0)).
-                include(SphericalUtil.computeOffset(center, 5000, 90)).
-                include(SphericalUtil.computeOffset(center, 5000, 180)).
-                include(SphericalUtil.computeOffset(center, 5000, 270)).build();
-
-        AutocompleteFilter filter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
-                .build();
-        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, placeDetailList, restauranIdList);
+    private void configureAndShowMapFragment() {
+        this.mapFragment = new MapFragment();
+        mapFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, this.mapFragment)
+                .commit();
     }
 
+    /**
+     * Configure and show list fragment.
+     */
+    private void configureAndShowListFragment() {
+        listFragment = new ListFragment();
+        listFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, listFragment)
+                .commit();
+    }
+
+    /**
+     * Configure and show workmates fragment.
+     */
+    private void configureAndShowWorkmatesFragment() {
+        MatesFragment matesFragment = new MatesFragment();
+        matesFragment.setArguments(saveDataToBundle());
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_main_fragment_container, matesFragment)
+                .commit();
+    }
+
+    /**
+     * Save data to bundle bundle.
+     *
+     * @return the bundle
+     */
+    private Bundle saveDataToBundle() {
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(RESTAURANT_LIST_DETAIL_KEY, placeDetailList);
+        args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
+        return args;
+    }
+
+    //****************************
+    //*******   DESIGN   *********
+    //****************************
+
+    /**
+     * Update auto complete design.
+     */
+    private void updateAutoCompleteDesign() {
+        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
+            autocompleteLayout.setVisibility(View.GONE);
+            autoCompleteTextView.setText("");
+            toolbar.setVisibility(View.VISIBLE);
+            this.updateListAndMarker(placeDetailList);
+        } else {
+            autocompleteLayout.setVisibility(View.VISIBLE);
+            toolbar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Configure bottom navigation view.
+     */
+    private void configureBottomNavigationView() {
+        progressBar.setVisibility(View.INVISIBLE);
+        configureAndShowMapFragment();
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.bottom_navigation_item_mapview:
+                        configureAndShowMapFragment();
+                        break;
+                    case R.id.bottom_navigation_item_list:
+                        configureAndShowListFragment();
+                        break;
+                    case R.id.bottom_navigation_item_workmates:
+                        configureAndShowWorkmatesFragment();
+                        break;
+                }
+                return true;
+            }
+
+        });
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -302,39 +372,62 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (item.getItemId() == R.id.activity_main_searchview) {
             if (autocompleteLayout.getVisibility() == View.GONE) {
                 this.updateAutoCompleteDesign();
-                autoCompleteTextView.setAdapter(adapter);
-                autoCompleteTextView.setThreshold(1);
-                autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                        final AutocompletePrediction item = adapter.getItem(position);
-                        final String placeName = item.getPrimaryText(STYLE_BOLD).toString();
-                        for (PlaceFormater place : placeDetailList) {
-                            if (placeName.equalsIgnoreCase(place.getPlaceName())) {
-                                Intent detailActivity = new Intent(MainActivity.this, DetailActivity.class);
-                                detailActivity.putExtra("PlaceFormater", place);
-                                startActivity(detailActivity);
-                            }
-                        }
-                        autoCompleteTextView.clearComposingText();
-                        autoCompleteTextView.clearFocus();
-                        updateAutoCompleteDesign();
-
-
-                    }
-                });
             } else {
                 this.updateAutoCompleteDesign();
-
             }
         }
         return true;
     }
 
+    /****************************
+     *******  AUTOCOMPLETE  ******
+     *****************************/
+
+    /**
+     * Configure autocomplete.
+     */
+    private void configureAutocomplete() {
+
+        GoogleApiClient geoDataClient = new GoogleApiClient.Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
+        LatLng position = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        bounds = new LatLngBounds(position, position);
+        AutocompleteFilter filter = new AutocompleteFilter.Builder()
+                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT)
+                .build();
+        this.adapter = new PlaceAutocompleteAdapter(this, geoDataClient, bounds, filter, placeDetailList, restauranIdList);
+        autoCompleteTextView.setAdapter(adapter);
+        autoCompleteTextView.setThreshold(1);
+        autoCompleteTextView.setDropDownHeight(0);
+    }
+
+    /**
+     * Update list and marker.
+     *
+     * @param restaurantList the restaurant list
+     */
+    public void updateListAndMarker(ArrayList<PlaceFormater> restaurantList) {
+        if (listFragment != null) {
+            listFragment.updateUI(restaurantList);
+        }
+        if (mapFragment != null) {
+            mapFragment.configureListAndMarker(restaurantList);
+        }
+    }
     //****************************
     //****  NAVIGATION DRAWER ****
     //****************************
+
+    /**
+     * Configure navigation view.
+     */
+    private void configureNavigationView() {
+        navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
+    }
 
     /**
      * Configure drawer layout.
@@ -410,6 +503,21 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
+            this.updateAutoCompleteDesign();
+        } else {
+            super.onBackPressed();
+        }
+    }
+    /****************************
+     *******   FIRESTORE   *******
+     *****************************/
+
     /**
      * Configure current user.
      */
@@ -462,19 +570,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            this.drawerLayout.closeDrawer(GravityCompat.START);
-        }
-        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
-            this.updateAutoCompleteDesign();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-
     //****************************
     //*******  PERMISSIONS *******
     //****************************
@@ -515,8 +610,34 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             case LOCATION_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionsGranted = true;
+                    final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+                    if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        buildAlertMessageNoGps();
+                    }
                 }
         }
+    }
+
+    /**
+     * show an alert dialog asking to enable GPS
+     */
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     /**
@@ -553,8 +674,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
                             streamFetchNearbyRestaurantAndGetPlaceDetail();
-//                            configureAutocomplete();
-                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                             progressBar.setVisibility(View.GONE);
@@ -658,147 +777,14 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             });
 
                         }
-
+                        streamFetchNearbyRestaurant();
                     }
                 });
     }
 
-    //****************************
-    //*******   DESIGN   *********
-    //****************************
-
-    /**
-     * Update auto complete design.
-     */
-    private void updateAutoCompleteDesign() {
-        if (autocompleteLayout.getVisibility() == View.VISIBLE) {
-            autocompleteLayout.setVisibility(View.GONE);
-            autoCompleteTextView.setText("");
-            toolbar.setVisibility(View.VISIBLE);
-            this.updateListAndMarker(placeDetailList);
-        } else {
-            autocompleteLayout.setVisibility(View.VISIBLE);
-            toolbar.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    /**
-     * Configure navigation view.
-     */
-    private void configureNavigationView() {
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemIconTintList(null);
-    }
-
-
-    /**
-     * Configure bottom navigation view.
-     */
-    private void configureBottomNavigationView() {
-        progressBar.setVisibility(View.INVISIBLE);
-        configureAndShowMapFragment();
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.bottom_navigation_item_mapview:
-                        configureAndShowMapFragment();
-                        break;
-                    case R.id.bottom_navigation_item_list:
-                        configureAndShowListFragment();
-                        break;
-                    case R.id.bottom_navigation_item_workmates:
-                        configureAndShowWorkmatesFragment();
-                        break;
-                }
-                return true;
-            }
-
-        });
-
-    }
-
     /****************************
-     ********   FRAGMENT  ********
+     *********   LOGOUT   ********
      *****************************/
-
-    /**
-     * Configure and show map fragment.
-     */
-    private void configureAndShowMapFragment() {
-        this.mapFragment = new MapFragment();
-        mapFragment.setArguments(saveDataToBundle());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, this.mapFragment)
-                .commit();
-    }
-
-    /**
-     * Configure and show list fragment.
-     */
-    private void configureAndShowListFragment() {
-        listFragment = new ListFragment();
-        listFragment.setArguments(saveDataToBundle());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, listFragment)
-                .commit();
-    }
-
-    /**
-     * Configure and show workmates fragment.
-     */
-    private void configureAndShowWorkmatesFragment() {
-        MatesFragment matesFragment = new MatesFragment();
-        matesFragment.setArguments(saveDataToBundle());
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.activity_main_fragment_container, matesFragment)
-                .commit();
-    }
-
-    /**
-     * Save data to bundle bundle.
-     *
-     * @return the bundle
-     */
-    private Bundle saveDataToBundle() {
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(RESTAURANT_LIST_DETAIL_KEY, placeDetailList);
-        args.putParcelableArrayList(RESTAURANT_LIST_AROUND_KEY, placeAroundList);
-        return args;
-    }
-
-    /**
-     * Update list from autocomplete.
-     *
-     * @param restaurantPrediction the restaurant prediction
-     */
-    public void updateListFromAutocomplete(ArrayList<AutocompletePrediction> restaurantPrediction) {
-        ArrayList<PlaceFormater> filteredList = new ArrayList<>();
-        for (AutocompletePrediction data : restaurantPrediction) {
-            for (PlaceFormater place : placeDetailList) {
-                if (data.getPrimaryText(STYLE_BOLD).toString().equalsIgnoreCase(place.getPlaceName())) {
-                    filteredList.add(place);
-                }
-            }
-        }
-        this.updateListAndMarker(filteredList);
-
-    }
-
-    /**
-     * Update list and marker.
-     *
-     * @param restaurantList the restaurant list
-     */
-    private void updateListAndMarker(ArrayList<PlaceFormater> restaurantList) {
-        if (listFragment != null) {
-            listFragment.updateUI(restaurantList);
-        }
-        if (mapFragment != null) {
-            mapFragment.configureListAndMarker(restaurantList);
-        }
-    }
-
 
     /**
      * Sign out user from firebase.

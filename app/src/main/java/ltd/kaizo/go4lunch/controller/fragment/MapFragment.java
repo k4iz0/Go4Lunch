@@ -182,28 +182,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
-     * Configure on marker click.
-     *
-     * @param placeDetailList the place detail list
-     */
-    private void configureOnMarkerClick(final ArrayList<PlaceFormater> placeDetailList) {
-        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                for (PlaceFormater place : placeDetailList) {
-                    if (marker.getTitle().equalsIgnoreCase(place.getPlaceName())) {
-                        Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
-                        detailActivity.putExtra("PlaceFormater", place);
-                        startActivity(detailActivity);
-
-                    }
-                }
-                return true;
-            }
-        });
-    }
-
-    /**
      * Sets map view style.
      */
     private void setMapViewStyle() {
@@ -234,16 +212,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /****************************
+     *********   MARKER   ********
+     *****************************/
+    /**
+     * Configure on marker click.
+     *
+     * @param placeDetailList the place detail list
+     */
+    private void configureOnMarkerClick(final ArrayList<PlaceFormater> placeDetailList) {
+        this.googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for (PlaceFormater place : placeDetailList) {
+                    if (marker.getTitle().equalsIgnoreCase(place.getPlaceName())) {
+                        Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
+                        detailActivity.putExtra("PlaceFormater", place);
+                        startActivity(detailActivity);
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
     /**
      * Configure list and marker.
      *
      * @param restaurantList the restaurant list
      */
     public void configureListAndMarker(ArrayList<PlaceFormater> restaurantList) {
-
         //add marker on map
         for (PlaceFormater place : restaurantList) {
-            place.addMarkerFromList(this.googleMap, place, false);
+            Timber.i("place " + place.getPlaceName() + " et visibility = " + place.getVisible());
+            place.setMarker();
+
+            this.googleMap.addMarker(place.getMarker());
         }
         //configure click event
         configureOnMarkerClick(restaurantList);
@@ -265,7 +269,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                     for (PlaceFormater place : placeDetailList) {
                         if (place.getId().equalsIgnoreCase(tmp.getPlaceFormater().getId())) {
-                            place.addMarkerFromList(googleMap, place, !tmp.getUserList().isEmpty());
+                            place.setJoining(!tmp.getUserList().isEmpty());
+                            place.setMarker();
+                            googleMap.addMarker(place.getMarker());
                         }
                     }
                 }

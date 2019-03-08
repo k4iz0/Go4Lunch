@@ -1,5 +1,13 @@
 package ltd.kaizo.go4lunch.views.adapter;
 
+import android.content.Context;
+import android.graphics.Typeface;
+import android.text.style.CharacterStyle;
+import android.text.style.StyleSpan;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
@@ -9,18 +17,6 @@ import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLngBounds;
-
-
-import android.content.Context;
-import android.graphics.Typeface;
-import android.text.style.CharacterStyle;
-import android.text.style.StyleSpan;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -40,11 +36,6 @@ import timber.log.Timber;
  */
 public class PlaceAutocompleteAdapter
         extends ArrayAdapter<AutocompletePrediction> implements Filterable {
-
-    /**
-     * The constant TAG.
-     */
-    private static final String TAG = "PlaceAutoCompleteAd";
     /**
      * The constant STYLE_BOLD.
      */
@@ -89,7 +80,7 @@ public class PlaceAutocompleteAdapter
      * @param bounds               the bounds
      * @param filter               the filter
      * @param nearbyRestaurantList the nearby restaurant list
-     * @param restauranIdList      the restauran id list
+     * @param restauranIdList      the restaurant id list
      * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int) android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
      */
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
@@ -103,13 +94,11 @@ public class PlaceAutocompleteAdapter
         this.restauranIdList = restauranIdList;
     }
 
-    /**
-     * Sets the bounds for all subsequent queries.
-     *
-     * @param bounds the bounds
-     */
-    public void setBounds(LatLngBounds bounds) {
-        mBounds = bounds;
+    private void setAllMarkersVisibility(ArrayList<PlaceFormater> restaurantList, Boolean isVisible) {
+        Timber.i("marker hide");
+        for (PlaceFormater place : restaurantList) {
+            place.setVisible(isVisible);
+        }
     }
 
     /**
@@ -117,7 +106,9 @@ public class PlaceAutocompleteAdapter
      */
     @Override
     public int getCount() {
-        return resultList.size();
+        if (resultList != null) {
+            return resultList.size();
+        } else return 0;
     }
 
     /**
@@ -126,20 +117,6 @@ public class PlaceAutocompleteAdapter
     @Override
     public AutocompletePrediction getItem(int position) {
         return resultList.get(position);
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View row = super.getView(position, convertView, parent);
-        // Sets the primary and secondary text for a row.
-        // Note that getPrimaryText() and getSecondaryText() return a CharSequence that may contain
-        // styling based on the given CharacterStyle.
-        AutocompletePrediction item = getItem(position);
-        TextView textView1 = (TextView) row.findViewById(android.R.id.text1);
-        TextView textView2 = (TextView) row.findViewById(android.R.id.text2);
-        textView1.setText(item.getPrimaryText(STYLE_BOLD));
-        textView2.setText(item.getSecondaryText(STYLE_BOLD));
-        return row;
     }
 
     /**
@@ -174,11 +151,29 @@ public class PlaceAutocompleteAdapter
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-
+                if (constraint == null) {
+                    // nothing to filter returning all the list
+                    setAllMarkersVisibility(nearbyRestaurantList, true);
+                    ((MainActivity) context).updateListAndMarker(nearbyRestaurantList);
+                    notifyDataSetChanged();
+                }
                 if (results != null && results.count > 0) {
+
                     // The API returned at least one result, update the data.
                     resultList = (ArrayList<AutocompletePrediction>) results.values;
-                    ((MainActivity) context).updateListFromAutocomplete(resultList);
+                    ArrayList<PlaceFormater> filteredList = new ArrayList<>();
+                    //hide all marker by default
+                    setAllMarkersVisibility(nearbyRestaurantList, false);
+                    for (AutocompletePrediction data : resultList) {
+                        for (PlaceFormater place : nearbyRestaurantList) {
+                            if (data.getPrimaryText(STYLE_BOLD).toString().equalsIgnoreCase(place.getPlaceName())) {
+                                place.setVisible(true);
+                                filteredList.add(place);
+                            }
+                        }
+                    }
+                    //updateUi with filtered list
+                    ((MainActivity) context).updateListAndMarker(filteredList);
                     notifyDataSetChanged();
                 } else {
                     // The API did not return any results, invalidate the data set.
@@ -247,7 +242,7 @@ public class PlaceAutocompleteAdapter
             ArrayList<AutocompletePrediction> autocompletePredictionArrayList = DataBufferUtils.freezeAndClose(autocompletePredictions);
             //filter the result to the restaurant found nearby
             ArrayList<AutocompletePrediction> filteredList = new ArrayList<>();
-            for (AutocompletePrediction p: autocompletePredictionArrayList) {
+            for (AutocompletePrediction p : autocompletePredictionArrayList) {
                 for (String id : restauranIdList) {
                     if (p.getPlaceId().equalsIgnoreCase(id)) {
                         filteredList.add(p);

@@ -8,7 +8,6 @@ import android.os.Parcelable;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.SphericalUtil;
 
@@ -97,6 +96,18 @@ public class PlaceFormater implements Parcelable {
      * The Open or close.
      */
     private String openOrClose;
+    /**
+     * The boolean for marker visibility
+     */
+    private Boolean isVisible;
+    /**
+     * The marker for the map
+     */
+    private MarkerOptions markerOptions;
+    /**
+     * The boolean for joining
+     */
+    private boolean isJoining;
 
     /**
      * Instantiates a new Place formater.
@@ -126,6 +137,8 @@ public class PlaceFormater implements Parcelable {
         setPlaceHour();
         setPlaceRate();
         setPlacePhoto();
+        setVisible(true);
+        setJoining(false);
     }
 
 
@@ -149,6 +162,21 @@ public class PlaceFormater implements Parcelable {
     /****************************
     *********   GETTER   ********
     *****************************/
+    public Boolean getVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        isVisible = visible;
+    }
+
+    public boolean isJoining() {
+        return isJoining;
+    }
+
+    public void setJoining(boolean joining) {
+        isJoining = joining;
+    }
 
     /**
      * Gets website url.
@@ -350,30 +378,28 @@ public class PlaceFormater implements Parcelable {
             this.placePhoto = "";
         }
     }
-
     /**
-     * Add marker from list marker.
-     *
-     * @param googleMap     the google map
-     * @param formatedPlace the formated place
-     * @param isJoining     the is joining
-     * @return the marker
+     * set marker options
      */
-    public Marker addMarkerFromList(GoogleMap googleMap, PlaceFormater formatedPlace, Boolean isJoining) {
-        MarkerOptions markerOptions = new MarkerOptions();
-        LatLng latLng = new LatLng(formatedPlace.getLat(), formatedPlace.getLng());
+    public void setMarker() {
+        this.markerOptions = new MarkerOptions();
+        LatLng latLng = new LatLng(this.getLat(), this.getLng());
         // Position of Marker on Map
-        markerOptions.position(latLng);
+        this.markerOptions.position(latLng);
         // Adding Title to the Marker
-        markerOptions.title(formatedPlace.getPlaceName());
+        this.markerOptions.title(this.getPlaceName());
         // Adding colour to the marker
-        if (isJoining) {
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon_green));
+        if (this.isJoining) {
+            this.markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon_green));
         } else {
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon));
+            this.markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon));
         }
-        // Adding Marker to the Camera.
-        return googleMap.addMarker(markerOptions);
+
+        this.markerOptions.visible(this.getVisible());
+    }
+
+    public MarkerOptions getMarker() {
+        return markerOptions;
     }
 
     @Override
