@@ -17,6 +17,9 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
 import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
 
+/**
+ * The type Login activity.
+ */
 public class LoginActivity extends BaseActivity {
     /**
      * The constant RC_SIGN_IN.
@@ -74,6 +77,7 @@ public class LoginActivity extends BaseActivity {
                         .build(),
                 RC_SIGN_IN);
     }
+
     /**
      * Handle response after sign in.
      *

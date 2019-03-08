@@ -70,6 +70,7 @@ public class ListFragment extends BaseFragment {
             restaurantList = getArguments().getParcelableArrayList(RESTAURANT_LIST_DETAIL_KEY);
         }
     }
+
     /**
      * Configure recycle view.
      */
@@ -95,6 +96,11 @@ public class ListFragment extends BaseFragment {
                 });
     }
 
+    /**
+     * Update ui.
+     *
+     * @param restaurantList the restaurant list
+     */
     public void updateUI(ArrayList<PlaceFormater> restaurantList){
         this.restaurantList = restaurantList;
         Collections.sort(restaurantList, PlaceFormater.compareToByDistance());

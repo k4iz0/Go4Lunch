@@ -31,7 +31,6 @@ public class Restaurant {
      *
      * @param placeId       the place id
      * @param placeFormater the place formater
-
      */
     public Restaurant(String placeId, PlaceFormater placeFormater) {
         PlaceId = placeId;

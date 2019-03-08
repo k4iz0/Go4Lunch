@@ -32,11 +32,11 @@ public class MatesRecycleAdapter extends FirestoreRecyclerAdapter<User, MatesVie
 
     /**
      * Create a new RecyclerView adapter that listens to a Firestore Query.  See {@link
-     * FirestoreRecyclerOptions}*** for configuration options.
+     * FirestoreRecyclerOptions}**** for configuration options.
      *
      * @param options        the options
      * @param glide          the glide
-     * @param restaurantList
+     * @param restaurantList the restaurant list
      */
     public MatesRecycleAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, ArrayList<PlaceFormater> restaurantList) {
         super(options);

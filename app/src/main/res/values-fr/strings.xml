@@ -60,6 +60,10 @@
     <string name="unknow">inconnu</string>
     <string name="no_email">email introuvable</string>
     <string name="no_username">pseudo introuvable</string>
+    <string name="_500">500</string>
+    <string name="_1000">1000</string>
+    <string name="_3000">3000</string>
+    <string name="choose_your_search_radius_meter">rayon de recherche en mètres : </string>
 
 
 </resources>

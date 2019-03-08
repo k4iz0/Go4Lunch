@@ -143,6 +143,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mapView.getMapAsync(this);
     }
 
+    /**
+     * Gets current location.
+     */
     private void getCurrentLocation() {
         currentLatitude = read(CURRENT_LATITUDE_KEY, DEFAULT_LOCATION.latitude);
         currentLongitude = read(CURRENT_LONGITUDE_KEY, DEFAULT_LOCATION.longitude);
@@ -222,12 +225,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
+    /**
+     * Sets correct distance.
+     */
     private void setCorrectDistance() {
         for (int i = 0; i < placeDetailList.size(); i++) {
             placeDetailList.get(i).setDistance(placeAroundList.get(i).getPlaceDistance());
         }
     }
 
+    /**
+     * Configure list and marker.
+     *
+     * @param restaurantList the restaurant list
+     */
     public void configureListAndMarker(ArrayList<PlaceFormater> restaurantList) {
 
         //add marker on map

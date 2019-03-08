@@ -10,6 +10,9 @@ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
 
+/**
+ * The type Utils.
+ */
 public class Utils {
 
     /**
@@ -28,9 +31,11 @@ public class Utils {
             write(CURRENT_LONGITUDE_KEY, currentLocation.getLongitude());
         }
     }
+
     /**
      * Format location to string string.
      *
+     * @param currentLocation the current location
      * @return the string
      */
     public static String formatLocationToString(Location currentLocation) {

@@ -41,17 +41,29 @@ import timber.log.Timber;
 public class PlaceAutocompleteAdapter
         extends ArrayAdapter<AutocompletePrediction> implements Filterable {
 
+    /**
+     * The constant TAG.
+     */
     private static final String TAG = "PlaceAutoCompleteAd";
+    /**
+     * The constant STYLE_BOLD.
+     */
     public static final CharacterStyle STYLE_BOLD = new StyleSpan(Typeface.BOLD);
+    /**
+     * The Context.
+     */
     private Context context;
     /**
      * Current results returned by this adapter.
      */
     private ArrayList<AutocompletePrediction> resultList;
-/**
+    /**
      * nearby results returned by the API.
      */
     private ArrayList<PlaceFormater> nearbyRestaurantList;
+    /**
+     * The Restauran id list.
+     */
     private ArrayList<String> restauranIdList;
 
     /**
@@ -72,7 +84,13 @@ public class PlaceAutocompleteAdapter
     /**
      * Initializes with a resource for text rows and autocomplete query bounds.
      *
-     * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
+     * @param context              the context
+     * @param googleApiClient      the google api client
+     * @param bounds               the bounds
+     * @param filter               the filter
+     * @param nearbyRestaurantList the nearby restaurant list
+     * @param restauranIdList      the restauran id list
+     * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int) android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
      */
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
                                     LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> nearbyRestaurantList, ArrayList<String> restauranIdList) {
@@ -84,8 +102,11 @@ public class PlaceAutocompleteAdapter
         this.nearbyRestaurantList = nearbyRestaurantList;
         this.restauranIdList = restauranIdList;
     }
+
     /**
      * Sets the bounds for all subsequent queries.
+     *
+     * @param bounds the bounds
      */
     public void setBounds(LatLngBounds bounds) {
         mBounds = bounds;
@@ -190,8 +211,8 @@ public class PlaceAutocompleteAdapter
      *
      * @param constraint Autocomplete query string
      * @return Results from the autocomplete API or null if the query was not successful.
-     * @see Places#GEO_DATA_API#getAutocomplete(CharSequence)
-     * @see AutocompletePrediction#freeze()
+     * @see Places#GEO_DATA_API Places#GEO_DATA_API#getAutocomplete(CharSequence)
+     * @see AutocompletePrediction#freeze() AutocompletePrediction#freeze()
      */
     private ArrayList<AutocompletePrediction> getAutocomplete(CharSequence constraint) {
         if (mGoogleApiClient.isConnected()) {

@@ -44,6 +44,10 @@ public class DataRecordHelper {
      */
     public static final String CURRENT_LOCATION_KEY = "CURRENT_LOCATION_KEY";
     /**
+     * The radius for nearby search
+     */
+    public static final String RADIUS_KEY = "3000";
+    /**
      * The constant sharedPreferences.
      */
     private static SharedPreferences sharedPreferences;

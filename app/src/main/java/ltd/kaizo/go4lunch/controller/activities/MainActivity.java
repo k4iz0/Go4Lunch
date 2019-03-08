@@ -74,8 +74,10 @@ import ltd.kaizo.go4lunch.views.adapter.PlaceAutocompleteAdapter;
 import timber.log.Timber;
 
 import static ltd.kaizo.go4lunch.R.string.error_unknown_error;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RADIUS_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_AROUND_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_DETAIL_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.Utils.configureCurrentLocation;
 import static ltd.kaizo.go4lunch.models.utils.Utils.formatLocationToString;
 import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
@@ -161,7 +163,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Map fragment.
      */
     private MapFragment mapFragment;
-     /**
+    /**
      * The List fragment.
      */
     private  ListFragment listFragment;
@@ -201,9 +203,22 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * The Fused location provider client.
      */
     private FusedLocationProviderClient fusedLocationProviderClient;
+    /**
+     * The Geo data client.
+     */
     private GoogleApiClient geoDataClient;
+    /**
+     * The Bounds.
+     */
     private LatLngBounds bounds;
+    /**
+     * The Adapter.
+     */
     private PlaceAutocompleteAdapter adapter;
+    /**
+     * The Radius.
+     */
+    private String radius;
 
     @Override
     public int getFragmentLayout() {
@@ -214,7 +229,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     public void configureDesign() {
         this.configurePermission();
         this.configureCurrentUser();
-        this.configureToolbar();
+        this.configureToolbarAndProgressBar();
         this.configureNavigationView();
         this.configureDrawerLayout();
 //            this.configureAndroidJob();
@@ -236,9 +251,10 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
 
     /**
-     * Configure toolbar.
+     * Configure toolbar and progressbar
      */
-    private void configureToolbar() {
+    private void configureToolbarAndProgressBar() {
+        //toolbar
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
@@ -247,8 +263,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         //progressBar color
         progressBar.getIndeterminateDrawable().setColorFilter(
                 Color.parseColor("#008577"), android.graphics.PorterDuff.Mode.SRC_IN);
+        //radius
+        radius = read(RADIUS_KEY, "1000");
     }
 
+    /**
+     * Configure autocomplete.
+     */
     private void configureAutocomplete() {
 
         this.geoDataClient = new GoogleApiClient.Builder(this)
@@ -554,7 +575,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * Execute stream fetch nearby restaurant
      */
     private void streamFetchNearbyRestaurant() {
-        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurant(formatLocationToString(currentLocation))
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurant(formatLocationToString(currentLocation), radius)
                 .subscribeWith(new DisposableObserver<PlaceApiData>() {
                     @Override
                     public void onNext(PlaceApiData placeApiData) {
@@ -581,10 +602,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     /**
      * Execute stream fetch nearby restaurant and get place detail.
      */
-
     private void streamFetchNearbyRestaurantAndGetPlaceDetail() {
         progressBar.setVisibility(View.VISIBLE);
-        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString(currentLocation))
+        this.disposable = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail(formatLocationToString(currentLocation), radius)
                 .subscribeWith(new DisposableObserver<PlaceDetailApiData>() {
 
                     @Override
@@ -646,6 +666,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     //****************************
     //*******   DESIGN   *********
     //****************************
+
     /**
      * Update auto complete design.
      */
@@ -746,6 +767,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         return args;
     }
 
+    /**
+     * Update list from autocomplete.
+     *
+     * @param restaurantPrediction the restaurant prediction
+     */
     public void updateListFromAutocomplete(ArrayList<AutocompletePrediction> restaurantPrediction) {
         ArrayList<PlaceFormater> filteredList = new ArrayList<>();
         for (AutocompletePrediction data : restaurantPrediction) {
@@ -759,6 +785,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
     }
 
+    /**
+     * Update list and marker.
+     *
+     * @param restaurantList the restaurant list
+     */
     private void updateListAndMarker(ArrayList<PlaceFormater> restaurantList) {
         if (listFragment != null) {
             listFragment.updateUI(restaurantList);

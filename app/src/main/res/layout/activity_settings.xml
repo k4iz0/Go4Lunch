@@ -25,24 +25,26 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/delete_account"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintStart_toStartOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_email_btn" />
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_radius_textview"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_notification_switch" />
 
     <EditText
         android:id="@+id/activity_setting_username_edit_text"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
         android:hint="@string/new_username"
         android:inputType="text"
         android:maxLines="1"
-        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintEnd_toStartOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textCursorDrawable="@null"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_update_username_btn"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/setting_activity_toolbar" />
 
     <Button
         android:id="@+id/activity_setting_update_username_btn"
@@ -50,11 +52,12 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginEnd="28dp"
         android:text="@string/update_username"
-        app:layout_constraintBottom_toTopOf="@+id/activity_setting_update_email_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/setting_activity_toolbar" />
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_email_edittext"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_username_edit_text" />
 
     <EditText
         android:id="@+id/activity_setting_email_edittext"
@@ -64,9 +67,12 @@
         android:hint="@string/new_email"
         android:inputType="textEmailAddress"
         android:maxLines="1"
-        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_update_email_btn"
-        app:layout_constraintEnd_toEndOf="@+id/activity_setting_username_edit_text"
-        app:layout_constraintStart_toStartOf="@+id/activity_setting_username_edit_text" />
+        android:textCursorDrawable="@null"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_update_email_btn"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_username_btn" />
 
     <Button
         android:id="@+id/activity_setting_update_email_btn"
@@ -75,22 +81,79 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/update_email"
-        app:layout_constraintBottom_toTopOf="@+id/activity_setting_delete_account"
-        app:layout_constraintEnd_toEndOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintStart_toStartOf="@+id/activity_setting_update_username_btn"
-        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_username_btn" />
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_notification_switch"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_email_edittext" />
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/activity_setting_notification_switch"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
         android:text="@string/notification"
         android:textSize="15sp"
         android:theme="@style/SwitchStyle"
-        app:layout_constraintBaseline_toBaselineOf="@+id/activity_setting_delete_account"
-        app:layout_constraintEnd_toEndOf="@+id/activity_setting_username_edit_text"
-        app:layout_constraintStart_toStartOf="@+id/activity_setting_username_edit_text"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_delete_account"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_update_email_btn"
         tools:checked="true" />
 
+    <TextView
+        android:id="@+id/activity_setting_radius_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/choose_your_search_radius_meter"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintEnd_toEndOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/activity_setting_radiogroup"
+        app:layout_constraintTop_toBottomOf="@+id/activity_setting_delete_account" />
+
+    <RadioGroup
+        android:id="@+id/activity_setting_radiogroup"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <RadioButton
+            android:id="@+id/activity_setting_radio1"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="88dp"
+            android:layout_weight="1"
+            android:text="@string/_500"
+            android:textStyle="bold"
+            tools:checked="true" />
+
+        <RadioButton
+            android:id="@+id/activity_setting_radio2"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="88dp"
+            android:layout_weight="1"
+            android:text="@string/_1000"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/activity_setting_radio3"
+            style="@style/ButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="88dp"
+            android:layout_weight="1"
+            android:text="@string/_3000"
+            android:textStyle="bold" />
+    </RadioGroup>
 </android.support.constraint.ConstraintLayout>

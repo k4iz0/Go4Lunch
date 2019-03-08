@@ -15,9 +15,18 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import ltd.kaizo.go4lunch.models.Restaurant;
 import timber.log.Timber;
 
+/**
+ * The type Reset user choice job.
+ */
 public class ResetUserChoiceJob extends DailyJob {
+    /**
+     * The Tag.
+     */
     static final String TAG = "resetUserChoiceJob_job_tag";
 
+    /**
+     * Schedule periodic.
+     */
     public static void schedulePeriodic() {
         DailyJob.schedule(new JobRequest.Builder(TAG)
                         .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)

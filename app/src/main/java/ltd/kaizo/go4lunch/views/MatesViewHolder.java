@@ -48,7 +48,7 @@ public class MatesViewHolder extends RecyclerView.ViewHolder {
      *
      * @param user           the user
      * @param glide          the glide
-     * @param restaurantList
+     * @param restaurantList the restaurant list
      */
     public void updateViewWithUserData(User user, RequestManager glide, ArrayList<PlaceFormater> restaurantList) {
 

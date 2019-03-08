@@ -9,7 +9,10 @@ import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextThemeWrapper;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -28,8 +31,10 @@ import ltd.kaizo.go4lunch.models.API.UserHelper;
 import timber.log.Timber;
 
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.NOTIFICATION_ENABLE;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RADIUS_KEY;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
 import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+import static ltd.kaizo.go4lunch.models.utils.Utils.showSnackBar;
 
 /**
  * The type Settings activity.
@@ -65,8 +70,27 @@ public class SettingsActivity extends BaseActivity {
      */
     @BindView(R.id.activity_setting_email_edittext)
     EditText emailEditText;
-
     /**
+     * The Radio 1.
+     */
+    @BindView(R.id.activity_setting_radio1)
+    RadioButton radio1;
+    /**
+     * The Radio 2.
+     */
+    @BindView(R.id.activity_setting_radio2)
+    RadioButton radio2;
+    /**
+     * The Radio 3.
+     */
+    @BindView(R.id.activity_setting_radio3)
+    RadioButton radio3;
+    /**
+     * The Radio group.
+     */
+    @BindView(R.id.activity_setting_radiogroup)
+    RadioGroup radioGroup;
+       /**
      * Validate email boolean.
      *
      * @param emailStr the email str
@@ -86,6 +110,8 @@ public class SettingsActivity extends BaseActivity {
     public void configureDesign() {
         this.configureToolbar();
         this.configureNotificationSwitch();
+        this.configureRadioGroup();
+        this.onRadioButtonClicked();
     }
 
     /**
@@ -130,6 +156,47 @@ public class SettingsActivity extends BaseActivity {
         } else {
             Toast.makeText(this, getString(R.string.updateUsernameError), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * set the checked value at starting according to the sharedPreferences
+     */
+    private void configureRadioGroup() {
+        String radius = read(RADIUS_KEY, "1000");
+        switch (radius) {
+            case "500":
+                radio1.toggle();
+                break;
+            case "1000":
+                radio2.toggle();
+                break;
+            case "3000":
+                radio3.toggle();
+                break;
+
+        }
+    }
+
+    /**
+     * configure the onClick event for the radio buttons
+     */
+    private void onRadioButtonClicked() {
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.activity_setting_radio1:
+                        write(RADIUS_KEY, "500");
+                        break;
+                    case R.id.activity_setting_radio2:
+                        write(RADIUS_KEY, "1000");
+                        break;
+                    case R.id.activity_setting_radio3:
+                        write(RADIUS_KEY, "3000");
+                        break;
+                }
+            }
+        });
     }
 
     /**

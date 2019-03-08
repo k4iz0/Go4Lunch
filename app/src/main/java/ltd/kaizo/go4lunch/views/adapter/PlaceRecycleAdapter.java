@@ -25,8 +25,17 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
      * The Glide.
      */
     private final RequestManager glide;
+    /**
+     * The Restaurant list.
+     */
     private List<PlaceFormater> restaurantList;
 
+    /**
+     * Instantiates a new Place recycle adapter.
+     *
+     * @param restaurantList the restaurant list
+     * @param glide          the glide
+     */
     public PlaceRecycleAdapter(List<PlaceFormater> restaurantList, RequestManager glide) {
         this.glide = glide;
         this.restaurantList = restaurantList;
@@ -58,6 +67,11 @@ public class PlaceRecycleAdapter extends RecyclerView.Adapter<PlaceViewHolder> {
     }
 
 
+    /**
+     * Update data.
+     *
+     * @param restaurantList the restaurant list
+     */
     public void updateData(ArrayList<PlaceFormater> restaurantList) {
         this.restaurantList = restaurantList;
         notifyDataSetChanged();

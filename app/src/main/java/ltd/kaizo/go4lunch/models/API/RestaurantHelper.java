@@ -96,6 +96,12 @@ public class RestaurantHelper {
         return RestaurantHelper.getRestaurantsCollection().document(placeId).update("userList", FieldValue.arrayUnion(uid));
     }
 
+    /**
+     * Delete all users from restaurant task.
+     *
+     * @param restaurant the restaurant
+     * @return the task
+     */
     public static Task<Void> deleteAllUsersFromRestaurant(Restaurant restaurant) {
         ArrayList emptyArray = new ArrayList();
         restaurant.setUserList(emptyArray);

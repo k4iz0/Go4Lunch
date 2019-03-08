@@ -189,6 +189,7 @@ public class PlaceFormater implements Parcelable {
     /**
      * Gets open or close.
      *
+     * @param context the context
      * @return the open or close
      */
     public String getOpenOrClose(Context context) {
@@ -293,6 +294,7 @@ public class PlaceFormater implements Parcelable {
     /**
      * set place distance
      *
+     * @param distance the distance
      * @return the place distance
      */
     public void setDistance(int distance) {

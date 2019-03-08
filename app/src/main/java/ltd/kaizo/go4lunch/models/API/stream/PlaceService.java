@@ -12,6 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RADIUS_KEY;
+import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
+
 /**
  * The interface Place service.
  */
@@ -25,10 +28,6 @@ public interface PlaceService {
      */
     String url = "https://maps.googleapis.com/maps/api/place/";
     /**
-     * The radius
-     */
-    String radius = "3000";
-    /**
      * The constant interceptor.
      */
     HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -36,8 +35,6 @@ public interface PlaceService {
      * The constant okHttpClient.
      */
     OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder().addInterceptor(interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC));
-
-
     /**
      * The constant retrofit builder
      */
@@ -55,10 +52,11 @@ public interface PlaceService {
      * Gets the nearby restaurant
      *
      * @param location the location
+     * @param radius   the radius
      * @return the nearby restaurant
      */
-    @GET("nearbysearch/json?radius=" + radius + "&type=restaurant&key=" + apiKey)
-    Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String location);
+    @GET("nearbysearch/json?type=restaurant&key=" + apiKey)
+    Observable<PlaceApiData> getNearbyRestaurant(@Query("location") String location, @Query("radius") String radius);
 
     /**
      * Gets the place's détails
