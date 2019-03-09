@@ -85,7 +85,7 @@ public class PlaceAutocompleteAdapter
      * @param filter               the filter
      * @param nearbyRestaurantList the nearby restaurant list
      * @param restauranIdList      the restaurant id list
-     * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int) android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
+     * @see android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int) android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)android.widget.ArrayAdapter#ArrayAdapter(android.content.Context, int)
      */
     public PlaceAutocompleteAdapter(Context context, GoogleApiClient googleApiClient,
                                     LatLngBounds bounds, AutocompleteFilter filter, ArrayList<PlaceFormater> nearbyRestaurantList, ArrayList<String> restauranIdList) {
@@ -98,6 +98,12 @@ public class PlaceAutocompleteAdapter
         this.restauranIdList = restauranIdList;
     }
 
+    /**
+     * Sets all markers visibility.
+     *
+     * @param restaurantList the restaurant list
+     * @param isVisible      the is visible
+     */
     private void setAllMarkersVisibility(ArrayList<PlaceFormater> restaurantList, Boolean isVisible) {
         for (PlaceFormater place : restaurantList) {
             place.setVisible(isVisible);
@@ -126,7 +132,7 @@ public class PlaceAutocompleteAdapter
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         return super.getView(position, convertView, parent);
-        
+
     }
 
     /**
@@ -164,7 +170,9 @@ public class PlaceAutocompleteAdapter
                 if (constraint == null) {
                     // nothing to filter returning all the list
                     setAllMarkersVisibility(nearbyRestaurantList, true);
+
                     ((MainActivity) context).updateListAndMarker(nearbyRestaurantList);
+
                     notifyDataSetChanged();
                 }
                 if (results != null && results.count > 0) {
@@ -216,8 +224,8 @@ public class PlaceAutocompleteAdapter
      *
      * @param constraint Autocomplete query string
      * @return Results from the autocomplete API or null if the query was not successful.
-     * @see Places#GEO_DATA_API Places#GEO_DATA_API#getAutocomplete(CharSequence)
-     * @see AutocompletePrediction#freeze() AutocompletePrediction#freeze()
+     * @see Places#GEO_DATA_API Places#GEO_DATA_APIPlaces#GEO_DATA_API#getAutocomplete(CharSequence)
+     * @see AutocompletePrediction#freeze() AutocompletePrediction#freeze()AutocompletePrediction#freeze()
      */
     private ArrayList<AutocompletePrediction> getAutocomplete(CharSequence constraint) {
         if (mGoogleApiClient.isConnected()) {

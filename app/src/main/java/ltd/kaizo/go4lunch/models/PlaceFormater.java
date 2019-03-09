@@ -5,7 +5,6 @@ import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -160,20 +159,36 @@ public class PlaceFormater implements Parcelable {
     }
 
     /****************************
-    *********   GETTER   ********
-    *****************************/
+     *   GETTER   ********
+     * @return the visible
+     */
     public Boolean getVisible() {
         return isVisible;
     }
 
+    /**
+     * Sets visible.
+     *
+     * @param visible the visible
+     */
     public void setVisible(Boolean visible) {
         isVisible = visible;
     }
 
+    /**
+     * Is joining boolean.
+     *
+     * @return the boolean
+     */
     public boolean isJoining() {
         return isJoining;
     }
 
+    /**
+     * Sets joining.
+     *
+     * @param joining the joining
+     */
     public void setJoining(boolean joining) {
         isJoining = joining;
     }
@@ -234,7 +249,7 @@ public class PlaceFormater implements Parcelable {
                         String min = this.placeHour.getPeriods().get(getDayOfTheWeekNumber()).getClose().getTime().substring(2);
                         str = context.getString(R.string.open_until) + hour + "H" + min;
                     } catch (Exception e) {
-                        str = context.getString(R.string.unknow);
+                        str = context.getString(R.string.unknown);
                     }
                 }
             }
@@ -378,6 +393,7 @@ public class PlaceFormater implements Parcelable {
             this.placePhoto = "";
         }
     }
+
     /**
      * set marker options
      */
@@ -396,6 +412,11 @@ public class PlaceFormater implements Parcelable {
         }
     }
 
+    /**
+     * Gets marker.
+     *
+     * @return the marker
+     */
     public MarkerOptions getMarker() {
         return markerOptions;
     }

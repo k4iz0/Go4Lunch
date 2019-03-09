@@ -57,13 +57,15 @@
     <string name="unable_get_location">Impossible d\'établir votre position, avez-vous activé la localisation sur votre appareil?</string>
     <string name="no_place_found">aucun restaurant trouvé !</string>
     <string name="error_occurred">une erreur est survenue</string>
-    <string name="unknow">inconnu</string>
+    <string name="unknown">inconnu</string>
     <string name="no_email">email introuvable</string>
     <string name="no_username">pseudo introuvable</string>
     <string name="_500">500</string>
-    <string name="_1000">1000</string>
+    <string name="_1500">1500</string>
     <string name="_3000">3000</string>
     <string name="choose_your_search_radius_meter">rayon de recherche en mètres : </string>
+    <string name="no_gps_no_app">désole, vous ne pouvez  pas utiliser cette app sans GPS</string>
+    <string name="gps_disabled">votre GPS semble désactivé, voulez vous l\'activer ?</string>
 
 
 </resources>

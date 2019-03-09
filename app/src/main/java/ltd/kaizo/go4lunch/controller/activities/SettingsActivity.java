@@ -90,7 +90,8 @@ public class SettingsActivity extends BaseActivity {
      */
     @BindView(R.id.activity_setting_radiogroup)
     RadioGroup radioGroup;
-       /**
+
+    /**
      * Validate email boolean.
      *
      * @param emailStr the email str
@@ -162,12 +163,12 @@ public class SettingsActivity extends BaseActivity {
      * set the checked value at starting according to the sharedPreferences
      */
     private void configureRadioGroup() {
-        String radius = read(RADIUS_KEY, "1000");
+        String radius = read(RADIUS_KEY, "1500");
         switch (radius) {
             case "500":
                 radio1.toggle();
                 break;
-            case "1000":
+            case "1500":
                 radio2.toggle();
                 break;
             case "3000":
@@ -189,7 +190,7 @@ public class SettingsActivity extends BaseActivity {
                         write(RADIUS_KEY, "500");
                         break;
                     case R.id.activity_setting_radio2:
-                        write(RADIUS_KEY, "1000");
+                        write(RADIUS_KEY, "1500");
                         break;
                     case R.id.activity_setting_radio3:
                         write(RADIUS_KEY, "3000");

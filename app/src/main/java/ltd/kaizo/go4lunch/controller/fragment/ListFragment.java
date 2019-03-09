@@ -102,6 +102,7 @@ public class ListFragment extends BaseFragment {
      * @param restaurantList the restaurant list
      */
     public void updateUI(ArrayList<PlaceFormater> restaurantList){
+
         this.restaurantList = restaurantList;
         Collections.sort(restaurantList, PlaceFormater.compareToByDistance());
         this.adapter.updateData(restaurantList);

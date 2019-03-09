@@ -143,7 +143,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="88dp"
             android:layout_weight="1"
-            android:text="@string/_1000"
+            android:text="@string/_1500"
             android:textStyle="bold" />
 
         <RadioButton

@@ -1,6 +1,7 @@
 package ltd.kaizo.go4lunch.controller.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -28,6 +30,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -229,8 +232,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         this.configureToolbarAndProgressBar();
         this.configureNavigationView();
         this.configureDrawerLayout();
-//            this.configureAndroidJob();
-
+        this.configureAndroidJob();
     }
 
 
@@ -264,7 +266,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         radius = read(RADIUS_KEY, "1000");
     }
 
-    /****************************
+     /****************************
      ********   FRAGMENT  ********
      *****************************/
 
@@ -324,8 +326,11 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (autocompleteLayout.getVisibility() == View.VISIBLE) {
             autocompleteLayout.setVisibility(View.GONE);
             autoCompleteTextView.setText("");
+
             toolbar.setVisibility(View.VISIBLE);
+            if (placeDetailList != null) {
             this.updateListAndMarker(placeDetailList);
+            }
         } else {
             autocompleteLayout.setVisibility(View.VISIBLE);
             toolbar.setVisibility(View.INVISIBLE);
@@ -341,6 +346,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
                 switch (item.getItemId()) {
                     case R.id.bottom_navigation_item_mapview:
                         configureAndShowMapFragment();
@@ -368,11 +374,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.activity_main_searchview) {
-            if (autocompleteLayout.getVisibility() == View.GONE) {
                 this.updateAutoCompleteDesign();
-            } else {
-                this.updateAutoCompleteDesign();
-            }
         }
         return true;
     }
@@ -408,12 +410,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      * @param restaurantList the restaurant list
      */
     public void updateListAndMarker(ArrayList<PlaceFormater> restaurantList) {
-        if (listFragment != null) {
-            listFragment.updateUI(restaurantList);
-        }
-        if (mapFragment != null) {
-            mapFragment.configureListAndMarker(restaurantList);
-        }
+            if (listFragment != null) {
+                listFragment.updateUI(restaurantList);
+            }
+            if (mapFragment != null) {
+                mapFragment.configureListAndMarker(restaurantList);
+            }
     }
     //****************************
     //****  NAVIGATION DRAWER ****
@@ -622,17 +624,17 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
      */
     private void buildAlertMessageNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogCustom));
-        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+        builder.setMessage(R.string.gps_disabled)
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
-                        showSnackBar(coordinatorLayout, "sorry, you can't use this app without GPS ");
+                        showSnackBar(coordinatorLayout, getString(R.string.no_gps_no_app));
                         try {
                             Thread.sleep(2);
                             finish();
@@ -681,6 +683,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             currentLocation = (Location) task.getResult();
                             configureCurrentLocation(currentLocation);
                             streamFetchNearbyRestaurantAndGetPlaceDetail();
+                            streamFetchNearbyRestaurant();
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.unable_get_location));
                             progressBar.setVisibility(View.GONE);
@@ -737,6 +740,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                     public void onNext(PlaceDetailApiData placeDetailApiData) {
                         if (placeDetailApiData != null) {
                             PlaceFormater place = new PlaceFormater(placeDetailApiData.getResult(), currentLocation);
+                            Timber.i("adding to placeAround %s", place.getPlaceName());
                             placeAroundList.add(place);
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
@@ -780,6 +784,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                                                         }
                                                     }
                                                 }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Timber.i(getString(error_unknown_error) + " " + e);
+                                                    showSnackBar(coordinatorLayout, getString(R.string.error_occurred));
+                                                    progressBar.setVisibility(View.GONE);
+                                                }
                                             });
                                         }
                                     }
@@ -787,7 +798,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             });
 
                         }
-                        streamFetchNearbyRestaurant();
                     }
                 });
     }

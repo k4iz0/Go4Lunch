@@ -255,7 +255,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     /**
      * Switch marker color base on a firebase listener
-     * @param restaurantList
+     *
+     * @param restaurantList the restaurant list
      */
     private void switchMarkerColor(final ArrayList<PlaceFormater> restaurantList) {
         RestaurantHelper.getRestaurantsCollection().addSnapshotListener(new EventListener<QuerySnapshot>() {

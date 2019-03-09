@@ -139,12 +139,14 @@
     <string name="unable_get_location">Unable to get current location  have you enable localisation on your device ?</string>
     <string name="no_place_found">No place found !</string>
     <string name="error_occurred">an error has occurred</string>
-    <string name="unknow">unknown</string>
+    <string name="unknown">unknown</string>
     <string name="no_email">no email found</string>
     <string name="no_username">no username found</string>
     <string name="_500">500</string>
-    <string name="_1000">1000</string>
+    <string name="_1500">1500</string>
     <string name="_3000">3000</string>
     <string name="choose_your_search_radius_meter">search radius in meter : </string>
+    <string name="gps_disabled">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="no_gps_no_app">sorry, you can\'t use this app without GPS</string>
 
 </resources>
