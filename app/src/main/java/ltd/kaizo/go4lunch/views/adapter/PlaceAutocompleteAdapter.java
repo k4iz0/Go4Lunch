@@ -2,8 +2,12 @@ package ltd.kaizo.go4lunch.views.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -95,7 +99,6 @@ public class PlaceAutocompleteAdapter
     }
 
     private void setAllMarkersVisibility(ArrayList<PlaceFormater> restaurantList, Boolean isVisible) {
-        Timber.i("marker hide");
         for (PlaceFormater place : restaurantList) {
             place.setVisible(isVisible);
         }
@@ -117,6 +120,13 @@ public class PlaceAutocompleteAdapter
     @Override
     public AutocompletePrediction getItem(int position) {
         return resultList.get(position);
+    }
+
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        return super.getView(position, convertView, parent);
+        
     }
 
     /**

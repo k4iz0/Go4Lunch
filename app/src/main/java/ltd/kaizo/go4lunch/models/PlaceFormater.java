@@ -394,8 +394,6 @@ public class PlaceFormater implements Parcelable {
         } else {
             this.markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_restaurant_map_icon));
         }
-
-        this.markerOptions.visible(this.getVisible());
     }
 
     public MarkerOptions getMarker() {

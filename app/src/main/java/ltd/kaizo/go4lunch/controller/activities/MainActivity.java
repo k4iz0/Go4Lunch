@@ -43,7 +43,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -52,7 +51,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 
@@ -634,6 +632,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
+                        showSnackBar(coordinatorLayout, "sorry, you can't use this app without GPS ");
+                        try {
+                            Thread.sleep(2);
+                            finish();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            finish();
+                        }
+
                     }
                 });
         final AlertDialog alert = builder.create();
@@ -733,12 +740,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                             placeAroundList.add(place);
                         } else {
                             showSnackBar(coordinatorLayout, getString(R.string.no_place_found));
+                            progressBar.setVisibility(View.GONE);
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Timber.i(getString(error_unknown_error) + " " + e);
+                        showSnackBar(coordinatorLayout, getString(R.string.error_occurred));
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override

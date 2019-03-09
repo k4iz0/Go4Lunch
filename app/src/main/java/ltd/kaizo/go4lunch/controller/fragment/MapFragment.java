@@ -242,22 +242,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @param restaurantList the restaurant list
      */
     public void configureListAndMarker(ArrayList<PlaceFormater> restaurantList) {
-        //add marker on map
+//        clear marker
+        this.googleMap.clear();
         for (PlaceFormater place : restaurantList) {
-            Timber.i("place " + place.getPlaceName() + " et visibility = " + place.getVisible());
             place.setMarker();
-
-            this.googleMap.addMarker(place.getMarker());
+            googleMap.addMarker(place.getMarker());
         }
         //configure click event
         configureOnMarkerClick(restaurantList);
-        switchMarkerColor();
+        switchMarkerColor(restaurantList);
     }
 
     /**
      * Switch marker color base on a firebase listener
+     * @param restaurantList
      */
-    private void switchMarkerColor() {
+    private void switchMarkerColor(final ArrayList<PlaceFormater> restaurantList) {
         RestaurantHelper.getRestaurantsCollection().addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -267,7 +267,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     DocumentSnapshot documentSnapshot = dc.getDocument();
                     Restaurant tmp = documentSnapshot.toObject(Restaurant.class);
 
-                    for (PlaceFormater place : placeDetailList) {
+                    for (PlaceFormater place : restaurantList) {
                         if (place.getId().equalsIgnoreCase(tmp.getPlaceFormater().getId())) {
                             place.setJoining(!tmp.getUserList().isEmpty());
                             place.setMarker();
