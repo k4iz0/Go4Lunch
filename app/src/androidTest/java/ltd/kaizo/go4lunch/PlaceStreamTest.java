@@ -20,7 +20,7 @@ public class PlaceStreamTest {
      */
     @Test
     public void streamFetchNearbyRestaurantResponseShouldBeOK() {
-        Observable<PlaceApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurant("48.733333,-3.466667");
+        Observable<PlaceApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurant("48.733333,-3.466667", "3000");
         TestObserver<PlaceApiData> testObserver = new TestObserver<>();
         apidata.subscribeWith(testObserver)
                 .assertNoErrors()
@@ -56,7 +56,24 @@ public class PlaceStreamTest {
      */
     @Test
     public void streamFetchNearbyRestaurantAndGetPlaceDetailResponseShouldBeOK() {
-        Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail("48.733333,-3.466667");
+        Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail("48.733333,-3.466667","3000");
+        TestObserver<PlaceDetailApiData> testObserver = new TestObserver<>();
+        apidata.subscribeWith(testObserver)
+                .assertNoErrors()
+                .assertNoTimeout()
+                .awaitTerminalEvent();
+        String apiResponseStatus = testObserver.values().get(0).getStatus();
+
+
+        assertEquals("OK", apiResponseStatus);
+
+    }
+    /**
+     * Stream fetch nearby restaurant and get place detail should return 20 result.
+     */
+    @Test
+    public void streamFetchNearbyRestaurantAndGetPlaceDetailResponseShouldReturnResult() {
+        Observable<PlaceDetailApiData> apidata = PlaceStream.INSTANCE.streamFetchNearbyRestaurantAndGetPlaceDetail("48.733333,-3.466667","3000");
         TestObserver<PlaceDetailApiData> testObserver = new TestObserver<>();
         apidata.subscribeWith(testObserver)
                 .assertNoErrors()
@@ -65,7 +82,7 @@ public class PlaceStreamTest {
         int apiResponseStatus = testObserver.values().size();
 
 
-        assertEquals("OK", apiResponseStatus);
+        assertEquals(20, apiResponseStatus);
 
     }
 

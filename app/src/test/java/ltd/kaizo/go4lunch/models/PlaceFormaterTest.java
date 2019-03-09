@@ -290,7 +290,7 @@ public class PlaceFormaterTest {
     @Test
     public void GiveApiDataToPlaceFormaterShouldReturnPlaceId() {
 
-        assertEquals("La Tête de Goinfre223 route de trégastel, lannion", placeFormater.getId());
+        assertEquals("La Tte de Goinfre223 route de trgastel, lannion", placeFormater.getId());
 
     }
 
