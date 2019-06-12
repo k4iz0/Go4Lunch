@@ -22,8 +22,7 @@ public class User {
      * The Email.
      */
     private String email;
-    /**
-     * The Chosen restaurant.
+    /**     * The Chosen restaurant.
      */
     private String ChosenRestaurant;
     /**

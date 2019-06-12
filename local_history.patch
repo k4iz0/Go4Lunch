@@ -1,0 +1,138 @@
+Index: app/src/main/java/ltd/kaizo/go4lunch/controller/fragment/MapFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/ltd/kaizo/go4lunch/controller/fragment/MapFragment.java	(date 1543504286344)
++++ app/src/main/java/ltd/kaizo/go4lunch/controller/fragment/MapFragment.java	(date 1543504286344)
+@@ -36,11 +36,13 @@
+ import com.google.android.gms.tasks.OnFailureListener;
+ import com.google.android.gms.tasks.OnSuccessListener;
+ import com.google.android.gms.tasks.Task;
++import com.google.firebase.firestore.DocumentSnapshot;
+ import com.google.firebase.firestore.QuerySnapshot;
+ import com.google.gson.Gson;
+ 
+ import java.util.ArrayList;
+ import java.util.Collections;
++import java.util.List;
+ 
+ import io.reactivex.disposables.Disposable;
+ import io.reactivex.observers.DisposableObserver;
+@@ -55,6 +57,7 @@
+ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LATITUDE_KEY;
+ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.CURRENT_LONGITUDE_KEY;
+ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.RESTAURANT_LIST_KEY;
++import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.getRestaurantListFromSharedPreferences;
+ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.read;
+ import static ltd.kaizo.go4lunch.models.utils.DataRecordHelper.write;
+ 
+@@ -210,16 +213,7 @@
+ 
+                             } else {
+                                 addAllRestaurantFromFirestoreToList();
+-                                if (placeDetailList != null) {
+-                                    for (PlaceFormater place : placeDetailList) {
+-                                        // add marker on map
+-                                        place.addMarkerFromList(googleMap, place);
+-                                    }
+-                                    //configure click event
+-                                } else {
+-                                    executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
+-                                }
+-                                configureOnMarkerClick(placeDetailList);
++
+                             }
+                             moveCameraToCurrentLocation(currentLocation);
+                         } else {
+@@ -290,6 +284,7 @@
+             @Override
+             public boolean onMarkerClick(Marker marker) {
+                 for (PlaceFormater place : placeDetailList) {
++                    Log.i(TAG, "onMarkerClick: "+place.getPlaceName());
+                     if (marker.getTitle().equalsIgnoreCase(place.getPlaceName())) {
+                         Intent detailActivity = new Intent(getActivity(), DetailActivity.class);
+                         detailActivity.putExtra("PlaceFormater", place);
+@@ -331,7 +326,7 @@
+                     @Override
+                     protected void onStart() {
+                         super.onStart();
+-                        resetRestaurantListFromFirestore();
++//                        resetRestaurantListFromFirestore();
+                         placeDetailList = new ArrayList<>();
+                     }
+ 
+@@ -365,15 +360,28 @@
+                         // save the list
+                         write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
+                         //add place to firestore
+-                        for (PlaceFormater place : placeDetailList) {
++                        for (final PlaceFormater place : placeDetailList) {
+                             Log.i(TAG, "onComplete: create restaurantList = \n" +
+                                     place.getPlaceName() + " " + place.getPlaceDistance());
+-                            RestaurantHelper.createRestaurant(place.getId(), place).addOnFailureListener(new OnFailureListener() {
+-                                @Override
+-                                public void onFailure(@NonNull Exception e) {
+-                                    Toast.makeText(getActivity(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
++                            RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
++                                @Override
++                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
++                                    if (task.isSuccessful() && task.getResult() != null) {
++                                        List<Restaurant> restauList = task.getResult().toObjects(Restaurant.class);
++                                        for (Restaurant restau : restauList) {
++                                            if (!place.getId().equalsIgnoreCase(restau.getPlaceId())) {
++                                                RestaurantHelper.createRestaurant(place.getId(), place).addOnFailureListener(new OnFailureListener() {
++                                                    @Override
++                                                    public void onFailure(@NonNull Exception e) {
++                                                        Toast.makeText(getActivity(), "an error has occurred " + e, Toast.LENGTH_SHORT).show();
++                                                    }
++                                                });
++                                            }
++                                        }
++                                    }
+                                 }
+                             });
++
+                         }
+                         //configure click event
+                         configureOnMarkerClick(placeDetailList);
+@@ -404,17 +412,28 @@
+     }
+ 
+     private void addAllRestaurantFromFirestoreToList() {
+-        RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+-            @Override
+-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+-                if (queryDocumentSnapshots != null && queryDocumentSnapshots.size() > 0) {
+-                    for (Restaurant restaurant : queryDocumentSnapshots.toObjects(Restaurant.class)) {
+-                        placeDetailList.add(restaurant.getPlaceFormater());
+-                    }
+-                }
+-            }
+-        });
+-
++        placeDetailList = getRestaurantListFromSharedPreferences(RESTAURANT_LIST_KEY);
++        if (placeDetailList != null && placeDetailList.size() > 0) {
++            for (final PlaceFormater placeFormater : placeDetailList) {
++                RestaurantHelper.getRestaurant(placeFormater.getId()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
++                    @Override
++                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
++                        if (task.isSuccessful() && task.getResult() != null) {
++                            Restaurant restaurant = task.getResult().toObject(Restaurant.class);
++                            placeDetailList.set(placeDetailList.indexOf(placeFormater), restaurant.getPlaceFormater());
++                            Log.i(TAG, "onComplete: addAllRestaurantFromFirestoreToList "+placeDetailList.size());
++                        }
++
++
++                    }
++                });
++            }
++            write(RESTAURANT_LIST_KEY, gson.toJson(placeDetailList));
++            configureOnMarkerClick(placeDetailList);
++        } else {
++            Log.i(TAG, "addAllRestaurantFromFirestoreToList: nothing found");
++            this.executeStreamFetchNearbyRestaurantAndGetPlaceDetail();
++        }
+ 
+     }
+ 
