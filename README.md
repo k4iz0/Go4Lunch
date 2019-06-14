@@ -9,6 +9,7 @@ An Android app to find places for lunch around you
 
 * The latest SDK
 * Android Kiktkat 4.4 (API 19) Minimum
+* A Google Map Api Key (to put in your graddle properties files)
 
 ## Built With
 
